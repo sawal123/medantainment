@@ -422,6 +422,38 @@ CSS TABLE OF CONTENTS
 				},
 			},
 		});
+		const trustedPort = new Swiper(".trusted-port", {
+			spaceBetween: 30,
+			// speed: 1500,
+			loop: false,
+			centeredSlides: false,
+			
+			pagination: {
+				el: ".swiper-pagination",
+				type: "fraction",
+			},
+
+			breakpoints: {
+				1199: {
+					slidesPerView: 4,
+				},
+				991: {
+					slidesPerView: 3,
+				},
+				767: {
+					slidesPerView: 3,
+				},
+				500: {
+					slidesPerView: 1,
+				},
+				320: {
+					slidesPerView: 1,
+				},
+				0: {
+					slidesPerView: 1,
+				},
+			},
+		});
 		//--- Swiper Team SLide End ---//
 
 		//--- Aos Animation --- //

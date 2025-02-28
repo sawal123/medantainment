@@ -5,8 +5,8 @@
             <nav class="navbar-custom">
                 <div class="d-lg-flex flex-xl-nowrap flex-wrap align-items-center justify-content-lg-between">
                     <div class="d-flex align-items-center justify-content-between">
-                        <a href="index.html" class="brand-logo">
-                            <img class="w-100" style="height: 60px;" src="{{asset('img/logo.png')}}" alt="logo">
+                        <a href="/" class="brand-logo">
+                            <img class="w-100" style="max-height: 90px;" src="{{asset('img/logo.png')}}" alt="logo">
                         </a>
                         <div class="d-flex align-items-center gap-xxl-5 gap-5">
                             <a href="javascript:void(0)" class="search-trigger search-icon d-lg-none d-block">

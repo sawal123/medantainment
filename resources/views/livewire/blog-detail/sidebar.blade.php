@@ -11,7 +11,7 @@
         </div>
         
     </div>
-    <div class="box mb-xxl-10 mb-xl-8 mb-7">
+    {{-- <div class="box mb-xxl-10 mb-xl-8 mb-7">
         <div class="wid-title" data-aos="fade-left" data-aos-duration="1600">
             <h6>Cagegories</h6>
         </div>
@@ -27,7 +27,7 @@
                 @endforeach
             </ul>
         </div>
-    </div>
+    </div> --}}
     <div class="box mb-xxl-10 mb-xl-8 mb-7">
         <div class="wid-title" data-aos="fade-left" data-aos-duration="1600">
             <h6>Recent Posts</h6>
@@ -41,7 +41,7 @@
                     </div>
                     <div class="recent-content">
                         
-                        <a href="{{$item->slug}}">
+                        <a href="{{$item->slug}}" wire:navigate>
                             {{$item->title}}
                         </a>
                        

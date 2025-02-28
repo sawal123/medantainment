@@ -11,7 +11,7 @@
                     <span class="pra-clr d-block mb-1 fs14">
                         {{date('d-m-Y', strtotime($item->created_at))}}
                     </span>
-                    <a href="{{$item->slug}}" class="htheme">
+                    <a href="{{$item->slug}}" wire:navigate class="htheme">
                         {{$item->title}}
                     </a>
                 </div>

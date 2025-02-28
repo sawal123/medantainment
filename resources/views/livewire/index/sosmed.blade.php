@@ -1,21 +1,17 @@
-<div class="spilit-socail d-flex align-items-center gap-xxl-8 gap-xl-7 gap-5">
-    <a href="">
-        FaceBook
-    </a>
-    <a href="">
-        Twitter
-    </a>
-    <a href="">
-        Instagram
-    </a>
+<div class="spilit-socail d-flex align-items-center gap-xxl-8 gap-xl-7 gap-5 me-5">
+    @foreach ($sosmed as $item)
+        <a href="{{ $item->value }}">
+            {{ $item->key }}
+        </a>
+    @endforeach
 </div>
 <!-- Social -->
 <!-- Contact Info -->
 <div class="spilit-contact d-flex align-items-center gap-xxl-8 gap-xl-7 gap-md-5 gap-3">
     <a href="">
-        Call : +99 2158 003 6980
+        Call : {{ $contact->phone }}
     </a>
     <a href="">
-        mail : info@xtrem.com
+        mail : {{ $contact->email }}
     </a>
 </div>

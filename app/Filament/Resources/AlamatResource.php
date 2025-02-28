@@ -67,7 +67,6 @@ class AlamatResource extends Resource
 
             TextInput::make('maps_link')
                 ->label('Link Google Maps')
-                ->url()
                 ->required(),
             ]);
     }

@@ -24,15 +24,16 @@
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="blog-widget-item">
                         <div class="thumb w-100 overflow-hidden mb-xxl-7 mb-xl-6 mb-4">
-                            <a href="{{url('/blog/detail/'.$item->slug)}}" wire:navigate>
-                                <img src="{{asset('storage/'.$item->image)}}" alt="img" class="w-100 overflow-hidden">
+                            <a href="{{ url('/blog/detail/' . $item->slug) }}" wire:navigate>
+                                <img src="{{ asset('storage/' . $item->image) }}" alt="img"
+                                    class="w-100 overflow-hidden">
                             </a>
                         </div>
                         <div class="blog-cont">
                             <div class="d-flex align-items-center gap-xxl-5 gap-xl-4 gap-3 mb-xxl-5 mb-xl-4 mb-3">
                                 <a href="#"
                                     class="radius-btn cmn-border radius100 py-xxl-1 py-1 px-xxl-4 px-3 theme-clr style-2">
-                                    {{$item->category->name}}
+                                    {{ $item->category->name }}
                                     <span class="rot60 d-inline-block ml-10">
                                         <i class="fas fa-arrow-up theme-clr"></i>
                                     </span>
@@ -42,8 +43,8 @@
                                 </span>
                             </div>
                             <h5>
-                                <a href="{{url('/blog/detail/'.$item->slug)}}" wire:navigate class="white-clr">
-                                    {{$item->title}}
+                                <a href="{{ url('/blog/detail/' . $item->slug) }}" wire:navigate class="white-clr">
+                                    {{ $item->title }}
                                 </a>
                             </h5>
                         </div>

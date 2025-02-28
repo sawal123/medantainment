@@ -71,7 +71,7 @@
                                 </div>
                             </div>
                         @endforeach
-                        @if (count($image) < count($cekPhoto))
+                        @if (count($image) < count($cekImage))
                             <div class="text-center mt-3">
                                 <button wire:click="loadMoreImage" class="btn btn-secondary w-auto"
                                     wire:loading.attr="disabled">

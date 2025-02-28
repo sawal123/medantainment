@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CarrerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CarrerResource\RelationManagers;
+use Filament\Forms\Components\RichEditor;
 
 class CarrerResource extends Resource
 {
@@ -34,13 +35,22 @@ class CarrerResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-                Textarea::make('description')
+               
+
+                Select::make('time')
+                    ->label('Jenis Pekerjaan')
+                    ->options([
+                        'Freelance' => 'Freelance',
+                        'Kontrak' => 'Kontrak',
+                        'Karyawan' => 'Karyawan',
+                    ])
+                    ->required(),
+                    RichEditor::make('description')
                     ->label('Deskripsi Pekerjaan')
                     ->required(),
-
-                Textarea::make('requirements')
-                    ->label('Persyaratan')
-                    ->required(),
+                TextInput::make('salary')
+                ->default('-')
+                    ->label('Judul Posisi Kerja'),
 
                 Select::make('status')
                     ->label('Status')
@@ -51,7 +61,7 @@ class CarrerResource extends Resource
                     ->default('open')
                     ->required(),
 
-                    TextInput::make('apply_link')
+                TextInput::make('apply_link')
                     ->label('Link Pendaftaran')
                     ->disabled() // Tidak bisa diedit manual
                     ->dehydrated(), // Disimpan otomatis

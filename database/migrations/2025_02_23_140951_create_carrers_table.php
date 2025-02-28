@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('title'); // Judul posisi kerja
             $table->text('description'); // Deskripsi pekerjaan
-            $table->text('requirements'); // Persyaratan pekerjaan
+            $table->string('time');
+            $table->string('salary');
             $table->enum('status', ['open', 'closed'])->default('open'); // Status lowongan
             $table->string('apply_link')->nullable(); // URL form pendaftaran (opsional)
             $table->string('slug')->unique();

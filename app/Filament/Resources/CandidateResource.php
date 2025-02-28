@@ -24,7 +24,37 @@ class CandidateResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('name')
+                    ->label('Nama')
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('email')
+                    ->label('Email')
+                    ->email()
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('phone')
+                    ->label('Nomor Telepon')
+                    ->tel()
+                    ->required()
+                    ->maxLength(20),
+
+                Forms\Components\Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'reviewed' => 'Reviewed',
+                        'accepted' => 'Accepted',
+                        'rejected' => 'Rejected',
+                    ])
+                    ->required(),
+
+                Forms\Components\DatePicker::make('created_at')
+                    ->label('Tanggal Daftar')
+                    ->default(now())
+                    ->disabled(),
             ]);
     }
 
@@ -51,7 +81,7 @@ class CandidateResource extends Resource
                         'reviewed' => 'yellow',
                         'accepted' => 'green',
                         'rejected' => 'red',
-                    ]),
+                    ])->searchable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tanggal Daftar')

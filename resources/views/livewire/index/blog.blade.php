@@ -24,7 +24,9 @@
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="blog-widget-item">
                         <div class="thumb w-100 overflow-hidden mb-xxl-7 mb-xl-6 mb-4">
-                            <img src="{{asset('storage/'.$item->image)}}" alt="img" class="w-100 overflow-hidden">
+                            <a href="{{url('/blog/detail/'.$item->slug)}}" wire:navigate>
+                                <img src="{{asset('storage/'.$item->image)}}" alt="img" class="w-100 overflow-hidden">
+                            </a>
                         </div>
                         <div class="blog-cont">
                             <div class="d-flex align-items-center gap-xxl-5 gap-xl-4 gap-3 mb-xxl-5 mb-xl-4 mb-3">
@@ -40,7 +42,7 @@
                                 </span>
                             </div>
                             <h5>
-                                <a href="{{url('detail/'.$item->slug)}}" class="white-clr">
+                                <a href="{{url('/blog/detail/'.$item->slug)}}" wire:navigate class="white-clr">
                                     {{$item->title}}
                                 </a>
                             </h5>

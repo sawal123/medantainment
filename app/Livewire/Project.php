@@ -13,6 +13,8 @@ class Project extends Component
     public $page;
     public $film;
     public $image;
+    public $cekFilm;
+    public $cekImage;
 
     public $showFilm = true;
     public $showImage = false;
@@ -58,16 +60,17 @@ class Project extends Component
 
         $this->loadData();
 
-        // $this->film = ModelsProject::all();
-        // $this->image = Photo::all();
+        $this->cekFilm = ModelsProject::all();
+        $this->cekImage = Photo::all();
     }
     public function render()
     {
-        $cekFilm = Project::all();
-        $cekPhoto = Photo::all();
-        return view('livewire.project', ['cekFilm'=>$cekFilm, 'cekPhoto'=>$cekPhoto])->layout('components.layouts.app', [
+        // $cekFilm = Project::all();
+        // dd($cekFilm);
+        // $cekPhoto = Photo::all();
+        return view('livewire.project', )->layout('components.layouts.app', [
             'page' => $this->page,
             'setting' => $this->setting
-        ]);;
+        ]);
     }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('carrer_id')->constrained()->onDelete('cascade'); // Relasi ke Blog
             $table->string('name'); // Nama pelamar
             $table->string('email')->unique(); // Email pelamar (unik)
             $table->string('phone'); // Nomor telepon

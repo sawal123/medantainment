@@ -16,17 +16,17 @@
                             <h1 class="white-clr text-uppercase">
                                 <span>
                                     <span class="text-normal">
-                                        {{$landing[0]}}
+                                        {{ $landing[0] }}
                                     </span>
-                                    <span class="designers" data-text="{{$landing[1]}}" data-aos="zoom-in"
-                                        data-aos-duration="2000">{{$landing[1]}}</span>
+                                    <span class="designers" data-text="{{ $landing[1] }}" data-aos="zoom-in"
+                                        data-aos-duration="2000">{{ $landing[1] }}</span>
                                 </span>
                                 <span
                                     class="agency-title d-flex align-items-center gap-xxl-12 gap-xl-6 gap-lg-5 gap-md-3 gap-2 mt-xxl-5 mt-lg-2 mt-sm-1"
                                     data-aos="zoom-in-left" data-aos-duration="1800">
                                     <img src="assets/img/element/arrow-right-storke.png" alt="img"
                                         class="arrow-bnv1">
-                                    {{$landing[2]}}
+                                    {{ $landing[2] }}
                                 </span>
                             </h1>
                             <div class="hero-arrow">
@@ -43,8 +43,8 @@
             @include('livewire.index.sosmed')
             <!-- Contact Info -->
             <!-- Element -->
-            <img src="{{asset('assets/img/banner/soft-star.png')}}" alt="img" class="sfot-element1">
-            <img src="{{asset('assets/img/banner/soft-star.png')}}" alt="img" class="sfot-element2">
+            <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element1">
+            <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element2">
         </section>
         <!-- Hero Section Version0 -->
 
@@ -71,17 +71,17 @@
                             <div class="pricing-title">
                                 <div class="radius-btn text-uppercase cmn-border d-inline-flex radius100 py-xxl-2 py-2 px-xxl-4 px-4 theme-clr gap-xxl-4 gap-3 mb-xxl-8 mb-xl-6 mb-5"
                                     data-aos="zoom-in-left" data-aos-duration="1400">
-                                    {{$landing[3]}}
+                                    {{ $landing[3] }}
                                 </div>
                                 <h2 class="stitle d-flex align-items-center mb-xxl-8 mb-xl-7 mb-lg-6 mb-5 gap-xxl-7 gap-xl-5 gap-3"
                                     data-aos="zoom-in-left" data-aos-duration="1700">
                                     <img src="assets/img/element/arrow-right-storke.png" alt="img"
                                         data-aos="zoom-in-up" data-aos-duration="2000" class="about-small-stork">
-                                    {{$landing[4]}}
+                                    {{ $landing[4] }}
                                 </h2>
                                 <p class="white-clr mb-xxl-8 mb-xl-8 mb-5" data-aos="zoom-in-up"
                                     data-aos-duration="1400">
-                                    {!!$landing[5]!!}
+                                    {!! $landing[5] !!}
                                 </p>
                                 <div class="result-progress-wrap" data-aos="zoom-in-up" data-aos-duration="1800">
                                     <div class="progres-item mb-xxl-6 mb-xl-5 mb-4">
@@ -150,7 +150,7 @@
         <div class="watch-version01 zindex1 position-relative">
             <div class="container">
                 <div class="watch-content d-center">
-                    <a href="{{$landing[6]}}" class="video-popup position-relative">
+                    <a href="{{ $landing[6] }}" class="video-popup position-relative">
                         <span class="icons themebg radius100 d-center">
                             <i class="fas fa-play"></i>
                         </span>
@@ -160,9 +160,36 @@
             </div>
         </div>
         <!-- Watch Version01 End -->
+        <div class="digital-solution blackbg home-onetext ">
+            <div class="mycustom-marque">
+                <div class="scrolling-wrap">
+                    <div class="comm">
+                        <div class="cmn-textslide textitalick">MEDANTAINMENT</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide text-custom-storke">Team</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide textitalick">MEDANTAINMENT</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide text-custom-storke">Team</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide textitalick">Team</div>
+                    </div>
+                    <div class="comm">
+                        <div class="cmn-textslide textitalick">Team</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide text-custom-storke">MEDANTAINMENT</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide textitalick">Team</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide text-custom-storke">MEDANTAINMENT</div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
+                        <div class="cmn-textslide textitalick">Team</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-
-
+        @include('livewire.index.team')
         <!-- Text SLider Start -->
         <div class="digital-solution blackbg testi-italic pt-space pb-lg-15 pb-10">
             <div class="mycustom-marque">
@@ -208,24 +235,24 @@
                 <div class="scrolling-wrap">
                     <div class="comm">
                         <div class="cmn-textslide textitalick">MEDANTAINMENT</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">Let’s talk!</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide textitalick">MEDANTAINMENT</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">Let’s talk!</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide textitalick">Let’s talk!</div>
                     </div>
                     <div class="comm">
                         <div class="cmn-textslide textitalick">Let’s talk!</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">MEDANTAINMENT</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide textitalick">Let’s talk!</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">MEDANTAINMENT</div>
-                        <div><img src="{{asset('img/logo2.png')}}" alt="img"></div>
+                        <div><img src="{{ asset('img/logo2.png') }}" alt="img"></div>
                         <div class="cmn-textslide textitalick">Let’s talk!</div>
                     </div>
                 </div>

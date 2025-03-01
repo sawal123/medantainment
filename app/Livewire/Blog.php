@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Alamat;
 use App\Models\Setting;
 use Livewire\Component;
 use Livewire\Attributes\Url;
@@ -13,6 +14,7 @@ class Blog extends Component
     public $page;
     public $blog;
     public $cekBlog;
+    public $contact;
 
     public $blogLimit = 6;
     #[Url]
@@ -30,7 +32,7 @@ class Blog extends Component
     {
         $this->search = $search ? urldecode($search) : null;
         // dd($this->search);
-
+        $this->contact = Alamat::first();
         $this->setting = Setting::first();
         $this->page = "MEDANTAINMENT - Blog";
 
@@ -47,7 +49,8 @@ class Blog extends Component
 
         return view('livewire.blog', ['blogSearch' => $blogSearch])->layout('components.layouts.app', [
             'page' => $this->page,
-            'setting' => $this->setting
+            'setting' => $this->setting,
+            'contact'=>$this->contact
         ]);
     }
 }

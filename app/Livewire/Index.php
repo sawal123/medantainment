@@ -9,6 +9,7 @@ use App\Models\Landing;
 use App\Models\Project;
 use App\Models\Setting;
 use App\Models\Sosmed;
+use App\Models\Team;
 use App\Models\Testimoni;
 use Livewire\Component;
 
@@ -23,10 +24,11 @@ class Index extends Component
     public $page;
     public $contact;
     public $sosmed;
+    public $team;
     public function mount(){
         $this->setting = Setting::first();
         $this->page="MEDANTAINMENT";
-
+        $this->team = Team::all();
         $this->client = client::all();
         $this->blog = Blog::all();
         $this->testimoni = Testimoni::all();
@@ -40,7 +42,8 @@ class Index extends Component
     {
         return view('livewire.index')->layout('components.layouts.app',[
             'page' => $this->page,
-            'setting'=> $this->setting
+            'setting'=> $this->setting,
+            'contact'=>$this->contact
         ]);
     }
 }

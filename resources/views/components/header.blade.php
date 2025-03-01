@@ -55,7 +55,7 @@
                     <div
                         class="d-lg-flex d-none d-grid justify-content-center ph-clickwrap align-items-center gap-xxl-7 gap-xl-6 gap-lg-5 gap-3">
                         
-                        <a href="contact.html" class="d-flex align-items-center gap-sm-3 gap-2 touch-btn cmn-btn">
+                        <a href="https://wa.me/{{$contact->phone}}" class="d-flex align-items-center gap-sm-3 gap-2 touch-btn cmn-btn">
                             <span class="rot60">
                                 <i class="fas fa-arrow-up"></i>
                             </span>

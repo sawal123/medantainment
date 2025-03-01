@@ -3,9 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\Photo;
-use App\Models\Project as ModelsProject;
+use App\Models\Alamat;
 use App\Models\Setting;
 use Livewire\Component;
+use App\Models\Project as ModelsProject;
 
 class Project extends Component
 {
@@ -15,7 +16,7 @@ class Project extends Component
     public $image;
     public $cekFilm;
     public $cekImage;
-
+    public $contact;
     public $showFilm = true;
     public $showImage = false;
 
@@ -56,6 +57,7 @@ class Project extends Component
     {
         $this->setting = Setting::first();
         $this->page = "MEDANTAINMENT - Project";
+        $this->contact = Alamat::first();
 
 
         $this->loadData();
@@ -70,7 +72,8 @@ class Project extends Component
         // $cekPhoto = Photo::all();
         return view('livewire.project', )->layout('components.layouts.app', [
             'page' => $this->page,
-            'setting' => $this->setting
+            'setting' => $this->setting,
+            'contact'=>$this->contact
         ]);
     }
 }

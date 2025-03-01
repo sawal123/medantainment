@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Alamat;
 use App\Models\Carrer;
 use App\Models\Setting;
 use Livewire\Component;
@@ -16,6 +17,7 @@ class CarrerForm extends Component
     public $slug;
     public $carrer;
     public $title;
+    public $contact;
 
     public $carrer_id, $name, $email, $phone, $resume, $cover_letter;
 
@@ -31,7 +33,7 @@ class CarrerForm extends Component
         $this->slug = $slug;
         $this->setting = Setting::first();
         $this->page = "MEDANTAINMENT - Carrer";
-
+        $this->contact = Alamat::first();
 
         $this->carrer = Carrer::where('slug', $this->slug)->where('status', 'open')->first();
         $this->title = $this->carrer->title;
@@ -58,7 +60,8 @@ class CarrerForm extends Component
     {
         return view('livewire.carrer-form')->layout('components.layouts.app', [
             'page' => $this->page,
-            'setting' => $this->setting
+            'setting' => $this->setting,
+            'contact'=>$this->contact
         ]);
     }
 }

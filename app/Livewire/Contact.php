@@ -23,7 +23,8 @@ class Contact extends Component
     {
         return view('livewire.contact')->layout('components.layouts.app', [
             'page' => $this->page,
-            'setting' => $this->setting
+            'setting' => $this->setting,
+            'contact'=>$this->alamat
         ]);
     }
 }

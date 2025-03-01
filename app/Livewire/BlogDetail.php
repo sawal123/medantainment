@@ -3,9 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\Blog;
-use App\Models\Category;
+use App\Models\Alamat;
 use App\Models\Setting;
 use Livewire\Component;
+use App\Models\Category;
 
 class BlogDetail extends Component
 {
@@ -17,6 +18,7 @@ class BlogDetail extends Component
 
     public $recent;
     public $serupa;
+    public $contact;
 
     public $query;
 
@@ -31,7 +33,7 @@ class BlogDetail extends Component
 
         $this->setting = Setting::first();
         $this->page = "MEDANTAINMENT - Blog";
-
+        $this->contact = Alamat::first();
         $this->slug = $slug;
         $this->post = Blog::where('slug', $slug)->firstOrFail();
         $this->serupa = Blog::where('category_id', $this->post->category->id)->take(2)->get();
@@ -44,7 +46,8 @@ class BlogDetail extends Component
     {
         return view('livewire.blog-detail')->layout('components.layouts.app', [
             'page' => $this->page,
-            'setting' => $this->setting
+            'setting' => $this->setting,
+            'contact'=>$this->contact
         ]);
     }
 }

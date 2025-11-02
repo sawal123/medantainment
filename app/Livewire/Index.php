@@ -13,6 +13,7 @@ use App\Models\Team;
 use App\Models\Testimoni;
 use Livewire\Component;
 
+error_reporting(0);
 class Index extends Component
 {
     public $testimoni;

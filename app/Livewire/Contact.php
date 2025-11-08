@@ -11,9 +11,11 @@ class Contact extends Component
     public $setting;
     public $page;
     public $alamat;
+    public $sosmed;
 
     public function mount()
     {
+         $this->sosmed = \App\Models\Sosmed::all();
         $this->setting = Setting::first();
         $this->page = "MEDANTAINMENT - Carrer";
 

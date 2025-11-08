@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Photo;
 use App\Models\Alamat;
+use App\Models\CategoryFilm;
 use App\Models\Setting;
 use Livewire\Component;
 use App\Models\Project as ModelsProject;
@@ -12,68 +13,61 @@ class Project extends Component
 {
     public $setting;
     public $page;
-    public $film;
-    public $image;
-    public $cekFilm;
-    public $cekImage;
     public $contact;
-    public $showFilm = true;
-    public $showImage = false;
-
+    public $categoryFilm;
     public $filmLimit = 6;
-    public $imageLimit = 6;
+    // public $selectedCategory = 0;
 
-    public function Clickfilm()
+    public $selectedCategory = 'all';
+
+    public $firstCategory = '';
+
+    public function mount($slug = null)
     {
-        $this->showFilm = true;
-        $this->showImage = false;
+        $this->selectedCategory = $slug ?? 'all';
+        $this->setting = Setting::first();
+        $this->page    = "MEDANTAINMENT - Project";
+        $this->contact = Alamat::first();
+        $this->firstCategory = CategoryFilm::where('slug', $slug)->first();
     }
-    public function Clickphoto()
+
+    public function Clickfilm($slug)
     {
-        $this->showFilm = false;
-        $this->showImage = true;
+        $this->selectedCategory = $slug;
+        $this->filmLimit = 6;
+        $this->firstCategory = CategoryFilm::where('slug', $slug)->first();
+        $this->dispatch('change-url', slug: $slug);
     }
 
 
-    public function loadData()
+    public function getFilmsProperty()
     {
-        $this->film = ModelsProject::take($this->filmLimit)->get();
-        $this->image = Photo::take($this->imageLimit)->get();
+        $q = ModelsProject::query();
+
+        if ($this->selectedCategory !== 'all') {
+            $q->whereHas('categoryFilm', function ($query) {
+                $query->where('slug', $this->selectedCategory);
+            });
+        }
+        // dd($q->limit($this->filmLimit)->get());
+
+        return $q->limit($this->filmLimit)->get();
     }
 
     public function loadMoreFilm()
     {
         $this->filmLimit += 6;
-        $this->loadData();
     }
 
-    public function loadMoreImage()
-    {
-        $this->imageLimit += 6;
-        $this->loadData();
-    }
-
-    public function mount()
-    {
-        $this->setting = Setting::first();
-        $this->page = "MEDANTAINMENT - Project";
-        $this->contact = Alamat::first();
-
-
-        $this->loadData();
-
-        $this->cekFilm = ModelsProject::all();
-        $this->cekImage = Photo::all();
-    }
     public function render()
     {
-        // $cekFilm = Project::all();
-        // dd($cekFilm);
-        // $cekPhoto = Photo::all();
-        return view('livewire.project', )->layout('components.layouts.app', [
-            'page' => $this->page,
-            'setting' => $this->setting,
-            'contact'=>$this->contact
-        ]);
+        $this->categoryFilm = CategoryFilm::all();
+
+        return view('livewire.project')
+            ->layout('components.layouts.app', [
+                'page' => $this->page,
+                'setting' => $this->setting,
+                'contact' => $this->contact
+            ]);
     }
 }

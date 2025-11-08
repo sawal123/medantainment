@@ -11,17 +11,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Keywords -->
-    <meta name="keywords" content="{{$setting->seo_keywords}}">
+    <meta name="keywords" content="{{ $setting->seo_keywords }}">
     <!--  Description -->
-    <meta name="description" content="{{$setting->seo_description}}">
-    <meta name="author" content="{{$setting->seo_title}}">
+    <meta name="description" content="{{ $setting->seo_description }}">
+    <meta name="author" content="{{ $setting->seo_title }}">
     <!-- == Page title == -->
 
-    
+
 
     <title>{{ $page }}</title>
 
-    <link rel="shortcut icon" href="{{ asset('storage/'. $setting->favicon) }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon">
     <!-- Bootstrap Min 5.2.3 Css-->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <!-- Fontawsome Icons Css-->
@@ -37,6 +37,13 @@
     <!-- Main css -->
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+
+    </style>
+    @vite([''])
 </head>
 
 <body>
@@ -45,12 +52,9 @@
     {{ $slot }}
 
     @include('components.footer')
-    <!-- Scroll Top Start -->
     <div id="progress">
         <span id="valiu"><i class="fas fa-arrow-up"></i></span>
     </div>
-    <!-- Scroll Top End -->
-
 
 
     <!-- js Jquery start -->
@@ -73,6 +77,36 @@
     <script src="{{ asset('assets/js/vanilla-tilt.min.js') }}"></script>
     <!-- js Mian start -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        var swiper = new Swiper(".mySwiper", {
+            slidesPerView: 2, // default untuk layar besar
+            loop: true,
+
+            spaceBetween: 30,
+            freeMode: false,
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+             autoplay: {
+        delay: 2500,
+        disableOnInteraction: false,
+      },
+
+            // Atur jumlah slide berdasarkan ukuran layar
+            breakpoints: {
+                0: { // untuk mobile
+                    slidesPerView: 1
+                },
+                768: { // tablet ke atas
+                    slidesPerView: 2
+                }
+            }
+        });
+    </script>
+
     <script>
         document.addEventListener("livewire:navigated", () => {
             const navLinks = document.querySelectorAll('.nav-link');

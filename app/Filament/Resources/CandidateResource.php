@@ -24,6 +24,12 @@ class CandidateResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('carrer_id')
+                    ->label('Posisi / Karier')
+                    ->relationship('carrer', 'title')
+                    ->searchable()
+                    ->required(),
+
                 Forms\Components\TextInput::make('name')
                     ->label('Nama')
                     ->required()
@@ -40,7 +46,14 @@ class CandidateResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(20),
-
+                Forms\Components\FileUpload::make('resume')
+                    ->label('CV / Resume')
+                    ->directory('resumes')
+                    ->visibility('public')
+                    ->required()
+                    ->downloadable()
+                    ->openable()
+                    ->helperText('Unggah file CV dalam format PDF, DOC, atau DOCX'),
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([
@@ -62,6 +75,10 @@ class CandidateResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('carrer.title')
+                    ->label('Posisi')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
@@ -72,7 +89,13 @@ class CandidateResource extends Resource
 
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Nomor Telepon'),
-
+                Tables\Columns\TextColumn::make('resume')
+                    ->label('CV / Resume')
+                    ->formatStateUsing(fn($state) => $state ? 'Download' : '-')
+                    ->url(fn($record) => $record->resume ? asset('storage/' . $record->resume) : null)
+                    ->openUrlInNewTab()
+                    ->color('primary')
+                    ->icon('heroicon-o-document-arrow-down'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()

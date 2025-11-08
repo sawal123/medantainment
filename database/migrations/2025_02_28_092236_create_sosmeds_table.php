@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('sosmeds', function (Blueprint $table) {
             $table->id();
+            $table->string('icon');
             $table->string('key');
             $table->string('value');
             $table->timestamps();

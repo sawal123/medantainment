@@ -57,7 +57,13 @@ class ProjectResource extends Resource
 
                 DatePicker::make('end_date')
                     ->label('Tanggal Selesai'),
-
+                    
+                Select::make('category_film_id')
+                    ->label('Kategori Film')
+                    ->relationship('categoryFilm', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 Select::make('type')
                     ->label('Type')
                     ->options([
@@ -80,7 +86,6 @@ class ProjectResource extends Resource
                 TextColumn::make('type')->label('Type'),
                 TextColumn::make('start_date')->label('Tanggal Mulai')->date(),
                 TextColumn::make('end_date')->label('Tanggal Selesai')->date(),
-
             ])
             ->filters([
                 //

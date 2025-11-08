@@ -33,9 +33,18 @@
                                 <img src="assets/img/element/cmn-arrow.png" alt="img">
                             </div>
                         </div>
-                        <div class="banner-quickly-thumb w-100" data-aos="zoom-in-up" data-aos-duration="1600">
-                            <img src="{{ asset('img/1410X521.jpg') }}" alt="img" class="w-100">
+                        {{-- <div class="banner-quickly-thumb w-100" data-aos="zoom-in-up" data-aos-duration="1600"> --}}
+                        <div class="swiper mySwiper">
+                            <div class="swiper-wrapper">
+                                @foreach ($slide as $item)
+                                    <div class="swiper-slide">
+                                        <img src="{{ asset('storage/' . $item->thumbnail) }}" alt="img"
+                                            class="w-100 rounded">
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
+                        {{-- </div> --}}
                     </div>
                 </div>
             </div>
@@ -45,11 +54,62 @@
             <!-- Element -->
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element1">
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element2">
+
+            <style>
+                .partner-card {
+                    background: white;
+                    padding: 18px 28px;
+                    border-radius: 14px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 80px;
+                    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+                    transition: 0.2s ease;
+                }
+
+                .partner-card img {
+                    max-height: 50px;
+                    max-width: 100%;
+                    object-fit: contain;
+                }
+
+                .partner-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+                }
+
+                .partners-wrapper {
+                    /* background: #f5f7fb; */
+                    padding: 30px 10px;
+                    border-radius: 12px;
+                }
+            </style>
+            <div class="container partners-wrapper mt-4">
+                <h3 class="text-center my-4">Kami akan senang bekerja dengan Anda <br>
+                    <p>Berikut adalah beberapa klien kami dari nasional
+                        maupun lokal</p>
+                </h3>
+                <div class="row g-3 justify-content-center">
+                    @foreach ($client as $item)
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="partner-card">
+                                <img src="{{ asset('storage/' . $item->logo) }}">
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="">
+                <div class="text-center">
+                    <button class="btn btn-secondary">30+ More</button>
+                </div>
+            </div>
         </section>
         <!-- Hero Section Version0 -->
 
         <!-- Cmn About Start -->
-        <section class="pt-space pb-space section-bg">
+        {{-- <section class="pt-space pb-space section-bg">
             <div class="container">
                 <div class="row g-6 justify-content-between">
                     <div class="col-lg-6 pe-lg-14">
@@ -112,11 +172,11 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> --}}
         <!-- Cmn About End -->
 
         <!-- Text SLider Start -->
-        <div class="digital-solution testi-italic pb-lg-20 pb-15">
+        {{-- <div class="digital-solution testi-italic pb-lg-20 pb-15">
             <div class="mycustom-marque">
                 <div class="scrolling-wrap">
                     <div class="comm">
@@ -137,13 +197,13 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <!-- Text Slider End -->
 
         <!-- Case Studyv01 Start -->
-        <section class="case-study-vsesion01 bg2-clr pb-space">
+        {{-- <section class="case-study-vsesion01 bg2-clr pb-space">
             @include('livewire.index.portofolio')
-        </section>
+        </section> --}}
         <!-- Case Studyv01 End -->
 
         <!-- Watch Version01 Start -->
@@ -160,7 +220,7 @@
             </div>
         </div>
         <!-- Watch Version01 End -->
-        <div class="digital-solution blackbg home-onetext ">
+        {{-- <div class="digital-solution blackbg home-onetext ">
             <div class="mycustom-marque">
                 <div class="scrolling-wrap">
                     <div class="comm">
@@ -187,9 +247,9 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
-        @include('livewire.index.team')
+        {{-- @include('livewire.index.team') --}}
         <!-- Text SLider Start -->
         <div class="digital-solution blackbg testi-italic pt-space pb-lg-15 pb-10">
             <div class="mycustom-marque">
@@ -227,7 +287,7 @@
         @include('livewire.index.blog')
         <!-- Version01 BLog One End -->
 
-        @include('livewire.index.client')
+        {{-- @include('livewire.index.client') --}}
 
         <!-- Text SLider Start -->
         <div class="digital-solution blackbg home-onetext pb-20">

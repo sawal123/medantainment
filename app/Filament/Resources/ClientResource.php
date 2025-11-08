@@ -22,7 +22,7 @@ use App\Filament\Resources\ClientResource\RelationManagers;
 class ClientResource extends Resource
 {
     protected static ?string $model = Client::class;
-
+    protected bool $canCreateAnother = true;
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Project';
     public static function form(Form $form): Form
@@ -40,8 +40,7 @@ class ClientResource extends Resource
                 TextInput::make('email')
                     ->label('Email')
                     ->email()
-                    ->unique(ignoreRecord: true)
-                    ->required(),
+                    ->unique(ignoreRecord: true),
 
                 TextInput::make('phone')
                     ->label('Nomor HP')

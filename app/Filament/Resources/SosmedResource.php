@@ -8,6 +8,7 @@ use App\Models\Sosmed;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,6 +26,18 @@ class SosmedResource extends Resource
     {
         return $form
             ->schema([
+                Select::make('icon')
+                    ->label('Icon')
+                    ->options([
+                        'facebook' => 'Facebook',
+                        'instagram' => 'Instagram',
+                        'youtube' => 'YouTube',
+                        'tiktok' => 'TikTok',
+                        'whatsapp' => 'WhatsApp',
+                    ])
+                    ->searchable()
+                    ->required(),
+
                 TextInput::make('key')
                     ->label('Title')
                     ->required(),
@@ -36,7 +49,12 @@ class SosmedResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+
             ->columns([
+                Tables\Columns\TextColumn::make('icon')
+                    ->label('Icon')
+                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->searchable(),
                 TextColumn::make('key')
                     ->label('Title'),
                 TextColumn::make('value')

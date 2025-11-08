@@ -9,7 +9,7 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $guarded =[];
+    protected $guarded = [];
 
 
     public function client()
@@ -20,6 +20,11 @@ class Project extends Model
     public function setLinkAttribute($value)
     {
         $this->attributes['link'] = $this->convertToEmbed($value);
+    }
+
+    public function categoryFilm()
+    {
+        return $this->belongsTo(\App\Models\CategoryFilm::class);
     }
 
     private function convertToEmbed($url)

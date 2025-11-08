@@ -21,7 +21,10 @@ use Filament\Tables\Columns\TextColumn;
 class LandingResource extends Resource
 {
     protected static ?string $model = Landing::class;
-
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Landing';
     protected static ?string $navigationLabel = 'Texts';

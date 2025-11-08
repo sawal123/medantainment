@@ -21,6 +21,10 @@ use App\Filament\Resources\PhotoLandingResource\RelationManagers;
 
 class PhotoLandingResource extends Resource
 {
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
     protected static ?string $model = PhotoLanding::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -45,8 +49,8 @@ class PhotoLandingResource extends Resource
             ->columns([
                 TextColumn::make('key')->label('Key'),
                 ImageColumn::make('value')
-                ->label('Gambar')
-                ->circular(),
+                    ->label('Gambar')
+                    ->circular(),
             ])
             ->filters([
                 //

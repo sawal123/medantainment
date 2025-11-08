@@ -58,16 +58,58 @@
                             <span class="msub d-block mb-2">
                                 {{ $alamat->street }}
                             </span>
-                          
+
                         </div>
                     </div>
 
                 </div>
+                <style>
+                    .small-sosmed-card {
+                        border-radius: 12px;
+                        transition: all 0.2s ease;
+                    }
+
+                    .small-sosmed-card:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+                    }
+                </style>
+                <section class="py-4">
+                    <div class="container">
+                        <div class="row g-3 justify-content-center">
+
+                            @foreach ($sosmed as $item)
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <a href="{{ $item->value }}" target="_blank" rel="noopener"
+                                        class="text-decoration-none">
+
+                                        <div
+                                            class="card shadow-sm border-0 text-center py-3 px-2 h-100 small-sosmed-card">
+
+                                            <i class="bi bi-{{ $item->icon }} fs-3 mb-2 text-dark"></i>
+
+                                            <div class="fw-semibold text-dark" style="font-size: 0.9rem;">
+                                                {{ ucfirst($item->key) }}
+                                            </div>
+
+                                        </div>
+
+                                    </a>
+                                </div>
+                            @endforeach
+
+                        </div>
+                    </div>
+                </section>
+
+
+
                 <div class="row g-xxl-7 g-4">
                     <div class="col-lg-12" data-aos="zoom-in" data-aos-duration="2000">
                         <div class="contact-map">
-                            <iframe src="https://www.google.com/maps/embed?pb={{ $alamat->maps_link }}" width="1920" height="1080" style="border:0;"
-                                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                            <iframe src="https://www.google.com/maps/embed?pb={{ $alamat->maps_link }}" width="1920"
+                                height="1080" style="border:0;" allowfullscreen="" loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade">
                             </iframe>
 
                         </div>

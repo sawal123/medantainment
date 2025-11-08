@@ -9,4 +9,9 @@ class Candidate extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+    public function carrer()
+    {
+        return $this->belongsTo(\App\Models\Carrer::class);
+    }
 }

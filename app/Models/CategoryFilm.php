@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class CategoryFilm extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'thumbnail',
+        'deskripsi',
+        'start',
+        'slug',
+        'is_active',
+    ];
+
+    public function projects()
+    {
+        return $this->hasMany(\App\Models\Project::class);
+    }
+}

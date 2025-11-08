@@ -1,4 +1,4 @@
-  <section class="testimonial-version02-section blackbg position-relative">
+  <section class="testimonial-version02-section blackbg position-relative" wire:ignore>
       <div class="container position-relative">
           <div class="row g-6">
               <div class="col-lg-12">

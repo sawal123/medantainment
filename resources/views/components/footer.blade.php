@@ -11,7 +11,7 @@
                  <i class="fas fa-arrow-up"></i>
              </a>
              <p class="pra-clr">
-                 &copy; All Copyright 2024 by <a href="index.html" class="theme-clr">Medantainment</a>
+                 &copy; All Copyright 2025 by <a href="index.html" class="theme-clr">Medantainment</a>
              </p>
          </div>
      </div>

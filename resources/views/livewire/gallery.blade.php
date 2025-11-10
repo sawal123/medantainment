@@ -49,13 +49,20 @@
                     <div class="text-center mb-5">
                         <h5>Galeri Portofolio untuk Menunjukkan Kualitas Kami</h5>
                     </div>
-                    <div class="masonry">
-                        @foreach ($this->photos as $item)
-                            <div class="masonry-item">
-                                <img src="{{ asset('storage/' . $item->photo) }}" alt="" class="masonry-img">
-                            </div>
-                        @endforeach
-                    </div>
+                    @if ($photo)
+                        <div class="masonry">
+                            @foreach ($this->photos as $item)
+                                <div class="masonry-item">
+                                    <img src="{{ asset('storage/' . $item->photo) }}" alt="" class="masonry-img">
+                                </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <p class="text-center">
+                            Gallery tidak tersedia
+                        </p>
+                    @endif
+
                     @if ($this->photos->count() < \App\Models\Photo::count())
                         <div class="text-center mt-4">
                             <button wire:click="loadMore" class="btn btn-dark px-4 py-2">

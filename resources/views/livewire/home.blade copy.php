@@ -119,49 +119,38 @@
                     <p>Berikut adalah kategori layanan video yang kami sediakan untuk mendukung kebutuhan visual Anda
                     </p>
                 </h3>
-                <style>
-                    .card:hover {
-                        transform: translateY(-5px);
-                        transition: 0.2s ease-in-out;
-                        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
-                    }
-                </style>
                 @foreach ($categoryFilm as $item)
-                    <div class="col-12 col-md-6 col-lg-2">
-                        <div class="card bg-dark shadow-sm border-0 rounded-3 overflow-hidden h-100">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card bg-dark h-100 shadow-sm border-0 rounded-3 overflow-hidden">
 
-                            {{-- Image 1:1 --}}
-                            <div class="ratio ratio-1x1">
-                                <img src="{{ asset('storage/' . $item->thumbnail) }}"
-                                    class="object-fit-cover w-100 h-100" alt="{{ $item->name }}">
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="p-3 d-flex flex-column">
-
-                                <h5 class="text-white mb-2">{{ $item->name }}</h5>
-
-                                @if ($item->start)
-                                    <small class="text-secondary mb-3 d-block">
-                                        Start From: {{ 'Rp ' . number_format($item->start, 0, ',', '.') }}
-                                    </small>
-                                @endif
-
-                                <div class="mt-auto">
-                                    <a href="/project/{{ $item->slug }}" wire:navigate
-                                        class="btn btn-sm btn-outline-light w-100">
-                                        Detail
-                                    </a>
+                            <div class="d-flex h-100">
+                                <div class="flex-shrink-0" style="width: 120px; height: 120px;">
+                                    <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                        class="w-100 h-100 object-fit-cover" alt="{{ $item->name }}">
                                 </div>
 
+                                <div class="flex-grow-1 p-3 d-flex flex-column justify-content-center">
+
+                                    <h5 class="text-white mb-1">{{ $item->name }}</h5>
+
+                                    @if ($item->start)
+                                        <small class="text-secondary mb-2 d-block">
+                                            Start From: {{ 'Rp ' . number_format($item->start, 0, ',', '.') }}
+
+                                        </small>
+                                    @endif
+
+                                    <a href="/project/{{ $item->slug }}" wire:navigate
+                                        class="btn btn-sm btn-dark border mt-2 align-self-start">
+                                        Detail
+                                    </a>
+
+                                </div>
                             </div>
 
                         </div>
                     </div>
                 @endforeach
-
-
-
 
             </div>
         </section>

@@ -9,6 +9,7 @@ use App\Models\Setting;
 use Livewire\Component;
 use App\Models\Project as ModelsProject;
 
+
 class Project extends Component
 {
     public $setting;

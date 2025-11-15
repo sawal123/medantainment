@@ -32,6 +32,7 @@ class SosmedResource extends Resource
                         'facebook' => 'Facebook',
                         'instagram' => 'Instagram',
                         'youtube' => 'YouTube',
+                        'linkedin' => 'Linkedin',
                         'tiktok' => 'TikTok',
                         'whatsapp' => 'WhatsApp',
                     ])

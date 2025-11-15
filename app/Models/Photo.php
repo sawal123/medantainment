@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-use App\Models\Client;
+use App\Models\client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +22,6 @@ class Photo extends Model
     }
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(client::class);
     }
 }

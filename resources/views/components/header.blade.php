@@ -6,7 +6,7 @@
                 <div class="d-lg-flex flex-xl-nowrap flex-wrap align-items-center justify-content-lg-between">
                     <div class="d-flex align-items-center justify-content-between">
                         <a href="/" class="brand-logo " style="margin-right: 20px">
-                            <img class="w-100 " style="max-height: 80px; " src="{{ asset('storage/' . $setting->favicon) }}" alt="logo">
+                            <img class="w-100 " style="max-height: 80px; " src="{{ asset('storage/' . $setting->logo) }}" alt="logo">
                         </a>
                         <div class="d-flex align-items-center gap-xxl-5 gap-5">
                             {{-- <a href="javascript:void(0)" class="search-trigger search-icon d-lg-none d-block">

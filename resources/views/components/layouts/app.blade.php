@@ -19,7 +19,13 @@
 
     <title>{{ $page }}</title>
 
-    <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon">
+    {{-- <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon"> --}}
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('storage/' . $setting->favicon) }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/' . $setting->favicon) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/' . $setting->favicon) }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('/logo/favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('/logo/favicon.svg') }}">
+
     <!-- Bootstrap Min 5.2.3 Css-->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <!-- Fontawsome Icons Css-->
@@ -70,7 +76,7 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MNHPFTB7" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    
+
     @include('components.header')
     {{ $slot }}
 

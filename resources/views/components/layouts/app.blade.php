@@ -17,8 +17,6 @@
     <meta name="author" content="{{ $setting->seo_title }}">
     <!-- == Page title == -->
 
-
-
     <title>{{ $page }}</title>
 
     <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon">

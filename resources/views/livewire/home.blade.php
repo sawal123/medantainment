@@ -12,18 +12,28 @@
                 <div class="row g-5">
                     <div class="hero-v1-content position-relative">
                         <div class="text-center mb-xxl-16 mb-xl-14 mb-lg-12 mb-md-10 mb-sm-8 mb-5">
-                            <h1 class="white-clr text-uppercase">
+                            <style>
+                                @media (max-width: 768px) {
+                                    .designers {
+                                        position: relative;
+                                        bottom: -20px;
+                                        /* atur sesuai kebutuhan */
+                                    }
+                                }
+                            </style>
+                            <h1 class="white-clr text-uppercase hero-title">
                                 <span>
                                     <span class="designers" data-text="{{ $hero['hero1'] ?? '' }}" data-aos="zoom-in"
                                         data-aos-duration="2000">
                                         {{ $hero['hero1'] ?? '' }}
                                     </span>
+                                    <br class="hero-br">
                                     <span class="text-normal">
                                         {{ $hero['hero2'] ?? '' }}
                                     </span>
                                 </span>
-
                             </h1>
+
                             <h4 class=" mt-xxl-5 mt-lg-2 mt-sm-1" data-aos="zoom-in-left" data-aos-duration="1700">
                                 {{ $hero['hero3'] ?? '' }}
                             </h4>

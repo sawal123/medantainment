@@ -35,7 +35,7 @@ class CarrerResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-               
+
 
                 Select::make('time')
                     ->label('Jenis Pekerjaan')
@@ -43,6 +43,7 @@ class CarrerResource extends Resource
                         'Freelance' => 'Freelance',
                         'Kontrak' => 'Kontrak',
                         'Karyawan' => 'Karyawan',
+                        'Internship' => 'Internship',
                     ])
                     ->required(),
                     RichEditor::make('description')

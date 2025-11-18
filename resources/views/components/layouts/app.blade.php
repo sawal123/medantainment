@@ -7,7 +7,6 @@
     <!-- == Meta Tags == -->
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Keywords -->
@@ -16,16 +15,14 @@
     <meta name="description" content="{{ $setting->seo_description }}">
     <meta name="author" content="{{ $setting->seo_title }}">
     <!-- == Page title == -->
-
     <title>{{ $page }}</title>
-
-    {{-- <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon"> --}}
+    {{--
+    <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon"> --}}
     <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('storage/' . $setting->favicon) }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/' . $setting->favicon) }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/' . $setting->favicon) }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('/logo/favicon.ico') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('/logo/favicon.svg') }}">
-
     <!-- Bootstrap Min 5.2.3 Css-->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <!-- Fontawsome Icons Css-->
@@ -44,11 +41,52 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
 
+    <style>
+        .form-control,
+        .form-select,
+        textarea.form-control {
+            background-color: #2b2f33 !important;
+            /* warna gelap */
+            border: 1px solid #3a3f44 !important;
+            color: #f1f1f1 !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        textarea.form-control:focus {
+            background-color: #32363b !important;
+            border-color: #5a5f66 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 0.2rem rgba(120, 130, 140, 0.25) !important;
+        }
+
+        label {
+            color: #e2e2e2 !important;
+        }
+
+        /* .card {
+            background-color: #1e1f21 !important;
+            border: 1px solid #2a2b2d !important;
+        } */
+
+        .card-header {
+            background-color: #1e1f21 !important;
+            border-bottom: 1px solid #292a2c !imp
+        }
+
+        .form-select {
+            background-color: #2b2f33 !important;
+            color: #f1f1f1 !important;
+            border: 1px solid #3a3f44;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
+    <style>
     </style>
     {{-- @vite(['']) --}}
-
     <!-- Google Tag Manager -->
     <script>
         (function(w, d, s, l, i) {
@@ -69,23 +107,17 @@
     <!-- End Google Tag Manager -->
 </head>
 
-
-
 <body>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MNHPFTB7" height="0" width="0"
             style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-
     @include('components.header')
     {{ $slot }}
-
     @include('components.footer')
     <div id="progress">
         <span id="valiu"><i class="fas fa-arrow-up"></i></span>
     </div>
-
-
     <!-- js Jquery start -->
     <script src="{{ asset('assets/js/jquery.js') }}"></script>
     <!-- js Bootstrap start -->
@@ -95,7 +127,7 @@
     <!-- js Magnific popup start -->
     <script src="{{ asset('assets/js/magnific-popup.js') }}"></script>
     <!-- js Nice Select start -->
-    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script> --}}
     <!-- js Swiper start -->
     <script src="{{ asset('assets/js/swiper.js') }}"></script>
     <!-- js Aos Counterup start -->
@@ -170,30 +202,6 @@
             }
         }
 
-        // document.querySelectorAll('.nav-link').forEach(item => {
-        //     item.addEventListener('mouseover', function() {
-        //         const targetPaneId = this.getAttribute('data-bs-target');
-        //         const targetPane = document.querySelector(targetPaneId);
-
-        //         // Remove 'active' class from all nav links
-        //         document.querySelectorAll('.nav-link').forEach(link => {
-        //             link.classList.remove('active');
-        //         });
-
-        //         // Remove 'show' class from all tab panes
-        //         document.querySelectorAll('.tab-pane').forEach(pane => {
-        //             pane.classList.remove('show', 'active');
-        //         });
-
-        //         // Add 'active' class to the hovered nav link
-        //         this.classList.add('active');
-
-        //         // Add 'show' and 'active' classes to the corresponding tab pane
-        //         if (targetPane) {
-        //             targetPane.classList.add('show', 'active');
-        //         }
-        //     });
-        // });
     </script>
 </body>
 

@@ -29,4 +29,8 @@ class Carrer extends Model
     {
         return $this->hasMany(\App\Models\Candidate::class);
     }
+    public function internship()
+    {
+        return $this->hasMany(\App\Models\Internship::class);
+    }
 }

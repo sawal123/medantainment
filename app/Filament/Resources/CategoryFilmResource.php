@@ -22,88 +22,104 @@ class CategoryFilmResource extends Resource
     protected static ?string $navigationLabel = 'Category Film';
     protected static ?int $navigationSort = 1;
 
+    public static function table(Tables\Table $table): Tables\Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('urutan')
+                    ->label('#')
+                    ->sortable(),
+
+                Tables\Columns\ImageColumn::make('thumbnail')
+                    ->label('Thumbnail')
+                    ->square(),
+
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nama')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug'),
+
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Aktif'),
+            ])
+            ->defaultSort('urutan', 'asc')
+            ->actions([
+
+                // 🔼 PINDAH KE ATAS
+                Tables\Actions\Action::make('up')
+                    ->icon('heroicon-o-arrow-up')
+                    ->action(function (CategoryFilm $record) {
+                        $above = CategoryFilm::where('urutan', '<', $record->urutan)
+                            ->orderBy('urutan', 'desc')
+                            ->first();
+
+                        if ($above) {
+                            $temp = $record->urutan;
+                            $record->update(['urutan' => $above->urutan]);
+                            $above->update(['urutan' => $temp]);
+                        }
+                    }),
+
+                // 🔽 PINDAH KE BAWAH
+                Tables\Actions\Action::make('down')
+                    ->icon('heroicon-o-arrow-down')
+                    ->action(function (CategoryFilm $record) {
+                        $below = CategoryFilm::where('urutan', '>', $record->urutan)
+                            ->orderBy('urutan', 'asc')
+                            ->first();
+
+                        if ($below) {
+                            $temp = $record->urutan;
+                            $record->update(['urutan' => $below->urutan]);
+                            $below->update(['urutan' => $temp]);
+                        }
+                    }),
+
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ]);
+    }
     public static function form(Forms\Form $form): Forms\Form
     {
         return $form
             ->schema([
-
                 Forms\Components\TextInput::make('name')
                     ->label('Nama Kategori')
                     ->required()
-                    ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $set('slug', Str::slug($state));
-                    }),
+                    ->afterStateUpdated(fn($state, $set) => $set('slug', Str::slug($state))),
 
                 Forms\Components\TextInput::make('slug')
                     ->label('Slug')
                     ->required()
                     ->unique(ignoreRecord: true),
+
                 Forms\Components\Textarea::make('deskripsi')
-                    ->label('Deskripsi')
-                    ->rows(4)
-                    ->nullable(),
+                    ->label('Deskripsi'),
+
                 Forms\Components\FileUpload::make('thumbnail')
                     ->label('Thumbnail')
                     ->image()
-                    ->directory('category-films')
-                    ->nullable(),
-
+                    ->directory('category-films'),
 
                 Forms\Components\TextInput::make('start')
-                    ->label('Start (Angka)')
                     ->numeric()
-                    ->nullable(),
+                    ->label('Start'),
+
+                Forms\Components\TextInput::make('urutan')
+                    ->numeric()
+                    ->default(fn() => CategoryFilm::max('urutan') + 1)
+                    ->required(),
 
                 Forms\Components\Toggle::make('is_active')
-                    ->label('Aktif')
-                    ->default(true),
-
+                    ->label('Aktif'),
             ])
             ->columns(2);
     }
 
 
-    public static function table(Tables\Table $table): Tables\Table
-    {
-        return $table
-            ->columns([
-                Tables\Columns\ImageColumn::make('thumbnail')
-                    ->label('Thumbnail')
-                    ->square()
-                    ->defaultImageUrl(url('/default-thumbnail.png')), // opsional
-
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nama Kategori')
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('slug')
-                    ->label('Slug')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('start')
-                    ->label('Start')
-                    ->numeric()
-                    ->sortable(),
-
-                Tables\Columns\ToggleColumn::make('is_active')
-                    ->label('Aktif'),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime('d M Y'),
-            ])
-            ->defaultSort('id', 'desc')
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]);
-    }
 
 
     public static function getPages(): array

@@ -46,6 +46,13 @@ class ClientResource extends Resource
                     ->label('Nomor HP')
                     ->tel(),
 
+                TextInput::make('urutan')
+                    ->label('Urutan')
+                    ->numeric()
+                    ->minValue(1)
+                    ->default(fn() => Client::max('urutan') + 1),
+
+
                 Textarea::make('address')
                     ->label('Alamat')
                     ->rows(3),
@@ -55,6 +62,7 @@ class ClientResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('urutan', 'asc')   // ⬅ TAMBAH INI
             ->columns([
                 ImageColumn::make('logo')
                     ->disk('public')
@@ -62,12 +70,43 @@ class ClientResource extends Resource
                 TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 TextColumn::make('email')->label('Email')->searchable(),
                 TextColumn::make('phone')->label('Nomor HP')->sortable(),
+                TextColumn::make('urutan')->label('Urutan')->sortable(), // opsional tampilkan
                 TextColumn::make('created_at')->label('Dibuat Pada')->dateTime(),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('up')
+                    ->label('Up')
+                    ->icon('heroicon-o-arrow-up')
+                    ->action(function (Client $record) {
+                        $above = Client::where('urutan', '<', $record->urutan)
+                            ->orderBy('urutan', 'desc')
+                            ->first();
+
+                        if ($above) {
+                            $currentOrder = $record->urutan;
+                            $record->update(['urutan' => $above->urutan]);
+                            $above->update(['urutan' => $currentOrder]);
+                        }
+                    }),
+
+                Tables\Actions\Action::make('down')
+                    ->label('Down')
+                    ->icon('heroicon-o-arrow-down')
+                    ->action(function (Client $record) {
+                        $below = Client::where('urutan', '>', $record->urutan)
+                            ->orderBy('urutan', 'asc')
+                            ->first();
+
+                        if ($below) {
+                            $currentOrder = $record->urutan;
+                            $record->update(['urutan' => $below->urutan]);
+                            $below->update(['urutan' => $currentOrder]);
+                        }
+                    }),
+
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

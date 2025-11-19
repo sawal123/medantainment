@@ -42,8 +42,8 @@ class Home extends Component
     public function loadClients()
     {
         $this->client = $this->showAll
-            ? Client::all()
-            : Client::limit(6)->get();
+            ? Client::orderBy('urutan')->get()
+            : Client::orderBy('urutan')->limit(6)->get();
     }
 
 
@@ -68,9 +68,8 @@ class Home extends Component
         $this->sosmed = Sosmed::all();
         $this->landing = Landing::pluck('value')->toArray();
         $this->slide =  Slide::all();
-        $this->categoryFilm =  CategoryFilm::all();
+        $this->categoryFilm =  CategoryFilm::orderBy('urutan')->get();
         $this->photo = Photo::limit(6)->get();
-
     }
     public function render()
     {
@@ -81,7 +80,7 @@ class Home extends Component
             'page' => $this->page,
             'setting' => $this->setting,
             'contact' => $this->contact,
-            'heros'=> $this->hero
+            'heros' => $this->hero
         ]);
     }
 }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('deskripsi')->nullable();
             $table->bigInteger('start')->nullable();
             $table->string('slug')->unique();
+            $table->unsignedInteger('urutan')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

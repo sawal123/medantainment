@@ -56,7 +56,7 @@
                         <p class="card-text fs-6 mt-5">
                             {!! nl2br($carrer->description) !!}
                         </p>
-                        <a href="{{$carrer->apply_link}}" wire:navigate class="btn btn-primary">Submit Loker</a>
+                        <a href="{{$carrer->apply_link}}" wire:navigate class="btn btn-primary">Kirim Lamaran</a>
                     </div>
                 </div>
 

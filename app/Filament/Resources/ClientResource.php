@@ -50,7 +50,9 @@ class ClientResource extends Resource
                     ->label('Urutan')
                     ->numeric()
                     ->minValue(1)
-                    ->default(fn() => Client::max('urutan') + 1),
+                    ->default(fn() => (Client::max('urutan') ?? 0) + 1)
+                    ->disabled(fn($context) => $context === 'create'),
+
 
 
                 Textarea::make('address')

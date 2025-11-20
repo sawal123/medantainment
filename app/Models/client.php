@@ -23,12 +23,12 @@ class client extends Model
                 Storage::disk('public')->delete($project->logo);
             }
         });
-        // static::creating(function ($model) {
-        //     if (is_null($model->urutan)) {
-        //         $maxOrder = Client::max('urutan');
-        //         $model->urutan = $maxOrder ? $maxOrder + 1 : 1;
-        //     }
-        // });
+        static::creating(function ($model) {
+            if (is_null($model->urutan)) {
+                $maxOrder = Client::max('urutan');
+                $model->urutan = $maxOrder ? $maxOrder + 1 : 1;
+            }
+        });
 
         // Saat mengupdate record
         static::updating(function ($model) {

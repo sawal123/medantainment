@@ -11,6 +11,9 @@ class client extends Model
 {
     use HasFactory;
     protected $guarded = [];
+    protected $casts = [
+        'urutan' => 'integer',
+    ];
     protected static function boot()
     {
         parent::boot();

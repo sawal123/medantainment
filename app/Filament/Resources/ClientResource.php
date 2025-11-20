@@ -100,6 +100,7 @@ class ClientResource extends Resource
                             ->orderBy('urutan', 'asc')
                             ->first();
 
+
                         if ($below) {
                             $currentOrder = $record->urutan;
                             $record->update(['urutan' => $below->urutan]);

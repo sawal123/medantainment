@@ -15,7 +15,7 @@
                                         <h5 class="card-title">{{ $item->title }}</h5>
                                         <span class="badge bg-primary">{{ $item->time }}</span>
                                         <span class="badge bg-primary">{{ $item->status }}</span>
-                                        <span class="badge bg-soft-secondary">Rp{{ $item->salary }}</span>
+                                        {{-- <span class="badge bg-soft-secondary">Rp{{ $item->salary }}</span> --}}
                                         <p class="card-text fs-6">
                                             {{ Str::limit(strip_tags($item->description), 100, '...') }}</p>
                                     </div>

@@ -39,7 +39,17 @@ class InternshipResource extends Resource
                     Forms\Components\Textarea::make('ketertarangan_singkat')->disabled(),
 
                     Forms\Components\TextInput::make('ketertarikan')
-                        ->formatStateUsing(fn($state) => implode(', ', json_decode($state, true) ?? []))
+                        ->formatStateUsing(function ($state) {
+                            if (is_array($state)) {
+                                return implode(', ', $state);
+                            }
+
+                            if (is_string($state)) {
+                                return implode(', ', json_decode($state, true) ?? []);
+                            }
+
+                            return '-';
+                        })
                         ->disabled(),
 
                     Forms\Components\FileUpload::make('surat_izin')

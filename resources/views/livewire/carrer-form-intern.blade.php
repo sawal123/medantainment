@@ -324,8 +324,8 @@
 
 
                                         <!-- 15. Alasan Internship -->
-                                        <div class="mb-3">
-                                            <label class="form-label">Alasan Mengikuti Internship</label>
+                                        <div class="mb-3 mt-3">
+                                            <label class="form-label">Apa Alasan Mengikuti Internship di Medantainment?</label>
                                             <textarea class="form-control" rows="3"
                                                 wire:model="alasan_internship"></textarea>
                                         </div>

@@ -8,12 +8,15 @@ use App\Models\client;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ClientResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -32,6 +35,7 @@ class ClientResource extends Resource
                 FileUpload::make('logo')->image()
                     ->directory('client')
                     ->imageEditor(),
+
                 TextInput::make('name')
                     ->label('Nama')
                     ->required()
@@ -53,11 +57,13 @@ class ClientResource extends Resource
                     ->default(fn() => (Client::max('urutan') ?? 0) + 1)
                     ->disabled(fn($context) => $context === 'create'),
 
-
-
                 Textarea::make('address')
                     ->label('Alamat')
                     ->rows(3),
+
+                Toggle::make('status')
+                    ->label('Aktif?')
+                    ->default(true),
             ]);
     }
 
@@ -69,11 +75,21 @@ class ClientResource extends Resource
                 ImageColumn::make('logo')
                     ->disk('public')
                     ->circular(),
+
                 TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 TextColumn::make('email')->label('Email')->searchable(),
                 TextColumn::make('phone')->label('Nomor HP')->sortable(),
-                TextColumn::make('urutan')->label('Urutan')->sortable(), // opsional tampilkan
-                TextColumn::make('created_at')->label('Dibuat Pada')->dateTime(),
+                TextColumn::make('urutan')->label('Urutan')->sortable(),
+
+                IconColumn::make('status')
+                    ->label('Status')
+                    ->boolean(), // otomatis true/false menjadi ikon
+
+                ToggleColumn::make('status')
+                    ->label('Status')
+                    ->sortable()
+                    ->onColor('success') // opsional agar hijau saat aktif
+                    ->offColor('danger') // opsional warna merah saat off
             ])
             ->filters([
                 //

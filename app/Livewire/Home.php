@@ -42,8 +42,8 @@ class Home extends Component
     public function loadClients()
     {
         $this->client = $this->showAll
-            ? Client::orderBy('urutan')->get()
-            : Client::orderBy('urutan')->limit(6)->get();
+            ? Client::orderBy('urutan')->where('status', '1')->get()
+            : Client::orderBy('urutan')->where('status', '1')->limit(6)->get();
     }
 
 

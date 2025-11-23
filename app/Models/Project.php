@@ -30,10 +30,20 @@ class Project extends Model
 
     private function convertToEmbed($url)
     {
+        // Cek apakah link YouTube
         if (strpos($url, 'youtube.com') !== false || strpos($url, 'youtu.be') !== false) {
+
+            // Pattern untuk YouTube Shorts
+            if (strpos($url, '/shorts/') !== false) {
+                preg_match('/shorts\/([^?]+)/', $url, $matches);
+                return isset($matches[1]) ? "https://www.youtube.com/embed/{$matches[1]}" : $url;
+            }
+
+            // Pattern untuk YouTube normal
             preg_match('/(youtu\.be\/|v=|\/embed\/|\/v\/|\/watch\?v=)([^&]+)/', $url, $matches);
             return isset($matches[2]) ? "https://www.youtube.com/embed/{$matches[2]}" : $url;
         }
+
         return $url;
     }
 }

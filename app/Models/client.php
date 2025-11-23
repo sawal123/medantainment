@@ -78,21 +78,7 @@ class client extends Model
         });
     }
 
-    // public static function normalizeOrder()
-    // {
-    //     DB::transaction(function () {
-    //         $table = (new static)->getTable();
-    //         $records = DB::table($table)
-    //             ->orderBy('urutan')
-    //             ->orderBy('id')
-    //             ->get(['id', 'urutan']);
 
-    //         $i = 1;
-    //         foreach ($records as $r) {
-    //             DB::table($table)->where('id', $r->id)->update(['urutan' => $i++]);
-    //         }
-    //     });
-    // }
     public function projects()
     {
         return $this->hasMany(Project::class);

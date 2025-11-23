@@ -23,7 +23,7 @@
                     <div class="navbar-toggle-item">
                         <ul
                             class="custom-nav d-lg-flex d-grid gap-xxl-10 gap-xl-8 gap-lg-5 gap-md-2 gap-2 pt-lg-0 pt-5">
-                            
+
                             <li class="menu-item position-relative">
                                 <a href="/" wire:navigate class="fw_500">
                                     Home
@@ -51,7 +51,7 @@
                             </li>
                             <li class="menu-item position-relative">
                                 <a href="/carrer" wire:navigate class="fw_500">
-                                    Carrer
+                                    Career
                                 </a>
                             </li>
                             <li class="menu-item position-relative">
@@ -59,12 +59,12 @@
                                     Contact
                                 </a>
                             </li>
-                            
+
                         </ul>
                     </div>
                     <div
                         class="d-lg-flex d-none d-grid justify-content-center ph-clickwrap align-items-center gap-xxl-7 gap-xl-6 gap-lg-5 gap-3">
-                        
+
                         <a href="https://wa.me/{{$contact->phone}}" class="d-flex align-items-center gap-sm-3 gap-2 touch-btn cmn-btn">
                             <span class="rot60">
                                 <i class="fas fa-arrow-up"></i>

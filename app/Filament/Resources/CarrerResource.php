@@ -51,7 +51,7 @@ class CarrerResource extends Resource
                     ->required(),
                 TextInput::make('salary')
                 ->default('-')
-                    ->label('Judul Posisi Kerja'),
+                    ->label('Salary'),
 
                 Select::make('status')
                     ->label('Status')
@@ -63,7 +63,7 @@ class CarrerResource extends Resource
                     ->required(),
 
                 TextInput::make('apply_link')
-                    ->label('Link Pendaftaran')
+                    ->label('Link Pendaftaran (otomatis terisi)')
                     ->disabled() // Tidak bisa diedit manual
                     ->dehydrated(), // Disimpan otomatis
             ]);

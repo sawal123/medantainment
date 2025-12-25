@@ -50,7 +50,7 @@
                                 </a>
                             </li>
                             <li class="menu-item position-relative">
-                                <a href="/carrer" wire:navigate class="fw_500">
+                                <a href="/career" wire:navigate class="fw_500">
                                     Career
                                 </a>
                             </li>

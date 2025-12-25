@@ -30,7 +30,7 @@
                     <!-- Sidebar: col-4 pada lg, pindah ke bawah pada md -->
                     <div class="col-lg-4 col-md-12 order-last order-md-first ">
                         @foreach ($carrers as $item)
-                            <a href="/carrer/detail/{{ $item->slug }}" wire:navigate>
+                            <a href="/career/detail/{{ $item->slug }}" wire:navigate>
                                 <div class="card bg-dark mt-2" style="min-width: 18rem;">
                                     <div class="card-body">
                                         <h5 class="card-title">{{ $item->title }}</h5>

@@ -9,7 +9,7 @@
                 <div class="row">
                     @forelse ($carrer as $item)
                         <div class="col-lg-3 col-md-12 mt-2">
-                            <a href="/carrer/detail/{{ $item->slug }}" wire:navigate>
+                            <a href="/career/detail/{{ $item->slug }}" wire:navigate>
                                 <div class="card bg-dark" style="min-width: 18rem;">
                                     <div class="card-body">
                                         <h5 class="card-title">{{ $item->title }}</h5>

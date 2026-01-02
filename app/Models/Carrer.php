@@ -17,12 +17,12 @@ class Carrer extends Model
 
         static::creating(function ($career) {
             $career->slug = Str::slug($career->title);
-            $career->apply_link = url("/carrer/form/{$career->slug}");
+            $career->apply_link = url("/career/form/{$career->slug}");
         });
 
         static::updating(function ($career) {
             $career->slug = Str::slug($career->title);
-            $career->apply_link = url("/carrer/form/{$career->slug}");
+            $career->apply_link = url("/career/form/{$career->slug}");
         });
     }
     public function candidates()

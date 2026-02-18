@@ -16,7 +16,7 @@ class Project extends Component
     public $page;
     public $contact;
     public $categoryFilm;
-    public $filmLimit = 6;
+    public $filmLimit = 8;
     // public $selectedCategory = 0;
 
     public $selectedCategory = 'all';
@@ -35,7 +35,7 @@ class Project extends Component
     public function Clickfilm($slug)
     {
         $this->selectedCategory = $slug;
-        $this->filmLimit = 6;
+        $this->filmLimit = 8;
         $this->firstCategory = CategoryFilm::where('slug', $slug)->first();
         $this->dispatch('change-url', slug: $slug);
     }
@@ -50,21 +50,36 @@ class Project extends Component
                 $query->where('slug', $this->selectedCategory);
             });
         }
-        // dd($q->limit($this->filmLimit)->get());
 
         return $q->limit($this->filmLimit)->get();
     }
 
+    public function getTotalFilmsProperty()
+    {
+        $q = ModelsProject::query();
+
+        if ($this->selectedCategory !== 'all') {
+            $q->whereHas('categoryFilm', function ($query) {
+                $query->where('slug', $this->selectedCategory);
+            });
+        }
+
+        return $q->count();
+    }
+
     public function loadMoreFilm()
     {
-        $this->filmLimit += 6;
+        $this->filmLimit = min($this->filmLimit + 6, $this->totalFilms);
     }
 
     public function render()
     {
         $this->categoryFilm = CategoryFilm::all();
 
-        return view('livewire.project')
+        $films = $this->films;
+        $totalFilms = $this->totalFilms;
+
+        return view('livewire.project', compact('films', 'totalFilms'))
             ->layout('components.layouts.app', [
                 'page' => $this->page,
                 'setting' => $this->setting,

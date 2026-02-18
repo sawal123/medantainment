@@ -24,7 +24,7 @@
                 </p>
 
                 <div class="row g-xxl-7 g-xl-6 g-4 mt-2">
-                    @foreach ($this->films as $item)
+                    @foreach ($films as $item)
                         <div class="col-lg-3 col-md-6 col-sm-6">
                             <div class="blog-widget-item">
                                 <div class="thumb w-100 overflow-hidden   rounded-md">
@@ -40,22 +40,18 @@
                             </div>
                         </div>
                     @endforeach
-                    @if ($this->films->count() >= $filmLimit)
+                    @if ($filmLimit < $totalFilms)
                         <button class="btn btn-warning mt-3" wire:click="loadMoreFilm">
                             Load More
                         </button>
                     @endif
-                    {{-- @if (count($film) < count($cekFilm)) <div class="text-center mt-3">
-                        <button wire:click="loadMoreFilm" class="btn btn-secondary w-auto" wire:loading.attr="disabled">
-                            <span wire:loading.remove>Load More</span>
-                            <span wire:loading>Loading...</span>
-                        </button>
-                </div>
-                @endif --}}
-
-
 
                 </div>
+
+
+
+
+            </div>
 
 
 

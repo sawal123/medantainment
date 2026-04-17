@@ -85,8 +85,24 @@
         }
     </style>
     <style>
+        /* Full-screen style for single slide hero */
+        .hero-single .swiper-wrapper,
+        .hero-single .swiper-slide {
+            height: calc(100vh - 120px);
+        }
+
+        .hero-single .swiper-slide-img {
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-hero-container {
+            max-width: 1200px;
+        }
     </style>
-    {{-- @vite(['']) --}}
+    <style>
+    </style>
+    @vite([''])
     <!-- Google Tag Manager -->
     <script>
         (function(w, d, s, l, i) {
@@ -141,31 +157,35 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        var swiper = new Swiper(".mySwiper", {
-            slidesPerView: 2, // default untuk layar besar
-            loop: true,
+        (function() {
+            const heroEl = document.getElementById('heroSwiper');
+            const slideCount = heroEl && heroEl.dataset && heroEl.dataset.slideCount ? parseInt(heroEl.dataset.slideCount, 10) : 2;
+            const selector = heroEl ? '#heroSwiper' : '.mySwiper';
 
-            spaceBetween: 30,
-            freeMode: false,
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-            },
-            autoplay: {
-                delay: 2500,
-                disableOnInteraction: false,
-            },
-
-            // Atur jumlah slide berdasarkan ukuran layar
-            breakpoints: {
-                0: { // untuk mobile
-                    slidesPerView: 1
+            const config = {
+                slidesPerView: slideCount === 1 ? 1 : 2,
+                loop: slideCount > 1,
+                spaceBetween: 30,
+                freeMode: false,
+                pagination: {
+                    el: ".swiper-pagination",
+                    clickable: true,
                 },
-                768: { // tablet ke atas
-                    slidesPerView: 2
+                autoplay: slideCount > 1 ? {
+                    delay: 2500,
+                    disableOnInteraction: false,
+                } : false,
+                breakpoints: {
+                    0: { slidesPerView: 1 },
+                    768: { slidesPerView: slideCount === 1 ? 1 : 2 }
                 }
+            };
+
+            // Initialize swiper when element exists
+            if (document.querySelector(selector)) {
+                window.heroSwiper = new Swiper(selector, config);
             }
-        });
+        })();
     </script>
 
     <script>

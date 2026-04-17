@@ -67,7 +67,7 @@ class Home extends Component
         $this->contact = Alamat::first();
         $this->sosmed = Sosmed::all();
         $this->landing = Landing::pluck('value')->toArray();
-        $this->slide =  Slide::all();
+        $this->slide =  Slide::where('is_active', '1')->orderBy('short')->get();
         $this->categoryFilm =  CategoryFilm::orderBy('urutan')->get();
         $this->photo = Photo::limit(6)->get();
     }

@@ -41,18 +41,22 @@
                                 data-aos-duration="1800">About Us</a>
                         </div>
 
-                        <div class="swiper mySwiper" wire:ignore>
+                        <div id="heroSwiper"
+                            class="swiper mySwiper @if ($slide->count() == 1) hero-single @endif" wire:ignore
+                            data-slide-count="{{ $slide->count() }}">
                             <div class="swiper-wrapper">
                                 @foreach ($slide as $item)
                                     <div class="swiper-slide">
                                         <a href="{{ $item->link }}">
                                             <img src="{{ asset('storage/' . $item->thumbnail) }}" alt="img"
-                                                class="w-100 rounded">
+                                                class="w-100 rounded swiper-slide-img">
                                         </a>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
+
+
                     </div>
 
                 </div>
@@ -63,6 +67,51 @@
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element1">
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element2">
 
+            {{-- Separate YouTube video section (independent from slides) --}}
+            @if (!empty($hero['hero4']))
+                @php
+                    $videoUrl = trim($hero['hero4']);
+                    $embedUrl = '';
+
+                    if (!empty($videoUrl)) {
+                        if (str_contains($videoUrl, 'youtube.com/watch')) {
+                            parse_str(parse_url($videoUrl, PHP_URL_QUERY) ?: '', $qs);
+                            if (!empty($qs['v'])) {
+                                $embedUrl = 'https://www.youtube.com/embed/' . $qs['v'];
+                            }
+                        }
+
+                        if (empty($embedUrl) && str_contains($videoUrl, 'youtu.be')) {
+                            $path = parse_url($videoUrl, PHP_URL_PATH) ?: '';
+                            $id = ltrim($path, '/');
+                            if ($id) {
+                                $embedUrl = 'https://www.youtube.com/embed/' . $id;
+                            }
+                        }
+
+                        if (empty($embedUrl) && str_contains($videoUrl, 'youtube.com/embed')) {
+                            $embedUrl = $videoUrl;
+                        }
+
+                        if (empty($embedUrl) && preg_match('#^https?://#i', $videoUrl)) {
+                            $embedUrl = $videoUrl;
+                        }
+                    }
+                @endphp
+
+                @if (!empty($embedUrl))
+                    <section class="container my-5 video-section" data-aos="zoom-in-up" data-aos-duration="900 mt-5">
+                        <div class="text-center mb-4 mt-5">
+                            {{-- <h3 class="text-white">Watch Our Video</h3> --}}
+                        </div>
+                        <div class="ratio ratio-16x9" style="border-radius:10px; overflow:hidden;">
+                            <iframe src="{{ $embedUrl }}" title="hero-video" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
+                    </section>
+                @endif
+            @endif
             <style>
                 .partner-card {
                     background: white;
@@ -113,7 +162,7 @@
             @if (!$showAll)
                 <div class="text-center mt-3" data-aos="zoom-in-up" data-aos-duration="1700">
                     <button wire:click.prevent="tes" type="button" class="btn btn-secondary">
-                        {{ count($client) }}+ More
+                        More
                     </button>
                 </div>
             @endif
@@ -121,6 +170,7 @@
 
         </section>
         <!-- Hero Section Version0 -->
+
 
         <section class="container px-5 my-5  py-5 position-relative">
             <div class="row g-4 justify-content-center">
@@ -239,7 +289,7 @@
 
 
         <!-- Watch Version01 Start -->
-        <div class="watch-version01 zindex1 position-relative">
+        {{-- <div class="watch-version01 zindex1 position-relative">
             <div class="container">
                 <div class="watch-content d-center">
                     <a href="{{ $hero['hero4'] ?? '' }}" class="video-popup position-relative">
@@ -250,7 +300,7 @@
                     </a>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Text SLider Start -->
         <div class="digital-solution blackbg testi-italic pt-space pb-lg-15 pb-10">

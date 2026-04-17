@@ -9,9 +9,20 @@
         <!-- Hero Section Version0 -->
         <section class="hero-section-version1 bnbg position-relative">
             <div class="container">
-                <div class="row g-5">
+                <div class="row g-5" style="gap: 0 !important;">
+                    <style>
+                        @media (max-width: 768px) {
+                            .hero-section-version1 .row {
+                                gap: 0.5rem !important;
+                            }
+
+                            .hero-v1-content {
+                                padding: 0 !important;
+                            }
+                        }
+                    </style>
                     <div class="hero-v1-content position-relative">
-                        <div class="text-center mb-5">
+                        <div class="text-center mb-2">
                             <style>
                                 @media (max-width: 768px) {
                                     .designers {
@@ -20,24 +31,39 @@
                                         /* atur sesuai kebutuhan */
                                     }
 
-                                    /* Reduce vertical spacing on small screens */
+                                    /* Aggressive spacing reduction on mobile */
                                     .hero-v1-content .text-center {
-                                        margin-bottom: 1rem !important; /* reduce mb-5 */
-                                        padding-left: 0.75rem;
-                                        padding-right: 0.75rem;
+                                        margin-bottom: 0 !important;
+                                        padding-left: 0.5rem;
+                                        padding-right: 0.5rem;
+                                    }
+
+                                    .hero-title {
+                                        font-size: 1.5rem !important;
+                                        margin-bottom: 0.5rem !important;
+                                    }
+
+                                    .hero-title h4 {
+                                        margin-top: 0.25rem !important;
+                                        margin-bottom: 0.5rem !important;
                                     }
 
                                     /* Make the hero button a bit tighter */
                                     .hero-v1-content .text-center .btn {
-                                        margin-top: 0.75rem !important;
-                                        padding: 0.45rem 0.9rem;
+                                        margin-top: 0.5rem !important;
+                                        padding: 0.35rem 0.75rem;
+                                        font-size: 0.85rem;
                                     }
                                 }
 
                                 /* Extra small phones */
                                 @media (max-width: 420px) {
                                     .hero-v1-content .text-center {
-                                        margin-bottom: 0.75rem !important;
+                                        margin-bottom: 0 !important;
+                                    }
+
+                                    .hero-title {
+                                        font-size: 1.25rem !important;
                                     }
                                 }
                             </style>
@@ -83,9 +109,15 @@
                                 }
 
                                 /* Tighter max-height for small screens */
+                                @media (max-width: 768px) {
+                                    .swiper-slide-img {
+                                        max-height: 35vh;
+                                    }
+                                }
+
                                 @media (max-width: 576px) {
                                     .swiper-slide-img {
-                                        max-height: 50vh;
+                                        max-height: 30vh;
                                     }
                                 }
                             </style>

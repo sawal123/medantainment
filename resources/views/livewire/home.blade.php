@@ -11,13 +11,33 @@
             <div class="container">
                 <div class="row g-5">
                     <div class="hero-v1-content position-relative">
-                        <div class="text-center mb-xxl-16 mb-xl-14 mb-lg-12 mb-md-10 mb-sm-8 mb-5">
+                        <div class="text-center mb-5">
                             <style>
                                 @media (max-width: 768px) {
                                     .designers {
                                         position: relative;
                                         bottom: -20px;
                                         /* atur sesuai kebutuhan */
+                                    }
+
+                                    /* Reduce vertical spacing on small screens */
+                                    .hero-v1-content .text-center {
+                                        margin-bottom: 1rem !important; /* reduce mb-5 */
+                                        padding-left: 0.75rem;
+                                        padding-right: 0.75rem;
+                                    }
+
+                                    /* Make the hero button a bit tighter */
+                                    .hero-v1-content .text-center .btn {
+                                        margin-top: 0.75rem !important;
+                                        padding: 0.45rem 0.9rem;
+                                    }
+                                }
+
+                                /* Extra small phones */
+                                @media (max-width: 420px) {
+                                    .hero-v1-content .text-center {
+                                        margin-bottom: 0.75rem !important;
                                     }
                                 }
                             </style>
@@ -40,10 +60,36 @@
                             <a href="/about-us" class="btn btn-dark border mt-5" data-aos="zoom-in-right"
                                 data-aos-duration="1800">About Us</a>
                         </div>
-
                         <div id="heroSwiper"
                             class="swiper mySwiper @if ($slide->count() == 1) hero-single @endif" wire:ignore
                             data-slide-count="{{ $slide->count() }}">
+
+                            <style>
+                                /* Make swiper slide images responsive on all viewports */
+                                #heroSwiper .swiper-wrapper,
+                                #heroSwiper .swiper-slide {
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                }
+
+                                .swiper-slide-img {
+                                    width: 100%;
+                                    height: auto;
+                                    display: block;
+                                    object-fit: cover;
+                                    max-height: 70vh;
+                                    /* keep large desktop slides reasonable */
+                                }
+
+                                /* Tighter max-height for small screens */
+                                @media (max-width: 576px) {
+                                    .swiper-slide-img {
+                                        max-height: 50vh;
+                                    }
+                                }
+                            </style>
+
                             <div class="swiper-wrapper">
                                 @foreach ($slide as $item)
                                     <div class="swiper-slide">
@@ -55,11 +101,10 @@
                                 @endforeach
                             </div>
                         </div>
-
-
                     </div>
 
                 </div>
+
             </div>
             <!-- Social -->
             @include('livewire.index.sosmed')

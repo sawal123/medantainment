@@ -86,13 +86,13 @@
     </style>
     <style>
         /* Full-screen style for single slide hero */
-        .hero-single .swiper-wrapper,
-        .hero-single .swiper-slide {
-            height: calc(100vh - 120px);
+        .mySwiper {
+            width: 100%;
         }
 
-        .hero-single .swiper-slide-img {
-            height: 100%;
+        .mySwiper .swiper-slide-img {
+            width: 100%;
+            height: auto;
             object-fit: cover;
         }
 
@@ -105,7 +105,7 @@
     {{-- @vite(['']) --}}
     <!-- Google Tag Manager -->
     <script>
-        (function(w, d, s, l, i) {
+        (function (w, d, s, l, i) {
             w[l] = w[l] || [];
             w[l].push({
                 'gtm.start': new Date().getTime(),
@@ -143,7 +143,8 @@
     <!-- js Magnific popup start -->
     <script src="{{ asset('assets/js/magnific-popup.js') }}"></script>
     <!-- js Nice Select start -->
-    {{-- <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script> --}}
+    {{--
+    <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script> --}}
     <!-- js Swiper start -->
     <script src="{{ asset('assets/js/swiper.js') }}"></script>
     <!-- js Aos Counterup start -->
@@ -157,15 +158,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        (function() {
+        (function () {
             const heroEl = document.getElementById('heroSwiper');
             const slideCount = heroEl && heroEl.dataset && heroEl.dataset.slideCount ? parseInt(heroEl.dataset.slideCount, 10) : 2;
             const selector = heroEl ? '#heroSwiper' : '.mySwiper';
 
             const config = {
-                slidesPerView: slideCount === 1 ? 1 : 2,
+                slidesPerView: 1,
+                centeredSlides: true,
                 loop: slideCount > 1,
-                spaceBetween: 30,
+                spaceBetween: 1,
+                grabCursor: true,
                 freeMode: false,
                 pagination: {
                     el: ".swiper-pagination",
@@ -177,7 +180,7 @@
                 } : false,
                 breakpoints: {
                     0: { slidesPerView: 1 },
-                    768: { slidesPerView: slideCount === 1 ? 1 : 2 }
+                    768: { slidesPerView: 1 }
                 }
             };
 

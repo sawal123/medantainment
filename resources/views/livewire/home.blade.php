@@ -19,9 +19,14 @@
                             .hero-v1-content {
                                 padding: 0 !important;
                             }
+
+                            .hero-section-version1 {
+                                padding-top: 2rem !important;
+                                padding-bottom: 2rem !important;
+                            }
                         }
                     </style>
-                    <div class="hero-v1-content position-relative">
+                    <div class="col-12 hero-v1-content position-relative">
                         <div class="text-center mb-2">
                             <style>
                                 @media (max-width: 768px) {
@@ -59,7 +64,7 @@
                                 /* Extra small phones */
                                 @media (max-width: 420px) {
                                     .hero-v1-content .text-center {
-                                        margin-bottom: 0 !important;
+                                        margin-bottom: 25px !important;
                                     }
 
                                     .hero-title {
@@ -86,38 +91,45 @@
                             <a href="/about-us" class="btn btn-dark border mt-5" data-aos="zoom-in-right"
                                 data-aos-duration="1800">About Us</a>
                         </div>
-                        <div id="heroSwiper"
-                            class="swiper mySwiper @if ($slide->count() == 1) hero-single @endif" wire:ignore
-                            data-slide-count="{{ $slide->count() }}">
+                        <div id="heroSwiper" class="swiper mySwiper @if ($slide->count() == 1) hero-single @endif"
+                            wire:ignore data-slide-count="{{ $slide->count() }}">
 
                             <style>
                                 /* Make swiper slide images responsive on all viewports */
-                                #heroSwiper .swiper-wrapper,
+                                /* #heroSwiper .swiper-wrapper,
                                 #heroSwiper .swiper-slide {
                                     display: flex;
                                     align-items: center;
                                     justify-content: center;
-                                }
+                                    width: 100% !important;
+                                } */
 
                                 .swiper-slide-img {
                                     width: 100%;
                                     height: auto;
                                     display: block;
                                     object-fit: cover;
-                                    max-height: 70vh;
-                                    /* keep large desktop slides reasonable */
+                                    border-radius: 12px;
+                                    margin-top: 20px;
+                                    /* padding: 10px; */
                                 }
 
-                                /* Tighter max-height for small screens */
-                                @media (max-width: 768px) {
+                                /* Spacing check for desktop */
+                                /* @media (min-width: 992px) {
                                     .swiper-slide-img {
-                                        max-height: 35vh;
+                                        max-height: 80vh;
                                     }
-                                }
+                                } */
 
-                                @media (max-width: 576px) {
+                                /* Mobile centering and spacing */
+                                @media (max-width: 768px) {
+                                    .hero-v1-content {
+                                        padding-left: 0.75rem !important;
+                                        padding-right: 0.75rem !important;
+                                    }
+
                                     .swiper-slide-img {
-                                        max-height: 30vh;
+                                        max-height: 45vh;
                                     }
                                 }
                             </style>
@@ -177,8 +189,8 @@
                 @endphp
 
                 @if (!empty($embedUrl))
-                    <section class="container my-5 video-section" data-aos="zoom-in-up" data-aos-duration="900 mt-5">
-                        <div class="text-center mb-4 mt-5">
+                    <section class="container my-md-5 my-3 mt-5 video-section" data-aos="zoom-in-up" data-aos-duration="900">
+                        <div class="text-center mb-4 mt-md-5 mt-3">
                             {{-- <h3 class="text-white">Watch Our Video</h3> --}}
                         </div>
                         <div class="ratio ratio-16x9" style="border-radius:10px; overflow:hidden;">
@@ -200,6 +212,13 @@
                     height: 80px;
                     box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
                     transition: 0.2s ease;
+                    width: 100%;
+                }
+
+                @media (max-width: 768px) {
+                    .partner-card {
+                        padding: 10px 15px;
+                    }
                 }
 
                 .partner-card img {
@@ -219,15 +238,16 @@
                     border-radius: 12px;
                 }
             </style>
-            <div class="container partners-wrapper mt-4">
+            <div class="container partners-wrapper mt-md-4 mt-2">
                 <h3 class="text-center my-4" data-aos="zoom-in-up" data-aos-duration="1500">
                     Kami akan senang bekerja dengan Anda <br>
                     <p>Berikut adalah beberapa klien kami dari nasional maupun lokal</p>
                 </h3>
 
-                <div class="row g-3 justify-content-center" data-aos="zoom-in-up" data-aos-duration="1600">
+                <div class="row row-cols-3 row-cols-md-4 row-cols-lg-6 g-2 justify-content-center" data-aos="zoom-in-up"
+                    data-aos-duration="1600">
                     @foreach ($client as $item)
-                        <div class="col-6 col-md-3 col-lg-2">
+                        <div class="col">
                             <div class="partner-card">
                                 <img src="{{ asset('storage/' . $item->logo) }}">
                             </div>
@@ -249,7 +269,7 @@
         <!-- Hero Section Version0 -->
 
 
-        <section class="container px-5 my-5  py-5 position-relative">
+        <section class="container px-md-5 px-3 my-md-5 my-3 py-md-5 py-3 position-relative">
             <div class="row g-4 justify-content-center">
                 <h3 class="text-center my-4">
                     Temukan Layanan Produksi Kreatif Kami<br>
@@ -269,8 +289,8 @@
 
                             {{-- Image 1:1 --}}
                             <div class="ratio ratio-1x1">
-                                <img src="{{ asset('storage/' . $item->thumbnail) }}"
-                                    class="object-fit-cover w-100 h-100" alt="{{ $item->name }}">
+                                <img src="{{ asset('storage/' . $item->thumbnail) }}" class="object-fit-cover w-100 h-100"
+                                    alt="{{ $item->name }}">
                             </div>
 
                             {{-- Content --}}

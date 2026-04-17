@@ -102,7 +102,7 @@
     </style>
     <style>
     </style>
-    @vite([''])
+    {{-- @vite(['']) --}}
     <!-- Google Tag Manager -->
     <script>
         (function(w, d, s, l, i) {

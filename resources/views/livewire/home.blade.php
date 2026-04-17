@@ -5,9 +5,17 @@
         <!-- Custom Line Shape -->
         <div class="line-shape cus-z-1 first w-100 h-100 d-flex flex-wrap"></div>
         <!-- Custom Line Shape -->
+        <style>
+            @media (max-width: 768px) {
+                .hero-section-version1 {
+                    margin-top: 100px;
+                }
+
+            }
+        </style>
 
         <!-- Hero Section Version0 -->
-        <section class="hero-section-version1 bnbg position-relative">
+        <section class="hero-section-version1 bnbg position-relative ">
             <div class="container">
                 <div class="row g-5" style="gap: 0 !important;">
                     <style>

@@ -2,32 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Client;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Support\Facades\Storage;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Columns\ToggleColumn;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ClientResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ClientResource\RelationManagers;
+use App\Models\Client;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Table;
 
 class ClientResource extends Resource
 {
     protected static ?string $model = Client::class;
+
     protected bool $canCreateAnother = true;
+
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+
     protected static ?string $navigationGroup = 'Project';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -54,8 +53,8 @@ class ClientResource extends Resource
                     ->label('Urutan')
                     ->numeric()
                     ->minValue(1)
-                    ->default(fn() => (Client::max('urutan') ?? 0) + 1)
-                    ->disabled(fn($context) => $context === 'create'),
+                    ->default(fn () => (Client::max('urutan') ?? 0) + 1)
+                    ->disabled(fn ($context) => $context === 'create'),
 
                 Textarea::make('address')
                     ->label('Alamat')
@@ -89,7 +88,7 @@ class ClientResource extends Resource
                     ->label('Status')
                     ->sortable()
                     ->onColor('success') // opsional agar hijau saat aktif
-                    ->offColor('danger') // opsional warna merah saat off
+                    ->offColor('danger'), // opsional warna merah saat off
             ])
             ->filters([
                 //
@@ -117,7 +116,6 @@ class ClientResource extends Resource
                         $below = Client::where('urutan', '>', $record->urutan)
                             ->orderBy('urutan', 'asc')
                             ->first();
-
 
                         if ($below) {
                             $currentOrder = $record->urutan;

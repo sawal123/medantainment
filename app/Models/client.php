@@ -2,18 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Client extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
+
     protected $casts = [
         'urutan' => 'integer',
     ];
+
     protected static function boot()
     {
         parent::boot();
@@ -25,7 +28,7 @@ class Client extends Model
         });
         static::creating(function ($model) {
             if (is_null($model->urutan)) {
-                $maxOrder = Client::max('urutan');
+                $maxOrder = client::max('urutan');
                 $model->urutan = $maxOrder ? $maxOrder + 1 : 1;
             }
         });
@@ -43,6 +46,7 @@ class Client extends Model
                         $max = (int) DB::table($model->getTable())->max('urutan');
                         $model->urutan = $max ? $max + 1 : 1;
                     }
+
                     return;
                 }
 
@@ -78,11 +82,11 @@ class Client extends Model
         });
     }
 
-
     public function projects()
     {
         return $this->hasMany(Project::class);
     }
+
     public function photos()
     {
         return $this->hasMany(Project::class);

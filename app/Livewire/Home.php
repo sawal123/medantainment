@@ -53,8 +53,8 @@ class Home extends Component
     public function loadClients()
     {
         $this->client = $this->showAll
-            ? Client::orderBy('urutan')->where('status', '1')->get()
-            : Client::orderBy('urutan')->where('status', '1')->limit(6)->get();
+            ? client::orderBy('urutan')->where('status', '1')->get()
+            : client::orderBy('urutan')->where('status', '1')->limit(6)->get();
     }
 
     public function tes()

@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClientResource\Pages;
-use App\Models\Client;
+use App\Models\client;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -19,7 +19,7 @@ use Filament\Tables\Table;
 
 class ClientResource extends Resource
 {
-    protected static ?string $model = Client::class;
+    protected static ?string $model = client::class;
 
     protected bool $canCreateAnother = true;
 
@@ -53,7 +53,7 @@ class ClientResource extends Resource
                     ->label('Urutan')
                     ->numeric()
                     ->minValue(1)
-                    ->default(fn () => (Client::max('urutan') ?? 0) + 1)
+                    ->default(fn () => (client::max('urutan') ?? 0) + 1)
                     ->disabled(fn ($context) => $context === 'create'),
 
                 Textarea::make('address')
@@ -98,7 +98,7 @@ class ClientResource extends Resource
                     ->label('Up')
                     ->icon('heroicon-o-arrow-up')
                     ->action(function (Client $record) {
-                        $above = Client::where('urutan', '<', $record->urutan)
+                        $above = client::where('urutan', '<', $record->urutan)
                             ->orderBy('urutan', 'desc')
                             ->first();
 
@@ -113,7 +113,7 @@ class ClientResource extends Resource
                     ->label('Down')
                     ->icon('heroicon-o-arrow-down')
                     ->action(function (Client $record) {
-                        $below = Client::where('urutan', '>', $record->urutan)
+                        $below = client::where('urutan', '>', $record->urutan)
                             ->orderBy('urutan', 'asc')
                             ->first();
 

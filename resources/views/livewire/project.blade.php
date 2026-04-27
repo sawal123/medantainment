@@ -19,9 +19,11 @@
                     @endforeach
                 </div>
 
-                <p class="mt-2">
-                    {{ $firstCategory->deskripsi }}
-                </p>
+                @if ($firstCategory)
+                    <p class="mt-2">
+                        {{ $firstCategory->deskripsi }}
+                    </p>
+                @endif
 
                 <div class="row g-xxl-7 g-xl-6 g-4 mt-2">
                     @foreach ($films as $item)
@@ -35,7 +37,7 @@
                                 <div class="px-2">
                                     {{-- <span class="text-sm fs-6">{{ $item->name }}</span> --}}
                                     <p class="text-sm " style="font-size: 12px; border-radius: 1px;">
-                                        {{ $item->client->name }}
+                                        {{ $item->client->name ?? 'No Client' }}
                                     </p>
                                 </div>
                             </div>

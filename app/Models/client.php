@@ -28,7 +28,7 @@ class Client extends Model
         });
         static::creating(function ($model) {
             if (is_null($model->urutan)) {
-                $maxOrder = self::max('urutan');
+                $maxOrder = client::max('urutan');
                 $model->urutan = $maxOrder ? $maxOrder + 1 : 1;
             }
         });
@@ -89,6 +89,6 @@ class Client extends Model
 
     public function photos()
     {
-        return $this->hasMany(Photo::class);
+        return $this->hasMany(Project::class);
     }
 }

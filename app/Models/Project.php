@@ -13,7 +13,7 @@ class Project extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(\App\Models\client::class);
     }
 
     public function categoryFilm()
@@ -66,11 +66,13 @@ class Project extends Model
             // Pattern untuk YouTube Shorts
             if (strpos($url, '/shorts/') !== false) {
                 preg_match('/shorts\/([^?]+)/', $url, $matches);
+
                 return isset($matches[1]) ? "https://www.youtube.com/embed/{$matches[1]}" : $url;
             }
 
             // Pattern untuk YouTube normal
             preg_match('/(youtu\.be\/|v=|\/embed\/|\/v\/|\/watch\?v=)([^&]+)/', $url, $matches);
+
             return isset($matches[2]) ? "https://www.youtube.com/embed/{$matches[2]}" : $url;
         }
 

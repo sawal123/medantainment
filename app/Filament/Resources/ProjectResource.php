@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\client;
+use App\Models\Client;
 use App\Models\Project;
 use App\Models\CategoryFilm;
 use Filament\Forms\Form;

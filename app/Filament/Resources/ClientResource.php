@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\client;
+use App\Models\Client;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -24,7 +24,7 @@ use App\Filament\Resources\ClientResource\RelationManagers;
 
 class ClientResource extends Resource
 {
-    protected static ?string $model = client::class;
+    protected static ?string $model = Client::class;
     protected bool $canCreateAnother = true;
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Project';

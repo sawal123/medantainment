@@ -5,7 +5,7 @@ namespace App\Livewire;
 use App\Models\Alamat;
 use App\Models\Blog;
 use App\Models\CategoryFilm;
-use App\Models\client;
+use App\Models\Client;
 use App\Models\Hero;
 use App\Models\Landing;
 use App\Models\Photo;
@@ -59,7 +59,7 @@ class Home extends Component
         $this->page = "MEDANTAINMENT";
         $this->team = Team::all();
         $this->hero = Hero::pluck('title', 'hero_type');
-        // $this->client = client::all();
+        
         $this->loadClients();
         $this->blog = Blog::all();
         $this->testimoni = Testimoni::all();

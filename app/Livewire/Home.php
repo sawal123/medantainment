@@ -5,7 +5,7 @@ namespace App\Livewire;
 use App\Models\Alamat;
 use App\Models\Blog;
 use App\Models\CategoryFilm;
-use App\Models\Client;
+use App\Models\client;
 use App\Models\Hero;
 use App\Models\Landing;
 use App\Models\Photo;
@@ -21,23 +21,34 @@ error_reporting(0);
 class Home extends Component
 {
     public $testimoni;
+
     public $project;
+
     public $landing;
+
     public $blog;
+
     public $client;
+
     public $setting;
+
     public $page;
+
     public $contact;
+
     public $sosmed;
+
     public $team;
+
     public $slide;
+
     public $hero;
+
     public $photo;
+
     public $categoryFilm;
 
     public $showAll = false;
-
-
 
     public function loadClients()
     {
@@ -46,20 +57,20 @@ class Home extends Component
             : Client::orderBy('urutan')->where('status', '1')->limit(6)->get();
     }
 
-
     public function tes()
     {
         $this->showAll = true;
         $this->loadClients();
     }
+
     public function mount()
     {
         error_reporting(0);
         $this->setting = Setting::first();
-        $this->page = "MEDANTAINMENT";
+        $this->page = 'MEDANTAINMENT';
         $this->team = Team::all();
         $this->hero = Hero::pluck('title', 'hero_type');
-        
+
         $this->loadClients();
         $this->blog = Blog::all();
         $this->testimoni = Testimoni::all();
@@ -67,10 +78,11 @@ class Home extends Component
         $this->contact = Alamat::first();
         $this->sosmed = Sosmed::all();
         $this->landing = Landing::pluck('value')->toArray();
-        $this->slide =  Slide::where('is_active', '1')->orderBy('short')->get();
-        $this->categoryFilm =  CategoryFilm::orderBy('urutan')->get();
+        $this->slide = Slide::where('is_active', '1')->orderBy('short')->get();
+        $this->categoryFilm = CategoryFilm::orderBy('urutan')->get();
         $this->photo = Photo::limit(6)->get();
     }
+
     public function render()
     {
 
@@ -80,7 +92,7 @@ class Home extends Component
             'page' => $this->page,
             'setting' => $this->setting,
             'contact' => $this->contact,
-            'heros' => $this->hero
+            'heros' => $this->hero,
         ]);
     }
 }

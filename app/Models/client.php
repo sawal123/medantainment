@@ -28,7 +28,7 @@ class Client extends Model
         });
         static::creating(function ($model) {
             if (is_null($model->urutan)) {
-                $maxOrder = client::max('urutan');
+                $maxOrder = self::max('urutan');
                 $model->urutan = $maxOrder ? $maxOrder + 1 : 1;
             }
         });

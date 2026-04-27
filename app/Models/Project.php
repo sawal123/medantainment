@@ -13,7 +13,7 @@ class Project extends Model
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\client::class);
+        return $this->belongsTo(\App\Models\Client::class);
     }
 
     public function categoryFilm()

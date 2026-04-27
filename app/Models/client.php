@@ -89,6 +89,6 @@ class Client extends Model
 
     public function photos()
     {
-        return $this->hasMany(Project::class);
+        return $this->hasMany(Photo::class);
     }
 }

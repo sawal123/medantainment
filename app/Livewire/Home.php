@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Models\Alamat;
 use App\Models\Blog;
 use App\Models\CategoryFilm;
-use App\Models\Client;
 use App\Models\Hero;
 use App\Models\Landing;
 use App\Models\Photo;
@@ -17,7 +16,7 @@ use App\Models\Team;
 use App\Models\Testimoni;
 use Livewire\Component;
 
-error_reporting(0);
+// error_reporting(0);
 class Home extends Component
 {
     public $testimoni;
@@ -53,8 +52,8 @@ class Home extends Component
     public function loadClients()
     {
         $this->client = $this->showAll
-            ? Client::orderBy('urutan')->where('status', '1')->get()
-            : Client::orderBy('urutan')->where('status', '1')->limit(6)->get();
+            ? \App\Models\Client::orderBy('urutan')->where('status', '1')->get()
+            : \App\Models\Client::orderBy('urutan')->where('status', '1')->limit(6)->get();
     }
 
     public function tes()
@@ -65,7 +64,7 @@ class Home extends Component
 
     public function mount()
     {
-        error_reporting(0);
+        // error_reporting(0);
         $this->setting = Setting::first();
         $this->page = 'MEDANTAINMENT';
         $this->team = Team::all();

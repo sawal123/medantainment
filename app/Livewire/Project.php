@@ -51,7 +51,7 @@ class Project extends Component
             });
         }
 
-        return $q->limit($this->filmLimit)->get();
+        return $q->orderBy('urutan', 'asc')->limit($this->filmLimit)->get();
     }
 
     public function getTotalFilmsProperty()
@@ -74,7 +74,7 @@ class Project extends Component
 
     public function render()
     {
-        $this->categoryFilm = CategoryFilm::all();
+        $this->categoryFilm = CategoryFilm::orderBy('urutan', 'asc')->get();
 
         $films = $this->films;
         $totalFilms = $this->totalFilms;

@@ -35,7 +35,8 @@
                                 <div class="px-2">
                                     {{-- <span class="text-sm fs-6">{{ $item->name }}</span> --}}
                                     <p class="text-sm " style="font-size: 12px; border-radius: 1px;">
-                                        {{ $item->client->name }}</p>
+                                        {{ $item->client->name }}
+                                    </p>
                                 </div>
                             </div>
                         </div>

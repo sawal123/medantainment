@@ -6,6 +6,7 @@ use Filament\Forms;
 use Filament\Tables;
 use App\Models\client;
 use App\Models\Project;
+use App\Models\CategoryFilm;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -13,8 +14,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ProjectResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -43,6 +46,7 @@ class ProjectResource extends Resource
                     ->label('Nama Proyek')
                     ->required()
                     ->maxLength(255),
+
                 TextInput::make('link')
                     ->label('Link Video')
                     ->required()
@@ -57,13 +61,14 @@ class ProjectResource extends Resource
 
                 DatePicker::make('end_date')
                     ->label('Tanggal Selesai'),
-                    
+
                 Select::make('category_film_id')
                     ->label('Kategori Film')
                     ->relationship('categoryFilm', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
+
                 Select::make('type')
                     ->label('Type')
                     ->options([
@@ -79,18 +84,66 @@ class ProjectResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('urutan', 'asc')
             ->columns([
-                TextColumn::make('name')->label('Nama Proyek')->searchable()->sortable()->limit(20),
-                ViewColumn::make('link')->view('filament.tables.columns.video'),
-                TextColumn::make('client.name')->label('Client')->searchable()->sortable()->limit(10),
-                TextColumn::make('type')->label('Type'),
-                TextColumn::make('start_date')->label('Tanggal Mulai')->date(),
-                TextColumn::make('end_date')->label('Tanggal Selesai')->date(),
+                TextColumn::make('urutan')
+                    ->label('#')
+                    ->sortable(),
+                TextColumn::make('name')
+                    ->label('Nama Proyek')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(20),
+                ViewColumn::make('link')
+                    ->view('filament.tables.columns.video'),
+                TextColumn::make('client.name')
+                    ->label('Client')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(10),
+                TextColumn::make('categoryFilm.name')
+                    ->label('Kategori')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(15),
             ])
             ->filters([
-                //
+                SelectFilter::make('category_film_id')
+                    ->label('Kategori Film')
+                    ->options(fn () => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->placeholder('Semua Kategori'),
             ])
             ->actions([
+                Action::make('up')
+                    ->label('Up')
+                    ->icon('heroicon-o-arrow-up')
+                    ->action(function (Project $record) {
+                        $above = Project::where('urutan', '<', $record->urutan)
+                            ->orderBy('urutan', 'desc')
+                            ->first();
+
+                        if ($above) {
+                            $currentOrder = $record->urutan;
+                            $record->update(['urutan' => $above->urutan]);
+                            $above->update(['urutan' => $currentOrder]);
+                        }
+                    }),
+
+                Action::make('down')
+                    ->label('Down')
+                    ->icon('heroicon-o-arrow-down')
+                    ->action(function (Project $record) {
+                        $below = Project::where('urutan', '>', $record->urutan)
+                            ->orderBy('urutan', 'asc')
+                            ->first();
+
+                        if ($below) {
+                            $currentOrder = $record->urutan;
+                            $record->update(['urutan' => $below->urutan]);
+                            $below->update(['urutan' => $currentOrder]);
+                        }
+                    }),
+
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\client;
 
 class Project extends Model
 {
@@ -12,10 +11,14 @@ class Project extends Model
 
     protected $guarded = [];
 
-
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function categoryFilm()
+    {
+        return $this->belongsTo(\App\Models\CategoryFilm::class);
     }
 
     public function setLinkAttribute($value)
@@ -23,9 +26,36 @@ class Project extends Model
         $this->attributes['link'] = $this->convertToEmbed($value);
     }
 
-    public function categoryFilm()
+    /**
+     * Pindah ke atas (urutan berkurang)
+     */
+    public function moveUp(): void
     {
-        return $this->belongsTo(\App\Models\CategoryFilm::class);
+        $previous = static::where('urutan', '<', $this->urutan)
+            ->orderBy('urutan', 'desc')
+            ->first();
+
+        if ($previous) {
+            $oldUrutan = $this->urutan;
+            $this->updateQuietly(['urutan' => $previous->urutan]);
+            $previous->updateQuietly(['urutan' => $oldUrutan]);
+        }
+    }
+
+    /**
+     * Pindah ke bawah (urutan bertambah)
+     */
+    public function moveDown(): void
+    {
+        $next = static::where('urutan', '>', $this->urutan)
+            ->orderBy('urutan', 'asc')
+            ->first();
+
+        if ($next) {
+            $oldUrutan = $this->urutan;
+            $this->updateQuietly(['urutan' => $next->urutan]);
+            $next->updateQuietly(['urutan' => $oldUrutan]);
+        }
     }
 
     private function convertToEmbed($url)

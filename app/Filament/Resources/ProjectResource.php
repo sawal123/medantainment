@@ -78,6 +78,12 @@ class ProjectResource extends Resource
                     ])
                     ->default('series')
                     ->required(),
+
+                TextInput::make('urutan')
+                    ->label('Urutan')
+                    ->numeric()
+                    ->default(fn () => (Project::max('urutan') ?? 0) + 1)
+                    ->required(),
             ]);
     }
 

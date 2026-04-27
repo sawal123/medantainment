@@ -1984,7 +1984,7 @@ namespace App\Models {
      * @property int $id
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
      * @property-read int|null $projects_count
-     * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $photos
+     * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Photo> $photos
      * @property-read int|null $photos_count
      * @method static \Illuminate\Database\Eloquent\Builder<Client>|Client whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Client>|Client whereLogo($value)

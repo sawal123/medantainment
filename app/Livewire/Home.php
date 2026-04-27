@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Alamat;
 use App\Models\Blog;
 use App\Models\CategoryFilm;
+use App\Models\Client;
 use App\Models\Hero;
 use App\Models\Landing;
 use App\Models\Photo;
@@ -52,8 +53,8 @@ class Home extends Component
     public function loadClients()
     {
         $this->client = $this->showAll
-            ? \App\Models\Client::orderBy('urutan')->where('status', '1')->get()
-            : \App\Models\Client::orderBy('urutan')->where('status', '1')->limit(6)->get();
+            ? Client::orderBy('urutan')->where('status', '1')->get()
+            : Client::orderBy('urutan')->where('status', '1')->limit(6)->get();
     }
 
     public function tes()

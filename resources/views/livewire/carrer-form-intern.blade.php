@@ -21,11 +21,20 @@
                                 </div>
                                 @endif
 
+                                @if ($carrer && $carrer->status !== 'open')
+                                <div class="alert alert-warning mb-4">
+                                    ⚠️ Pendaftaran Internship untuk lowongan <strong>{{ $title }}</strong> telah ditutup. Anda tidak dapat mengirim berkas baru.
+                                </div>
+                                @endif
+
                                 <div class="">
                                     <form wire:submit.prevent="simpan" enctype="multipart/form-data">
+                                        @csrf
+                                        @error('rate_limit')
+                                        <div class="alert alert-danger mb-3">{{ $message }}</div>
+                                        @enderror
 
-
-                                        <input type="hidden" wire:model="carrer_id" value="{{$carrer_id}}">
+                                        <input type="hidden" wire:model="carrer_id">
                                         <div class="row">
                                             <div class="col-12 col-sm-6">
                                                 <div class="mb-3">
@@ -330,8 +339,14 @@
                                                 wire:model="alasan_internship"></textarea>
                                         </div>
 
-                                        <!-- BUTTON -->
-                                        <button type="submit" class="btn btn-primary">Kirim Intern</button>
+                                         <!-- BUTTON -->
+                                         <button type="submit" class="btn btn-primary" @if($carrer && $carrer->status !== 'open') disabled @endif>
+                                             @if($carrer && $carrer->status !== 'open')
+                                                 Pendaftaran Ditutup
+                                             @else
+                                                 Kirim Intern
+                                             @endif
+                                         </button>
 
                                     </form>
 

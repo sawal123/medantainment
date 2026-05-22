@@ -99,8 +99,9 @@
                             <a href="/about-us" class="btn btn-dark border mt-5" data-aos="zoom-in-right"
                                 data-aos-duration="1800">About Us</a>
                         </div>
-                        <div id="heroSwiper" class="swiper mySwiper @if ($slide->count() == 1) hero-single @endif"
-                            wire:ignore data-slide-count="{{ $slide->count() }}">
+                        <div id="heroSwiper"
+                            class="swiper mySwiper @if ($slide->count() == 1) hero-single @endif" wire:ignore
+                            data-slide-count="{{ $slide->count() }}">
 
                             <style>
                                 /* Make swiper slide images responsive on all viewports */
@@ -197,7 +198,8 @@
                 @endphp
 
                 @if (!empty($embedUrl))
-                    <section class="container my-md-5 my-3 mt-5 video-section" data-aos="zoom-in-up" data-aos-duration="900">
+                    <section class="container my-md-5 my-3 mt-5 video-section" data-aos="zoom-in-up"
+                        data-aos-duration="900">
                         <div class="text-center mb-4 mt-md-5 mt-3">
                             {{-- <h3 class="text-white">Watch Our Video</h3> --}}
                         </div>
@@ -297,8 +299,8 @@
 
                             {{-- Image 1:1 --}}
                             <div class="ratio ratio-1x1">
-                                <img src="{{ asset('storage/' . $item->thumbnail) }}" class="object-fit-cover w-100 h-100"
-                                    alt="{{ $item->name }}">
+                                <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                    class="object-fit-cover w-100 h-100" alt="{{ $item->name }}">
                             </div>
 
                             {{-- Content --}}
@@ -412,23 +414,23 @@
             <div class="mycustom-marque">
                 <div class="scrolling-wrap">
                     <div class="comm">
-                        <div class="cmn-textslide textitalick theme-clr">Client’s testimonial</div>
+                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide text-custom-storke">Client’s testimonial</div>
+                        <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide textitalick theme-clr">Client’s testimonial</div>
+                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide text-custom-storke">Client’s testimonial</div>
+                        <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                     </div>
                     <div class="comm">
-                        <div class="cmn-textslide textitalick theme-clr">Client’s testimonial</div>
+                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide text-custom-storke">Client’s testimonial</div>
+                        <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide textitalick theme-clr">Client’s testimonial</div>
+                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide text-custom-storke">Client’s testimonial</div>
+                        <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                     </div>
                 </div>

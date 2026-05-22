@@ -26,10 +26,67 @@ class CategoryBlogResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                ->label('Nama')
-                ->required()
-                ->maxLength(255),
+                Forms\Components\Section::make('Detail Kategori')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nama')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
+
+                        Forms\Components\TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
+
+                        Forms\Components\Textarea::make('description')
+                            ->label('Deskripsi')
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('SEO Settings')
+                    ->description('Pengaturan Meta Tag untuk Optimasi Mesin Pencari (SEO)')
+                    ->schema([
+                        Forms\Components\TextInput::make('seo_title')
+                            ->label('SEO Title')
+                            ->maxLength(255)
+                            ->hint('Kosongkan untuk otomatisasi dari Nama')
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('generateSeo')
+                                    ->icon('heroicon-m-sparkles')
+                                    ->color('primary')
+                                    ->tooltip('Sugestikan SEO dengan AI')
+                                    ->action(function (Forms\Set $set, Forms\Get $get) {
+                                        $name = $get('name');
+                                        $description = $get('description');
+
+                                        if (empty($name)) {
+                                            \Filament\Notifications\Notification::make()
+                                                ->title('Silakan isi Nama Kategori terlebih dahulu')
+                                                ->warning()
+                                                ->send();
+                                            return;
+                                        }
+
+                                        $seo = \App\Services\GeminiService::generateSeo($name, $description ?? '');
+                                        $set('seo_title', $seo['title']);
+                                        $set('seo_description', $seo['description']);
+
+                                        \Filament\Notifications\Notification::make()
+                                            ->title($seo['is_ai'] ? 'SEO berhasil disugestikan via AI!' : 'SEO berhasil disugestikan secara lokal')
+                                            ->success()
+                                            ->send();
+                                    })
+                            ),
+
+                        Forms\Components\Textarea::make('seo_description')
+                            ->label('Meta Description')
+                            ->hint('Kosongkan untuk otomatisasi dari Deskripsi')
+                            ->maxLength(500),
+                    ])->columns(1),
             ]);
     }
 

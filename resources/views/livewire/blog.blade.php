@@ -29,7 +29,8 @@
                                                 </span>
                                             </div>
                                             <h5>
-                                                <a href="{{ url('/blog/detail/' . $item->slug) }}" class="white-clr" wire:navigate>
+                                                <a href="{{ url('/blog/detail/' . $item->slug) }}" class="white-clr"
+                                                    wire:navigate>
                                                     {{ $item->title }}
                                                 </a>
                                             </h5>
@@ -61,7 +62,8 @@
                                                 </span>
                                             </div>
                                             <h5>
-                                                <a href="{{ url('/blog/detail/' . $item->slug) }}" wire:navigate class="white-clr">
+                                                <a href="{{ url('/blog/detail/' . $item->slug) }}" wire:navigate
+                                                    class="white-clr">
                                                     {{ $item->title }}
                                                 </a>
                                             </h5>

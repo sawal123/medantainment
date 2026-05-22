@@ -1,17 +1,14 @@
 <section class="home-blog-version1 blackbg pb-space pt-space">
     <div class="container zindex position-relative">
-        <div
-            class="d-flex align-items-end justify-content-between flex-wrap gap-5 ">
-            <div class="pricing-title">
-                <div
-                    class="radius-btn text-uppercase cmn-border d-inline-flex radius100 py-xxl-3 py-2 px-xxl-5 px-4 theme-clr gap-xxl-4 gap-3 mb-xxl-8 mb-xl-6 mb-5">
-                    BLOG & News
-                    <span class="rot60 d-inline-block">
-                        <i class="fas fa-arrow-up theme-clr"></i>
-                    </span>
-                </div>
-             
-            </div>
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-5 mb-xxl-8 mb-xl-6 mb-5">
+
+            <a href="{{ url('/blog') }}" wire:navigate
+                class="radius-btn text-uppercase cmn-border d-inline-flex radius100 py-xxl-3 py-2 px-xxl-5 px-4 theme-clr gap-xxl-4 gap-3 mb-0">
+                Lihat Semua Blog
+                <span class="rot60 d-inline-block">
+                    <i class="fas fa-arrow-up theme-clr"></i>
+                </span>
+            </a>
         </div>
         <div class="row g-xxl-7 g-xl-6 g-4">
             @foreach ($blog as $item)

@@ -10,12 +10,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Keywords -->
-    <meta name="keywords" content="{{ $setting->seo_keywords }}">
+    <meta name="keywords" content="{{ $meta_keywords ?? $setting->seo_keywords }}">
     <!--  Description -->
-    <meta name="description" content="{{ $setting->seo_description }}">
+    <meta name="description" content="{{ $meta_description ?? $setting->seo_description }}">
     <meta name="author" content="{{ $setting->seo_title }}">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $meta_title ?? $page }}">
+    <meta property="og:description" content="{{ $meta_description ?? $setting->seo_description }}">
+    <meta property="og:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : asset('storage/' . $setting->logo) }}">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="{{ $meta_title ?? $page }}">
+    <meta property="twitter:description" content="{{ $meta_description ?? $setting->seo_description }}">
+    <meta property="twitter:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : asset('storage/' . $setting->logo) }}">
     <!-- == Page title == -->
-    <title>{{ $page }}</title>
+    <title>{{ $meta_title ?? $page }}</title>
     {{--
     <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon"> --}}
     <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('storage/' . $setting->favicon) }}">

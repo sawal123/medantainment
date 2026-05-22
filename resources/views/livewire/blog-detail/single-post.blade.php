@@ -17,7 +17,23 @@
         <div class="mb-xxl-13 mb-xl-10 mb-lg-8 mb-7">
             <h5 class="white mb-xxl-5 mb-3" data-aos="fade-left" data-aos-duration="1600">
                {{$post->title}}</h5>
-            <div class="">
+            <style>
+                .blog-rich-content img,
+                .blog-rich-content iframe,
+                .blog-rich-content video,
+                .blog-rich-content table {
+                    max-width: 100% !important;
+                    height: auto !important;
+                    border-radius: 8px;
+                }
+                .blog-rich-content figcaption,
+                .blog-rich-content .attachment__caption,
+                .blog-rich-content .attachment__name,
+                .blog-rich-content .attachment__size {
+                    display: none !important;
+                }
+            </style>
+            <div class="blog-rich-content text-white">
                 {!!$post->content!!}
             </div>
         </div>

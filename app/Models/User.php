@@ -22,10 +22,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 
     /**

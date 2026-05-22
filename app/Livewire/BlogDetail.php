@@ -35,19 +35,30 @@ class BlogDetail extends Component
         $this->page = "MEDANTAINMENT - Blog";
         $this->contact = Alamat::first();
         $this->slug = $slug;
-        $this->post = Blog::where('slug', $slug)->firstOrFail();
-        $this->serupa = Blog::where('category_id', $this->post->category->id)->take(2)->get();
+        $this->post = Blog::published()->where('slug', $slug)->firstOrFail();
+        $this->serupa = Blog::published()->where('category_id', $this->post->category->id)->where('id', '!=', $this->post->id)->take(2)->get();
         // dd($this->serupa);
-        $this->recent = Blog::latest()->take(3)->get();
+        $this->recent = Blog::published()->latest()->take(3)->get();
 
         $this->category = Category::all();
+
+        // Rekam statistik kunjungan artikel
+        \App\Models\Visitor::create([
+            'ip_address' => request()->ip(),
+            'session_id' => session()->getId(),
+            'user_agent' => request()->userAgent(),
+            'blog_id' => $this->post->id,
+        ]);
     }
     public function render()
     {
         return view('livewire.blog-detail')->layout('components.layouts.app', [
             'page' => $this->page,
             'setting' => $this->setting,
-            'contact'=>$this->contact
+            'contact' => $this->contact,
+            'meta_title' => $this->post->seo_title,
+            'meta_description' => $this->post->seo_description,
+            'meta_image' => $this->post->image, // Ambil dari thumbnail/gambar utama artikel
         ]);
     }
 }

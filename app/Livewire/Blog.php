@@ -21,7 +21,7 @@ class Blog extends Component
     public $search = null;
     public function loadData()
     {
-        $this->blog = ModelsBlog::take($this->blogLimit)->get();
+        $this->blog = ModelsBlog::published()->take($this->blogLimit)->get();
     }
     public function loadMoreBlog()
     {
@@ -37,13 +37,24 @@ class Blog extends Component
         $this->page = "MEDANTAINMENT - Blog";
 
         $this->loadData();
-        $this->cekBlog = ModelsBlog::all();
+        $this->cekBlog = ModelsBlog::published()->get();
+
+        // Rekam statistik kunjungan umum
+        \App\Models\Visitor::create([
+            'ip_address' => request()->ip(),
+            'session_id' => session()->getId(),
+            'user_agent' => request()->userAgent(),
+            'blog_id' => null,
+        ]);
     }
     public function render()
     {
-        $blogSearch = ModelsBlog::where('title', 'like', "%{$this->search}%")
-            ->orWhereHas('category', function ($query) {
-                $query->where('name', 'like', "%{$this->search}%");
+        $blogSearch = ModelsBlog::published()
+            ->where(function ($query) {
+                $query->where('title', 'like', "%{$this->search}%")
+                    ->orWhereHas('category', function ($q) {
+                        $q->where('name', 'like', "%{$this->search}%");
+                    });
             })
             ->get();
 

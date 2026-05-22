@@ -72,7 +72,7 @@ class Home extends Component
         $this->hero = Hero::pluck('title', 'hero_type');
 
         $this->loadClients();
-        $this->blog = Blog::all();
+        $this->blog = Blog::published()->latest()->take(3)->get();
         $this->testimoni = Testimoni::all();
         $this->project = Project::all();
         $this->contact = Alamat::first();

@@ -414,24 +414,24 @@
             <div class="mycustom-marque">
                 <div class="scrolling-wrap">
                     <div class="comm">
-                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
+                        {{-- <div><img src="assets/img/client/text-slide.png" alt="img"></div> --}}
+                        <div class="cmn-textslide textitalick theme-clr">0882-0172-34736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
-                        <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
+                        {{-- <div><img src="assets/img/client/text-slide.png" alt="img"></div> --}}
+                        <div class="cmn-textslide textitalick theme-clr">0882-0172-34736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
-                        <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                     </div>
                     <div class="comm">
-                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
+                        {{-- <div><img src="assets/img/client/text-slide.png" alt="img"></div> --}}
+                        <div class="cmn-textslide textitalick theme-clr">0882-0172-34736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
-                        <div><img src="assets/img/client/text-slide.png" alt="img"></div>
-                        <div class="cmn-textslide textitalick theme-clr">0882017234736</div>
+                        {{-- <div><img src="assets/img/client/text-slide.png" alt="img"></div> --}}
+                        <div class="cmn-textslide textitalick theme-clr">0882-0172-34736</div>
                         <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                         <div class="cmn-textslide text-custom-storke">Get in touch now : </div>
-                        <div><img src="assets/img/client/text-slide.png" alt="img"></div>
                     </div>
                 </div>
             </div>

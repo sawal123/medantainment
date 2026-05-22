@@ -1,7 +1,7 @@
 <div class="single-blog-post">
     <div class="post-featured-thumb w-100 mb-xxl-30 mb-xl-6 mb-5" data-aos="zoom-in"
         data-aos-duration="1400">
-        <img src="{{asset('storage/'. $post->image)}}" alt="img" class="w-100">
+        <img src="{{asset('storage/'. $post->image)}}" alt="img" class="w-100" style="aspect-ratio: 16/9; object-fit: cover; border-radius: 8px;">
     </div>
     <div class="post-content">
         <div class="post-marry d-flex align-items-center gap-xxl-8 gap-xl-6 gap-4 gap-3 mb-xxl-5 mb-xl-4 mb-lg-3 mb-3"

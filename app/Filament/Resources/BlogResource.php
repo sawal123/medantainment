@@ -130,6 +130,10 @@ class BlogResource extends Resource
                                         ->disk('public')
                                         ->directory('blog-images')
                                         ->image()
+                                        ->imageEditor()
+                                        ->imageEditorAspectRatios([
+                                            '16:9',
+                                        ])
                                         ->nullable(),
 
                                     Select::make('status')

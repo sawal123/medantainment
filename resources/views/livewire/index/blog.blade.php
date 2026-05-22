@@ -17,7 +17,8 @@
                         <div class="thumb w-100 overflow-hidden mb-xxl-7 mb-xl-6 mb-4">
                             <a href="{{ url('/blog/detail/' . $item->slug) }}" wire:navigate>
                                 <img src="{{ asset('storage/' . $item->image) }}" alt="img"
-                                    class="w-100 overflow-hidden rounded">
+                                    class="w-100 overflow-hidden rounded"
+                                    style="aspect-ratio: 16/9; object-fit: cover;">
                             </a>
                         </div>
                         <div class="blog-cont">

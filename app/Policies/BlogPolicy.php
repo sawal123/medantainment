@@ -23,7 +23,7 @@ class BlogPolicy
      */
     public function view(User $user, Blog $blog): bool
     {
-        return $user->isAdmin() || $blog->user_id === $user->id;
+        return $user->isAdmin() || (int) $blog->user_id === (int) $user->id;
     }
 
     /**
@@ -39,7 +39,7 @@ class BlogPolicy
      */
     public function update(User $user, Blog $blog): bool
     {
-        return $user->isAdmin() || $blog->user_id === $user->id;
+        return $user->isAdmin() || (int) $blog->user_id === (int) $user->id;
     }
 
     /**
@@ -47,7 +47,7 @@ class BlogPolicy
      */
     public function delete(User $user, Blog $blog): bool
     {
-        return $user->isAdmin() || $blog->user_id === $user->id;
+        return $user->isAdmin() || (int) $blog->user_id === (int) $user->id;
     }
 
     /**

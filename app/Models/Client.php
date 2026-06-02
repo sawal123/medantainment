@@ -13,6 +13,8 @@ class Client extends Model
 
     protected $guarded = [];
 
+    
+
     protected $casts = [
         'urutan' => 'integer',
     ];

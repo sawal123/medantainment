@@ -286,6 +286,23 @@
 
                 setTimeout(fallbackToNative, 4000);
             }, true);
+
+            document.addEventListener('click', function (event) {
+                const button = event.target.closest('[data-native-fallback]');
+
+                if (!button) return;
+                if (event.defaultPrevented) return;
+
+                const fallbackUrl = button.getAttribute('data-native-fallback');
+                if (!fallbackUrl) return;
+
+                setTimeout(function () {
+                    if (!document.body.contains(button)) return;
+                    if (button.offsetParent === null) return;
+
+                    window.location.assign(fallbackUrl);
+                }, 1500);
+            }, true);
         })();
     </script>
 </body>

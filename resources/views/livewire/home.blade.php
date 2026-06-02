@@ -248,7 +248,7 @@
                     border-radius: 12px;
                 }
             </style>
-            <div class="container partners-wrapper mt-md-4 mt-2">
+            <div id="clients" class="container partners-wrapper mt-md-4 mt-2">
                 <h3 class="text-center my-4" data-aos="zoom-in-up" data-aos-duration="1500">
                     Kami akan senang bekerja dengan Anda <br>
                     <p>Berikut adalah beberapa klien kami dari nasional maupun lokal</p>
@@ -268,7 +268,8 @@
             {{-- Tombol More hanya muncul jika belum menampilkan semua --}}
             @if (!$showAll)
                 <div class="text-center mt-3" data-aos="zoom-in-up" data-aos-duration="1700">
-                    <button wire:click.prevent="tes" type="button" class="btn btn-secondary">
+                    <button wire:click.prevent="tes" type="button" class="btn btn-secondary"
+                        data-native-fallback="{{ url('/?clients=all#clients') }}">
                         More
                     </button>
                 </div>

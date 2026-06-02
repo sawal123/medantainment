@@ -66,6 +66,7 @@ class Home extends Component
     public function mount()
     {
         // error_reporting(0);
+        $this->showAll = request()->query('clients') === 'all';
         $this->setting = Setting::first();
         $this->page = 'MEDANTAINMENT';
         $this->team = Team::all();

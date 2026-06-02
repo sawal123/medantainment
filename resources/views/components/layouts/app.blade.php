@@ -236,6 +236,58 @@
         }
 
     </script>
+    <script data-navigate-once>
+        (function () {
+            if (window.__wireNavigateFallbackInstalled) return;
+            window.__wireNavigateFallbackInstalled = true;
+
+            document.addEventListener('click', function (event) {
+                const link = event.target.closest('a[wire\\:navigate]');
+
+                if (!link) return;
+                if (event.defaultPrevented) return;
+                if (event.button !== 0) return;
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                if (link.target && link.target !== '_self') return;
+
+                const href = link.href;
+                if (!href || href.startsWith('javascript:')) return;
+                if (new URL(href, window.location.href).origin !== window.location.origin) return;
+
+                const startUrl = window.location.href;
+                let livewireStarted = false;
+                let fallbackDone = false;
+
+                const markStarted = function () {
+                    livewireStarted = true;
+                };
+
+                const cleanup = function () {
+                    document.removeEventListener('livewire:navigate', markStarted);
+                    document.removeEventListener('livewire:navigating', markStarted);
+                    document.removeEventListener('livewire:navigated', cleanup);
+                };
+
+                const fallbackToNative = function () {
+                    if (fallbackDone || window.location.href !== startUrl) return;
+
+                    fallbackDone = true;
+                    cleanup();
+                    window.location.assign(href);
+                };
+
+                document.addEventListener('livewire:navigate', markStarted, { once: true });
+                document.addEventListener('livewire:navigating', markStarted, { once: true });
+                document.addEventListener('livewire:navigated', cleanup, { once: true });
+
+                setTimeout(function () {
+                    if (!livewireStarted) fallbackToNative();
+                }, 900);
+
+                setTimeout(fallbackToNative, 4000);
+            }, true);
+        })();
+    </script>
 </body>
 
 </html>

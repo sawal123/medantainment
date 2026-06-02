@@ -30,17 +30,17 @@
                                 </a>
                             </li>
                             <li class="menu-item position-relative">
-                                <a href="/project"  wire:navigate class="fw_500">
+                                <a href="/project" wire:navigate class="fw_500">
                                     Project
                                 </a>
                             </li>
                             <li class="menu-item position-relative">
-                                <a href="/gallery"  wire:navigate class="fw_500">
+                                <a href="/gallery" wire:navigate class="fw_500">
                                     Gallery
                                 </a>
                             </li>
                             <li class="menu-item position-relative">
-                                <a href="/team"  wire:navigate class="fw_500">
+                                <a href="/team" wire:navigate class="fw_500">
                                     Team
                                 </a>
                             </li>

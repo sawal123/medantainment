@@ -3174,6 +3174,7 @@ footer {
   justify-content: space-between;
   margin: 0 auto;
   transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .line-shape span {

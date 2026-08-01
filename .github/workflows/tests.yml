@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - fix/security-hardening
+      - fix/upload-url-orphan-hardening
   pull_request:
     branches:
       - main

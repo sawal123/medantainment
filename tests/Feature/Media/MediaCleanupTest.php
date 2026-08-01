@@ -2,16 +2,18 @@
 
 namespace Tests\Feature\Media;
 
-use App\Models\Blog;
 use App\Models\Candidate;
 use App\Models\Carrer;
 use App\Models\Client;
 use App\Models\Internship;
-use App\Models\Setting;
-use App\Models\User;
+use App\Traits\CleansUpMedia;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -94,7 +96,6 @@ class MediaCleanupTest extends TestCase
 
         DB::transaction(function () use ($client, $newPath) {
             $client->update(['logo' => $newPath]);
-            // Dalam transaksi, file lama masih ada sebelum commit selesai
         });
 
         Storage::disk('public')->assertMissing($oldPath);
@@ -126,7 +127,6 @@ class MediaCleanupTest extends TestCase
             // Expected rollback
         }
 
-        // File lama HARUS tetap ada setelah rollback
         Storage::disk('public')->assertExists($oldPath);
     }
 
@@ -152,7 +152,6 @@ class MediaCleanupTest extends TestCase
             // Expected rollback
         }
 
-        // File HARUS tetap ada setelah rollback
         Storage::disk('public')->assertExists($path);
     }
 
@@ -178,13 +177,11 @@ class MediaCleanupTest extends TestCase
                 throw new \Exception('Database failure simulation');
             });
         } catch (\Throwable $e) {
-            // Bersihkan file baru jika database gagal (orphan cleanup pattern)
             if (Storage::disk('public')->exists($newPath)) {
                 Storage::disk('public')->delete($newPath);
             }
         }
 
-        // File lama tetap ada, file baru orphan terhapus secara aman
         Storage::disk('public')->assertExists($oldPath);
         Storage::disk('public')->assertMissing($newPath);
     }
@@ -264,28 +261,43 @@ class MediaCleanupTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $image = UploadedFile::fake()->image('blog.jpg');
-        $imagePath = $image->store('blog', 'public');
+        Schema::create('soft_delete_test_models', function (Blueprint $table) {
+            $table->id();
+            $table->string('logo');
+            $table->softDeletes();
+            $table->timestamps();
+        });
 
-        $blog = Blog::create([
-            'user_id' => $user->id,
-            'title' => 'Blog with Image',
-            'slug' => 'blog-with-image',
-            'content' => 'Blog content',
-            'image' => $imagePath,
+        $model = new class extends Model
+        {
+            use CleansUpMedia, SoftDeletes;
+
+            protected $table = 'soft_delete_test_models';
+
+            protected $guarded = [];
+
+            protected array $mediaFields = ['logo'];
+
+            protected string $mediaDisk = 'public';
+        };
+
+        $file = UploadedFile::fake()->image('test_soft.png');
+        $path = $file->store('client', 'public');
+
+        $record = $model::create([
+            'logo' => $path,
         ]);
 
-        // Soft delete blog
-        $blog->delete();
+        // Soft delete
+        $record->delete();
 
         // File HARUS tetap ada saat soft delete
-        Storage::disk('public')->assertExists($imagePath);
+        Storage::disk('public')->assertExists($path);
 
-        // Force delete blog
-        $blog->forceDelete();
+        // Force delete
+        $record->forceDelete();
 
         // File HARUS terhapus saat force delete
-        Storage::disk('public')->assertMissing($imagePath);
+        Storage::disk('public')->assertMissing($path);
     }
 }

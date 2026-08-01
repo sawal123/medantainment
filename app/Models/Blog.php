@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\CleansUpMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -10,7 +11,11 @@ use Mews\Purifier\Facades\Purifier;
 
 class Blog extends Model
 {
-    use HasFactory;
+    use CleansUpMedia, HasFactory;
+
+    protected array $mediaFields = ['image', 'og_image'];
+
+    protected string $mediaDisk = 'public';
 
     protected $fillable = [
         'user_id', 'title', 'slug', 'content', 'image', 'category_id', 'status',
@@ -29,7 +34,7 @@ class Blog extends Model
                 $blog->user_id = Auth::id();
             }
 
-            // [PRIORITAS 7] Sanitasi HTML konten dengan profil 'blog'
+            // Sanitasi HTML konten dengan profil 'blog'
             if (! empty($blog->content)) {
                 $blog->content = Purifier::clean($blog->content, 'blog');
             }
@@ -47,7 +52,6 @@ class Blog extends Model
         });
     }
 
-    // Relasi ke Kategori
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -73,7 +77,6 @@ class Blog extends Model
         return $this->hasMany(Comment::class);
     }
 
-    // Scope untuk memfilter artikel yang sudah terbit
     public function scopePublished($query)
     {
         return $query->where(function ($q) {

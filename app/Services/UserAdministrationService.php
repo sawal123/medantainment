@@ -70,7 +70,7 @@ class UserAdministrationService
             throw new AuthorizationException('Hanya admin yang diizinkan mengelola akun pengguna.');
         }
 
-        return DB::transaction(function () use ($actor, $target) {
+        return DB::transaction(function () use ($target) {
             /** @var User $lockedTarget */
             $lockedTarget = User::where('id', $target->id)->lockForUpdate()->firstOrFail();
 

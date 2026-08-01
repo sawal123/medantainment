@@ -9,6 +9,7 @@ trait CleansUpMedia
 {
     /**
      * Catatan temporary untuk path file lama yang akan dihapus setelah update/delete berhasil.
+     *
      * @var array<string>
      */
     protected array $pendingMediaToDelete = [];
@@ -44,7 +45,7 @@ trait CleansUpMedia
                             }
                         } catch (\Throwable $e) {
                             $basename = basename($filePath);
-                            Log::error("Gagal menghapus file usang [{$basename}] pada disk [{$disk}]: " . $e->getMessage());
+                            Log::error("Gagal menghapus file usang [{$basename}] pada disk [{$disk}]: ".$e->getMessage());
                         }
                     }
                 });
@@ -56,6 +57,7 @@ trait CleansUpMedia
             // Jika model memakai SoftDeletes dan ini BUKAN force delete, abaikan
             if (method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting()) {
                 $model->pendingMediaToDelete = [];
+
                 return;
             }
 
@@ -83,7 +85,7 @@ trait CleansUpMedia
                             }
                         } catch (\Throwable $e) {
                             $basename = basename($filePath);
-                            Log::error("Gagal menghapus file record [{$basename}] pada disk [{$disk}]: " . $e->getMessage());
+                            Log::error("Gagal menghapus file record [{$basename}] pada disk [{$disk}]: ".$e->getMessage());
                         }
                     }
                 });

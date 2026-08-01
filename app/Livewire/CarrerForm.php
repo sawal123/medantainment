@@ -6,8 +6,8 @@ use App\Models\Alamat;
 use App\Models\Carrer;
 use App\Models\Setting;
 use App\Services\CareerApplicationService;
+use App\Services\CareerSubmissionRateLimiter;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -114,8 +114,10 @@ class CarrerForm extends Component
         $this->carrer_id = $this->carrer->id;
     }
 
-    public function simpan(CareerApplicationService $service): void
-    {
+    public function simpan(
+        CareerApplicationService $service,
+        CareerSubmissionRateLimiter $rateLimiter
+    ): void {
         $carrer = $this->getValidCarrer(expectedType: 'Internship');
         if ($carrer === null) {
             return;
@@ -146,10 +148,10 @@ class CarrerForm extends Component
             'alasan_internship' => 'required|string|max:3000',
         ]);
 
-        $rateLimitKey = $this->buildRateLimitKey('internship', $carrer->id);
+        $reservation = $rateLimiter->reserve('internship', $carrer->id, request()->ip(), session()->getId());
 
-        if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
-            $seconds = RateLimiter::availableIn($rateLimitKey);
+        if (! $reservation) {
+            $seconds = $rateLimiter->availableIn('internship', $carrer->id, request()->ip(), session()->getId());
             $this->addError(
                 'rate_limit',
                 "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
@@ -165,9 +167,13 @@ class CarrerForm extends Component
             'foto_diri' => $this->foto_diri,
         ];
 
-        $service->submitInternship($carrer, $validated, $files);
+        try {
+            $service->submitInternship($carrer, $validated, $files);
+        } catch (\Throwable $e) {
+            $rateLimiter->rollback($reservation);
 
-        RateLimiter::hit($rateLimitKey, 600);
+            throw $e;
+        }
 
         $this->resetInternshipFields();
 
@@ -175,8 +181,10 @@ class CarrerForm extends Component
         $this->dispatch('scroll-to-top');
     }
 
-    public function save(CareerApplicationService $service): void
-    {
+    public function save(
+        CareerApplicationService $service,
+        CareerSubmissionRateLimiter $rateLimiter
+    ): void {
         $carrer = $this->getValidCarrer(expectedType: 'regular');
         if ($carrer === null) {
             return;
@@ -184,10 +192,10 @@ class CarrerForm extends Component
 
         $this->validate();
 
-        $rateLimitKey = $this->buildRateLimitKey('career', $carrer->id);
+        $reservation = $rateLimiter->reserve('career', $carrer->id, request()->ip(), session()->getId());
 
-        if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
-            $seconds = RateLimiter::availableIn($rateLimitKey);
+        if (! $reservation) {
+            $seconds = $rateLimiter->availableIn('career', $carrer->id, request()->ip(), session()->getId());
             $this->addError(
                 'rate_limit',
                 "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
@@ -196,14 +204,18 @@ class CarrerForm extends Component
             return;
         }
 
-        $service->submitCandidate($carrer, [
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'cover_letter' => $this->cover_letter,
-        ], $this->resume);
+        try {
+            $service->submitCandidate($carrer, [
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone' => $this->phone,
+                'cover_letter' => $this->cover_letter,
+            ], $this->resume);
+        } catch (\Throwable $e) {
+            $rateLimiter->rollback($reservation);
 
-        RateLimiter::hit($rateLimitKey, 600);
+            throw $e;
+        }
 
         session()->flash('message', 'Lamaran berhasil dikirim!');
 
@@ -270,18 +282,6 @@ class CarrerForm extends Component
         }
 
         return $carrer;
-    }
-
-    private function buildRateLimitKey(string $formType, int $carrerId): string
-    {
-        $raw = implode('|', [
-            $formType,
-            $carrerId,
-            request()->ip(),
-            session()->getId(),
-        ]);
-
-        return $formType.'-form:'.hash('sha256', $raw);
     }
 
     private function resetInternshipFields(): void

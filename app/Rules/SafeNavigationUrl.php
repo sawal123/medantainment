@@ -9,74 +9,95 @@ class SafeNavigationUrl implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if ($value === null || trim((string) $value) === '') {
+            return;
+        }
+
         if (! is_string($value)) {
             $fail('Nilai URL navigasi harus berupa string.');
 
             return;
         }
 
+        if (static::normalize($value) === null) {
+            $fail('URL navigasi tidak aman atau tidak valid. Gunakan path internal (diawali /) atau HTTPS resmi.');
+        }
+    }
+
+    /**
+     * Normalisasi URL navigasi. Mengembalikan URL aman atau null jika tidak valid.
+     */
+    public static function normalize(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
         $value = trim($value);
 
         if ($value === '') {
-            return;
+            return null;
         }
 
         if (strlen($value) > 2048) {
-            $fail('Panjang URL navigasi tidak boleh melebihi 2048 karakter.');
-
-            return;
+            return null;
         }
 
-        // Control characters, newline, carriage return, or backslash rejection
-        if (preg_match('/[\r\n\x00-\x1F\x7F\\\\]/', $value)) {
-            $fail('URL navigasi memuat karakter tidak valid.');
-
-            return;
+        // Check raw & URL decoded string for control chars, newline, carriage return, or backslash
+        $decoded = rawurldecode($value);
+        if (preg_match('/[\r\n\x00-\x1F\x7F\\\\]/', $value) || preg_match('/[\r\n\x00-\x1F\x7F\\\\]/', $decoded)) {
+            return null;
         }
 
         // Rejected scheme prefixes (case-insensitive)
         $dangerousSchemes = ['javascript:', 'data:', 'file:', 'vbscript:', 'ftp:', 'http:'];
         $lowercaseValue = strtolower($value);
-        foreach ($dangerousSchemes as $scheme) {
-            if (str_starts_with($lowercaseValue, $scheme)) {
-                $fail('Skema URL tidak diperbolehkan. Gunakan path internal (diawali /) atau HTTPS.');
+        $lowercaseDecoded = strtolower($decoded);
 
-                return;
+        foreach ($dangerousSchemes as $scheme) {
+            if (str_starts_with($lowercaseValue, $scheme) || str_starts_with($lowercaseDecoded, $scheme)) {
+                return null;
             }
         }
 
         // Protocol-relative URLs (e.g., //evil.example, ///evil.example)
-        if (str_starts_with($value, '//')) {
-            $fail('URL relatif-protokol (//) tidak diperbolehkan.');
-
-            return;
+        if (str_starts_with($value, '//') || str_starts_with($decoded, '//')) {
+            return null;
         }
 
         // A. Internal URL (starts with a single /)
         if (str_starts_with($value, '/')) {
-            return;
+            if (str_starts_with($value, '//')) {
+                return null;
+            }
+
+            return $value;
         }
 
         // B. External URL (must start with https://)
         if (! str_starts_with($lowercaseValue, 'https://')) {
-            $fail('URL eksternal wajib menggunakan protokol HTTPS (https://).');
-
-            return;
+            return null;
         }
 
         // Parse HTTPS URL
         $parsed = parse_url($value);
         if ($parsed === false || empty($parsed['host'])) {
-            $fail('Struktur URL eksternal tidak valid.');
-
-            return;
+            return null;
         }
 
         // Username or password rejection
         if (! empty($parsed['user']) || ! empty($parsed['pass'])) {
-            $fail('URL eksternal tidak boleh memuat kredensial autentikasi.');
-
-            return;
+            return null;
         }
+
+        return $value;
+    }
+
+    /**
+     * Periksa apakah URL navigasi valid dan aman.
+     */
+    public static function isValid(?string $value): bool
+    {
+        return static::normalize($value) !== null;
     }
 }

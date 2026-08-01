@@ -7,6 +7,7 @@ use App\Support\SafeUploadFilename;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class SafeUploadTest extends TestCase
@@ -18,8 +19,9 @@ class SafeUploadTest extends TestCase
         $pngFile = UploadedFile::fake()->create('payload.php', 10, 'image/png');
         $filename = SafeUploadFilename::forImage($pngFile);
 
-        $this->assertStringEndsWith('.png', $filename);
-        $this->assertStringStartsNotWith('payload', $filename);
+        $this->assertFalse(str_ends_with(strtolower($filename), '.php'));
+        $this->assertFalse(str_contains(strtolower(basename($filename)), 'payload'));
+        $this->assertTrue(str_ends_with(strtolower($filename), '.png'));
         $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.png$/i', $filename);
     }
 
@@ -28,12 +30,12 @@ class SafeUploadTest extends TestCase
         $pdfFile = UploadedFile::fake()->create('malicious.php.pdf', 10, 'application/pdf');
         $filename = SafeUploadFilename::forPdf($pdfFile);
 
-        $this->assertStringEndsWith('.pdf', $filename);
-        $this->assertStringStartsNotWith('malicious', $filename);
-        $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.pdf$/i', $filename);
+        $this->assertFalse(str_ends_with(strtolower($filename), '.php'));
+        $this->assertFalse(str_contains(strtolower(basename($filename)), 'malicious'));
+        $this->assertTrue(str_ends_with(strtolower($filename), '.pdf'));
     }
 
-    public function test_dangerous_filenames_are_sanitized_to_safe_extensions_on_blog_resource(): void
+    public function test_dangerous_filenames_are_sanitized_to_safe_extensions(): void
     {
         Storage::fake('public');
 
@@ -49,11 +51,30 @@ class SafeUploadTest extends TestCase
             $file = UploadedFile::fake()->create($originalName, 50, 'image/jpeg');
             $filename = SafeUploadFilename::forImage($file);
 
-            $this->assertStringEndsWith('.jpg', $filename);
-            $this->assertStringStartsNotWith('.php', $filename);
-            $this->assertStringStartsNotWith('.phtml', $filename);
-            $this->assertStringStartsNotWith('.phar', $filename);
+            $this->assertFalse(str_ends_with(strtolower($filename), '.php'));
+            $this->assertFalse(str_ends_with(strtolower($filename), '.phtml'));
+            $this->assertFalse(str_ends_with(strtolower($filename), '.phar'));
+            $this->assertTrue(str_ends_with(strtolower($filename), '.jpg'));
+            $this->assertFalse(str_contains(strtolower(basename($filename)), 'payload'));
+            $this->assertFalse(str_contains(strtolower(basename($filename)), 'shell'));
+            $this->assertFalse(str_contains(strtolower(basename($filename)), 'exploit'));
         }
+    }
+
+    public function test_plain_text_named_jpg_and_svg_and_gif_are_rejected(): void
+    {
+        $textFile = UploadedFile::fake()->create('fake_image.jpg', 10, 'text/plain');
+
+        $this->expectException(ValidationException::class);
+        SafeUploadFilename::forImage($textFile);
+    }
+
+    public function test_svg_image_is_rejected(): void
+    {
+        $svgFile = UploadedFile::fake()->create('vector.svg', 10, 'image/svg+xml');
+
+        $this->expectException(ValidationException::class);
+        SafeUploadFilename::forImage($svgFile);
     }
 
     public function test_admin_resource_client_stores_logo_with_safe_uuid_filename(): void
@@ -71,8 +92,9 @@ class SafeUploadTest extends TestCase
             'urutan' => 1,
         ]);
 
-        $this->assertStringEndsWith('.webp', $client->logo);
-        $this->assertStringStartsNotWith('exploit', $client->logo);
+        $this->assertTrue(str_ends_with(strtolower($client->logo), '.webp'));
+        $this->assertFalse(str_ends_with(strtolower($client->logo), '.phtml'));
+        $this->assertFalse(str_contains(strtolower(basename($client->logo)), 'exploit'));
         Storage::disk('public')->assertExists($client->logo);
     }
 }

@@ -55,11 +55,10 @@ class SafeUploadFilename
     protected static function detectMimeType(mixed $file): string
     {
         if (is_object($file) && method_exists($file, 'getMimeType')) {
-            return (string) $file->getMimeType();
-        }
-
-        if ($file instanceof UploadedFile) {
-            return (string) $file->getMimeType();
+            $mime = $file->getMimeType();
+            if (is_string($mime) && ! empty($mime)) {
+                return strtolower($mime);
+            }
         }
 
         throw ValidationException::withMessages([

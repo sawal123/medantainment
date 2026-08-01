@@ -27,6 +27,7 @@ class UrlSecurityTest extends TestCase
             });
 
             $this->assertFalse($failed, "URL valid [{$url}] ditolak oleh SafeNavigationUrl.");
+            $this->assertNotNull(SafeNavigationUrl::normalize($url));
         }
     }
 
@@ -52,6 +53,7 @@ class UrlSecurityTest extends TestCase
             });
 
             $this->assertTrue($failed, "URL tidak aman [{$url}] berhasil lolos validasi SafeNavigationUrl.");
+            $this->assertNull(SafeNavigationUrl::normalize($url));
         }
     }
 
@@ -73,22 +75,30 @@ class UrlSecurityTest extends TestCase
         );
     }
 
-    public function test_hero_video_iframe_renders_mandatory_security_attributes(): void
+    public function test_safe_video_embed_url_rejects_malicious_or_spoofed_video_urls(): void
     {
-        $view = $this->blade('
-            @if (!empty($hero["hero4"]))
-                @php
-                    $embedUrl = \App\Rules\SafeVideoEmbedUrl::toEmbedUrl($hero["hero4"]);
-                @endphp
-                @if (!empty($embedUrl))
-                    <iframe src="{{ $embedUrl }}" title="hero-video" frameborder="0"
-                        sandbox="allow-scripts allow-same-origin allow-presentation"
-                        loading="lazy"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        allowfullscreen></iframe>
-                @endif
-            @endif
-        ', [
+        $maliciousUrls = [
+            'https://youtu.be/dQw4w9WgXcQ/evil',
+            'https://youtu.be/dQw4w9WgXcQ?x=<script>',
+            'https://youtube.com:444/watch?v=dQw4w9WgXcQ',
+            'https://player.vimeo.com.evil.example/video/123456789',
+            'https://youtube.com@evil.example/watch?v=dQw4w9WgXcQ',
+            'http://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            '//youtube.com/embed/dQw4w9WgXcQ',
+        ];
+
+        foreach ($maliciousUrls as $url) {
+            $this->assertEquals(
+                '',
+                SafeVideoEmbedUrl::toEmbedUrl($url),
+                "URL video tidak aman [{$url}] lolos dari toEmbedUrl()."
+            );
+        }
+    }
+
+    public function test_hero_video_production_partial_renders_mandatory_security_attributes(): void
+    {
+        $view = $this->view('livewire.partials.hero-video', [
             'hero' => ['hero4' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
         ]);
 
@@ -99,5 +109,6 @@ class UrlSecurityTest extends TestCase
         $this->assertStringContainsString('loading="lazy"', $rendered);
         $this->assertStringContainsString('referrerpolicy="strict-origin-when-cross-origin"', $rendered);
         $this->assertStringContainsString('allowfullscreen', $rendered);
+        $this->assertStringContainsString('title="hero-video"', $rendered);
     }
 }

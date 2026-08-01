@@ -20,32 +20,44 @@ class SafeVideoEmbedUrl implements ValidationRule
 
         $url = trim($value);
 
-        // 1. Dilarang mengandung tag HTML (misal iframe)
-        if (str_contains($url, '<') || str_contains($url, '>')) {
-            $fail('Input tidak boleh mengandung tag HTML atau iframe.');
+        if (static::toEmbedUrl($url) === '') {
+            $fail('URL video tidak valid atau berasal dari domain tidak terpercaya.');
+        }
+    }
 
-            return;
+    /**
+     * Konversi URL YouTube/Vimeo menjadi URL embed resmi dan aman.
+     * Dapat dipanggil langsung tanpa perlu diproses validate() terlebih dahulu.
+     */
+    public static function toEmbedUrl(?string $url): string
+    {
+        if ($url === null) {
+            return '';
         }
 
-        // 2. Wajib HTTPS
-        if (! str_starts_with(strtolower($url), 'https://')) {
-            $fail('URL video wajib menggunakan protokol HTTPS.');
+        $url = trim($url);
+        if (empty($url) || strlen($url) > 2048) {
+            return '';
+        }
 
-            return;
+        // Control character, newline, carriage return, or backslash rejection
+        if (preg_match('/[\r\n\x00-\x1F\x7F\\\\]/', $url) || str_contains($url, '<') || str_contains($url, '>')) {
+            return '';
+        }
+
+        // Protocol-relative URLs or non-HTTPS URLs rejection
+        if (! str_starts_with(strtolower($url), 'https://')) {
+            return '';
         }
 
         $parsed = parse_url($url);
-        if ($parsed === false || ! isset($parsed['host'])) {
-            $fail('Format URL video tidak valid.');
-
-            return;
+        if ($parsed === false || ! isset($parsed['host']) || empty($parsed['host'])) {
+            return '';
         }
 
-        // 3. Tolak kredensial user/password dalam URL (e.g. user:pass@host)
-        if (isset($parsed['user']) || isset($parsed['pass'])) {
-            $fail('URL video tidak boleh mengandung kredensial pengguna.');
-
-            return;
+        // Rejection of credentials or non-default ports
+        if (isset($parsed['user']) || isset($parsed['pass']) || isset($parsed['port'])) {
+            return '';
         }
 
         $host = strtolower($parsed['host']);
@@ -57,83 +69,45 @@ class SafeVideoEmbedUrl implements ValidationRule
             'player.vimeo.com',
         ];
 
-        // 4. Host harus persis salah satu dari allowed hosts (mencegah spoofing subdomain)
         if (! in_array($host, $allowedHosts, true)) {
-            $fail('URL video harus berasal dari YouTube atau Vimeo resmi.');
-
-            return;
-        }
-
-        // 5. Validasi Video ID eksplisit
-        if (in_array($host, ['youtube.com', 'www.youtube.com', 'youtu.be'], true)) {
-            $hasVideoId = false;
-
-            if (str_contains($url, '/shorts/')) {
-                if (preg_match('/shorts\/([a-zA-Z0-9_-]{5,})/', $url)) {
-                    $hasVideoId = true;
-                }
-            } elseif (preg_match('/(youtu\.be\/|v=|\/embed\/|\/v\/|\/watch\?v=)([a-zA-Z0-9_-]{5,})/', $url)) {
-                $hasVideoId = true;
-            }
-
-            if (! $hasVideoId) {
-                $fail('URL YouTube tidak memiliki ID video yang valid.');
-
-                return;
-            }
-        } elseif (in_array($host, ['vimeo.com', 'player.vimeo.com'], true)) {
-            if (! preg_match('/(?:vimeo\.com\/|video\/)(\d+)/', $url)) {
-                $fail('URL Vimeo tidak memiliki ID video yang valid.');
-
-                return;
-            }
-        }
-    }
-
-    /**
-     * Konversi URL YouTube/Vimeo menjadi URL embed resmi dan aman.
-     */
-    public static function toEmbedUrl(string $url): string
-    {
-        $url = trim($url);
-        if (empty($url)) {
             return '';
         }
 
-        $parsed = parse_url($url);
-        if ($parsed === false || ! isset($parsed['host'])) {
-            return '';
-        }
-
-        $host = strtolower($parsed['host']);
-
-        // YouTube
+        // YouTube Processing
         if (in_array($host, ['youtube.com', 'www.youtube.com', 'youtu.be'], true)) {
-            if (str_contains($url, '/shorts/')) {
-                if (preg_match('/shorts\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
-                    return 'https://www.youtube.com/embed/'.$matches[1];
+            $path = $parsed['path'] ?? '';
+            $videoId = '';
+
+            if (str_contains($path, '/shorts/')) {
+                if (preg_match('/^\/shorts\/([a-zA-Z0-9_-]{5,20})$/', $path, $matches)) {
+                    $videoId = $matches[1];
                 }
             } elseif ($host === 'youtu.be') {
-                $path = ltrim($parsed['path'] ?? '', '/');
-                if (! empty($path)) {
-                    return 'https://www.youtube.com/embed/'.$path;
+                $trimmedPath = ltrim($path, '/');
+                if (preg_match('/^[a-zA-Z0-9_-]{5,20}$/', $trimmedPath)) {
+                    $videoId = $trimmedPath;
                 }
             } else {
                 if (isset($parsed['query'])) {
                     parse_str($parsed['query'], $qs);
-                    if (! empty($qs['v'])) {
-                        return 'https://www.youtube.com/embed/'.$qs['v'];
+                    if (! empty($qs['v']) && is_string($qs['v']) && preg_match('/^[a-zA-Z0-9_-]{5,20}$/', $qs['v'])) {
+                        $videoId = $qs['v'];
                     }
                 }
-                if (preg_match('/embed\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
-                    return 'https://www.youtube.com/embed/'.$matches[1];
+                if (empty($videoId) && preg_match('/^\/embed\/([a-zA-Z0-9_-]{5,20})$/', $path, $matches)) {
+                    $videoId = $matches[1];
                 }
+            }
+
+            if (! empty($videoId)) {
+                return 'https://www.youtube.com/embed/'.$videoId;
             }
         }
 
-        // Vimeo
+        // Vimeo Processing
         if (in_array($host, ['vimeo.com', 'player.vimeo.com'], true)) {
-            if (preg_match('/(?:vimeo\.com\/|video\/)(\d+)/', $url, $matches)) {
+            $path = $parsed['path'] ?? '';
+            if (preg_match('/^\/(?:video\/)?(\d{5,15})$/', $path, $matches)) {
                 return 'https://player.vimeo.com/video/'.$matches[1];
             }
         }

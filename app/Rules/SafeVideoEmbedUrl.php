@@ -28,7 +28,7 @@ class SafeVideoEmbedUrl implements ValidationRule
         }
 
         // 2. Wajib HTTPS
-        if (! str_starts_with($url, 'https://')) {
+        if (! str_starts_with(strtolower($url), 'https://')) {
             $fail('URL video wajib menggunakan protokol HTTPS.');
 
             return;
@@ -88,5 +88,56 @@ class SafeVideoEmbedUrl implements ValidationRule
                 return;
             }
         }
+    }
+
+    /**
+     * Konversi URL YouTube/Vimeo menjadi URL embed resmi dan aman.
+     */
+    public static function toEmbedUrl(string $url): string
+    {
+        $url = trim($url);
+        if (empty($url)) {
+            return '';
+        }
+
+        $parsed = parse_url($url);
+        if ($parsed === false || ! isset($parsed['host'])) {
+            return '';
+        }
+
+        $host = strtolower($parsed['host']);
+
+        // YouTube
+        if (in_array($host, ['youtube.com', 'www.youtube.com', 'youtu.be'], true)) {
+            if (str_contains($url, '/shorts/')) {
+                if (preg_match('/shorts\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                    return 'https://www.youtube.com/embed/'.$matches[1];
+                }
+            } elseif ($host === 'youtu.be') {
+                $path = ltrim($parsed['path'] ?? '', '/');
+                if (! empty($path)) {
+                    return 'https://www.youtube.com/embed/'.$path;
+                }
+            } else {
+                if (isset($parsed['query'])) {
+                    parse_str($parsed['query'], $qs);
+                    if (! empty($qs['v'])) {
+                        return 'https://www.youtube.com/embed/'.$qs['v'];
+                    }
+                }
+                if (preg_match('/embed\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+                    return 'https://www.youtube.com/embed/'.$matches[1];
+                }
+            }
+        }
+
+        // Vimeo
+        if (in_array($host, ['vimeo.com', 'player.vimeo.com'], true)) {
+            if (preg_match('/(?:vimeo\.com\/|video\/)(\d+)/', $url, $matches)) {
+                return 'https://player.vimeo.com/video/'.$matches[1];
+            }
+        }
+
+        return '';
     }
 }

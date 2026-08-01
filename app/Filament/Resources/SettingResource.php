@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SettingResource\Pages;
 use App\Models\Setting;
+use App\Support\SafeUploadFilename;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -14,7 +15,6 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class SettingResource extends Resource
 {
@@ -58,7 +58,7 @@ class SettingResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     ),
 
                 FileUpload::make('favicon')
@@ -69,7 +69,7 @@ class SettingResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(1024)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     ),
 
                 TextInput::make('seo_title')

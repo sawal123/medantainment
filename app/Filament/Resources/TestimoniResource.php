@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TestimoniResource\Pages;
 use App\Models\Testimoni;
+use App\Support\SafeUploadFilename;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -14,7 +15,6 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class TestimoniResource extends Resource
 {
@@ -68,7 +68,7 @@ class TestimoniResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     )
                     ->nullable(),
             ]);

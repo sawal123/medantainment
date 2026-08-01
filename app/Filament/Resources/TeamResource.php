@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TeamResource\Pages;
 use App\Models\Team;
+use App\Support\SafeUploadFilename;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -13,7 +14,6 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class TeamResource extends Resource
 {
@@ -22,10 +22,6 @@ class TeamResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Website';
-
-    // ───────────────────────────────────────────────
-    // Authorization — Admin Only
-    // ───────────────────────────────────────────────
 
     public static function canAccess(): bool
     {
@@ -46,10 +42,6 @@ class TeamResource extends Resource
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
-
-    // ───────────────────────────────────────────────
-    // Form
-    // ───────────────────────────────────────────────
 
     public static function form(Form $form): Form
     {
@@ -75,18 +67,13 @@ class TeamResource extends Resource
                         'image/png',
                         'image/webp',
                     ])
-                    ->maxSize(2048) // 2 MB
+                    ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.
-                            strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     )
                     ->required(),
             ]);
     }
-
-    // ───────────────────────────────────────────────
-    // Table
-    // ───────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {

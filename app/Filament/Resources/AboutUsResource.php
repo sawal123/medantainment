@@ -4,13 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AboutUsResource\Pages;
 use App\Models\AboutUs;
+use App\Support\SafeUploadFilename;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class AboutUsResource extends Resource
 {
@@ -73,7 +73,7 @@ class AboutUsResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     )
                     ->nullable(),
 

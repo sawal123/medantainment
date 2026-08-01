@@ -165,47 +165,23 @@
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element1">
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element2">
 
-            {{-- Separate YouTube video section (independent from slides) --}}
+            {{-- Separate YouTube/Vimeo video section (independent from slides) --}}
             @if (!empty($hero['hero4']))
                 @php
-                    $videoUrl = trim($hero['hero4']);
-                    $embedUrl = '';
-
-                    if (!empty($videoUrl)) {
-                        if (str_contains($videoUrl, 'youtube.com/watch')) {
-                            parse_str(parse_url($videoUrl, PHP_URL_QUERY) ?: '', $qs);
-                            if (!empty($qs['v'])) {
-                                $embedUrl = 'https://www.youtube.com/embed/' . $qs['v'];
-                            }
-                        }
-
-                        if (empty($embedUrl) && str_contains($videoUrl, 'youtu.be')) {
-                            $path = parse_url($videoUrl, PHP_URL_PATH) ?: '';
-                            $id = ltrim($path, '/');
-                            if ($id) {
-                                $embedUrl = 'https://www.youtube.com/embed/' . $id;
-                            }
-                        }
-
-                        if (empty($embedUrl) && str_contains($videoUrl, 'youtube.com/embed')) {
-                            $embedUrl = $videoUrl;
-                        }
-
-                        if (empty($embedUrl) && preg_match('#^https?://#i', $videoUrl)) {
-                            $embedUrl = $videoUrl;
-                        }
-                    }
+                    $embedUrl = \App\Rules\SafeVideoEmbedUrl::toEmbedUrl($hero['hero4']);
                 @endphp
 
                 @if (!empty($embedUrl))
                     <section class="container my-md-5 my-3 mt-5 video-section" data-aos="zoom-in-up"
                         data-aos-duration="900">
                         <div class="text-center mb-4 mt-md-5 mt-3">
-                            {{-- <h3 class="text-white">Watch Our Video</h3> --}}
                         </div>
                         <div class="ratio ratio-16x9" style="border-radius:10px; overflow:hidden;">
                             <iframe src="{{ $embedUrl }}" title="hero-video" frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                sandbox="allow-scripts allow-same-origin allow-presentation"
+                                loading="lazy"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowfullscreen></iframe>
                         </div>
                     </section>

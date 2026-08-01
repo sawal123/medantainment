@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SlideResource\Pages;
 use App\Models\Slide;
+use App\Rules\SafeNavigationUrl;
+use App\Support\SafeUploadFilename;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,7 +15,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class SlideResource extends Resource
 {
@@ -42,7 +43,6 @@ class SlideResource extends Resource
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
-    // protected static ?string $navigationLabel = 'Slide';
 
     public static function form(Form $form): Form
     {
@@ -61,7 +61,7 @@ class SlideResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     )
                     ->visibility('public'),
 
@@ -74,7 +74,9 @@ class SlideResource extends Resource
 
                 Forms\Components\TextInput::make('link')
                     ->label('Link')
-                    ->maxLength(255),
+                    ->maxLength(2048)
+                    ->rules([new SafeNavigationUrl])
+                    ->nullable(),
 
                 Forms\Components\Toggle::make('is_active')
                     ->label('Aktif')

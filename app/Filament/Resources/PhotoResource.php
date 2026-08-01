@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PhotoResource\Pages;
 use App\Models\Photo;
+use App\Support\SafeUploadFilename;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -14,7 +15,6 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class PhotoResource extends Resource
 {
@@ -69,18 +69,18 @@ class PhotoResource extends Resource
                         'Wedding' => 'Wedding',
                         'Dokumentasi' => 'Dokumentas',
                     ])
-                    ->searchable() // Masih bisa dicari
+                    ->searchable()
                     ->required(),
 
                 FileUpload::make('photo')
                     ->label('Upload Photo')
-                    ->disk('public') // Simpan di storage/public
-                    ->directory('photos') // Folder dalam storage/app/public/photos
-                    ->image() // Hanya menerima gambar
+                    ->disk('public')
+                    ->directory('photos')
+                    ->image()
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     )
                     ->required()
                     ->visibility('public'),

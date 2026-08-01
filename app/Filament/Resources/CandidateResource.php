@@ -4,13 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CandidateResource\Pages;
 use App\Models\Candidate;
+use App\Support\SafeUploadFilename;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class CandidateResource extends Resource
 {
@@ -21,10 +21,6 @@ class CandidateResource extends Resource
     protected static ?string $navigationGroup = 'Carrer';
 
     protected static ?string $navigationLabel = 'Kandidat';
-
-    // ───────────────────────────────────────────────
-    // Authorization — Admin Only
-    // ───────────────────────────────────────────────
 
     public static function canAccess(): bool
     {
@@ -50,10 +46,6 @@ class CandidateResource extends Resource
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
-
-    // ───────────────────────────────────────────────
-    // Form
-    // ───────────────────────────────────────────────
 
     public static function form(Form $form): Form
     {
@@ -82,16 +74,14 @@ class CandidateResource extends Resource
                     ->required()
                     ->maxLength(20),
 
-                // Resume disimpan di disk private, tidak bisa diakses publik
-                // Download dilakukan melalui endpoint terproteksi
                 Forms\Components\FileUpload::make('resume')
                     ->label('CV / Resume')
                     ->disk('private')
                     ->directory('candidates/resumes')
                     ->acceptedFileTypes(['application/pdf'])
-                    ->maxSize(4096) // 4 MB
+                    ->maxSize(4096)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.pdf'
+                        fn ($file): string => SafeUploadFilename::forPdf($file)
                     )
                     ->helperText('Hanya file PDF. Maksimal 4 MB.'),
 
@@ -111,10 +101,6 @@ class CandidateResource extends Resource
                     ->disabled(),
             ]);
     }
-
-    // ───────────────────────────────────────────────
-    // Table
-    // ───────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {
@@ -136,7 +122,6 @@ class CandidateResource extends Resource
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Nomor Telepon'),
 
-                // Ganti URL publik dengan action download terproteksi
                 Tables\Columns\TextColumn::make('resume')
                     ->label('CV / Resume')
                     ->formatStateUsing(fn ($state) => $state ? '📄 Tersedia' : '-')
@@ -162,7 +147,6 @@ class CandidateResource extends Resource
                 //
             ])
             ->actions([
-                // Download CV melalui endpoint terproteksi (bukan direct URL)
                 Tables\Actions\Action::make('download_resume')
                     ->label('Unduh CV')
                     ->icon('heroicon-o-document-arrow-down')

@@ -10,7 +10,6 @@
                         class="btn border {{ $selectedCategory == 'all' ? 'btn-primary' : 'btn-dark' }}">
                         All
                     </button>
-                    {{-- {{$categoryFilm}} --}}
                     @foreach ($categoryFilm as $item)
                         <button type="button" wire:click="Clickfilm('{{ $item->slug }}')"
                             class="btn border {{ $selectedCategory == $item->slug ? 'btn-primary' : 'btn-dark' }} my-1">
@@ -29,13 +28,20 @@
                     @foreach ($films as $item)
                         <div class="col-lg-3 col-md-6 col-sm-6">
                             <div class="blog-widget-item">
-                                <div class="thumb w-100 overflow-hidden   rounded-md">
-                                    <iframe src="{{ $item->link }}" class="w-100 overflow-hidden " height="250"
-                                        style="border:1px solid #ccc;border-radius: 10px;" title="Contoh Iframe">
+                                <div class="thumb w-100 overflow-hidden rounded-md">
+                                    <iframe src="{{ $item->link }}"
+                                        class="w-100 overflow-hidden"
+                                        height="250"
+                                        style="border:1px solid #ccc;border-radius: 10px;"
+                                        title="{{ $item->name ?? 'Video Project' }}"
+                                        loading="lazy"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
+                                        allowfullscreen>
                                     </iframe>
                                 </div>
                                 <div class="px-2">
-                                    {{-- <span class="text-sm fs-6">{{ $item->name }}</span> --}}
                                     <p class="text-sm " style="font-size: 12px; border-radius: 1px;">
                                         {{ $item->client->name ?? 'No Client' }}
                                     </p>
@@ -51,18 +57,11 @@
 
                 </div>
 
-
-
-
             </div>
-
-
 
         </section>
     </main>
     <script>
-        //           document.addEventListener("livewire:navigated", () => {
-        //   });
         window.addEventListener('change-url', event => {
             const slug = event.detail.slug;
 

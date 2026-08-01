@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class CommentResource extends Resource
 {
@@ -19,6 +20,26 @@ class CommentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
 
     protected static ?string $navigationLabel = 'Komentar';
+
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
 
     public static function form(Form $form): Form
     {
@@ -78,7 +99,7 @@ class CommentResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(fn (Comment $record) => $record->update(['is_approved' => true]))
-                    ->visible(fn (Comment $record) => !$record->is_approved),
+                    ->visible(fn (Comment $record) => ! $record->is_approved),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

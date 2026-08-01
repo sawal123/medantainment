@@ -2,29 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\CleansUpMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
 {
-    use HasFactory;
+    use CleansUpMedia, HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'client_id',
+        'title',
+        'photo',
+        'urutan',
+    ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::deleting(function ($photo) {
-            if ($photo->photo) {
-                Storage::disk('public')->delete($photo->photo);
-            }
-        });
-    }
+    protected array $mediaFields = ['photo'];
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class);
+        return $this->belongsTo(Client::class);
     }
 }

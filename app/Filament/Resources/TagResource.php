@@ -10,6 +10,7 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class TagResource extends Resource
@@ -19,6 +20,26 @@ class TagResource extends Resource
     protected static ?string $navigationGroup = 'Blog Posts';
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
+
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
 
     public static function form(Form $form): Form
     {

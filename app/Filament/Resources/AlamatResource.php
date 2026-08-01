@@ -2,72 +2,91 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Alamat;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\AlamatResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\AlamatResource\RelationManagers;
+use App\Models\Alamat;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class AlamatResource extends Resource
 {
     protected static ?string $model = Alamat::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-map';
+
     protected static ?string $navigationLabel = 'Alamat Kantor';
+
     protected static ?string $slug = 'alamat-kantor'; // Mengubah URL menu Filament
+
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('office_name')
-                ->label('Nama Kantor')
-                ->default('Medantainment')
+                    ->label('Nama Kantor')
+                    ->default('Medantainment')
                 // ->disabled()
-                ->required(),
+                    ->required(),
 
-            TextInput::make('street')
-                ->label('Alamat Jalan')
-                ->required(),
+                TextInput::make('street')
+                    ->label('Alamat Jalan')
+                    ->required(),
 
-            TextInput::make('city')
-                ->label('Kota')
-                ->required(),
+                TextInput::make('city')
+                    ->label('Kota')
+                    ->required(),
 
-            TextInput::make('state')
-                ->label('Provinsi')
-                ->nullable(),
+                TextInput::make('state')
+                    ->label('Provinsi')
+                    ->nullable(),
 
-            TextInput::make('postal_code')
-                ->label('Kode Pos')
-                ->numeric()
-                ->nullable(),
+                TextInput::make('postal_code')
+                    ->label('Kode Pos')
+                    ->numeric()
+                    ->nullable(),
 
-            TextInput::make('country')
-                ->label('Negara')
-                ->default('Indonesia')
-                ->required(),
+                TextInput::make('country')
+                    ->label('Negara')
+                    ->default('Indonesia')
+                    ->required(),
 
-            TextInput::make('phone')
-                ->label('Nomor Telepon')
-                ->tel()
-                ->nullable(),
+                TextInput::make('phone')
+                    ->label('Nomor Telepon')
+                    ->tel()
+                    ->nullable(),
 
-            TextInput::make('email')
-                ->label('Email')
-                ->email()
-                ->nullable(),
+                TextInput::make('email')
+                    ->label('Email')
+                    ->email()
+                    ->nullable(),
 
-            TextInput::make('maps_link')
-                ->label('Link Google Maps')
-                ->required(),
+                TextInput::make('maps_link')
+                    ->label('Link Google Maps')
+                    ->required(),
             ]);
     }
 

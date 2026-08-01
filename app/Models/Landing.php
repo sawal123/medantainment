@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Log;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Landing extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
-    
+
     // public function setValueAttribute($value)
     // {
     //     \Log::info('Data yang masuk ke mutator:', ['value' => $value]);

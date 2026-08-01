@@ -2,34 +2,53 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Client;
-use App\Models\Project;
+use App\Filament\Resources\ProjectResource\Pages;
 use App\Models\CategoryFilm;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
+use App\Models\Project;
+use App\Rules\SafeVideoEmbedUrl;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Actions\Action;
-use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\ProjectResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\ProjectResource\RelationManagers;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-video-camera';
+
     protected static ?string $navigationLabel = 'Film';
+
     protected static ?string $navigationGroup = 'Project';
+
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
 
     public static function form(Form $form): Form
     {
@@ -50,6 +69,7 @@ class ProjectResource extends Resource
                 TextInput::make('link')
                     ->label('Link Video')
                     ->required()
+                    ->rule(new SafeVideoEmbedUrl)
                     ->maxLength(255),
 
                 Textarea::make('description')
@@ -123,32 +143,12 @@ class ProjectResource extends Resource
                 Action::make('up')
                     ->label('Up')
                     ->icon('heroicon-o-arrow-up')
-                    ->action(function (Project $record) {
-                        $above = Project::where('urutan', '<', $record->urutan)
-                            ->orderBy('urutan', 'desc')
-                            ->first();
-
-                        if ($above) {
-                            $currentOrder = $record->urutan;
-                            $record->update(['urutan' => $above->urutan]);
-                            $above->update(['urutan' => $currentOrder]);
-                        }
-                    }),
+                    ->action(fn (Project $record) => $record->moveUp()),
 
                 Action::make('down')
                     ->label('Down')
                     ->icon('heroicon-o-arrow-down')
-                    ->action(function (Project $record) {
-                        $below = Project::where('urutan', '>', $record->urutan)
-                            ->orderBy('urutan', 'asc')
-                            ->first();
-
-                        if ($below) {
-                            $currentOrder = $record->urutan;
-                            $record->update(['urutan' => $below->urutan]);
-                            $below->update(['urutan' => $currentOrder]);
-                        }
-                    }),
+                    ->action(fn (Project $record) => $record->moveDown()),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

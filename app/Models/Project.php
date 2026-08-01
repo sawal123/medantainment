@@ -4,21 +4,32 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Project extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'client_id',
+        'name',
+        'link',
+        'description',
+        'start_date',
+        'end_date',
+        'category_film_id',
+        'type',
+        'urutan',
+    ];
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class);
+        return $this->belongsTo(Client::class);
     }
 
     public function categoryFilm()
     {
-        return $this->belongsTo(\App\Models\CategoryFilm::class);
+        return $this->belongsTo(CategoryFilm::class);
     }
 
     public function setLinkAttribute($value)
@@ -27,55 +38,108 @@ class Project extends Model
     }
 
     /**
-     * Pindah ke atas (urutan berkurang)
+     * Pindah ke atas (urutan berkurang) — menggunakan transaction + lockForUpdate.
      */
     public function moveUp(): void
     {
-        $previous = static::where('urutan', '<', $this->urutan)
-            ->orderBy('urutan', 'desc')
-            ->first();
+        DB::transaction(function () {
+            /** @var Project|null $previous */
+            $previous = static::lockForUpdate()
+                ->where('urutan', '<', $this->urutan)
+                ->orderBy('urutan', 'desc')
+                ->first();
 
-        if ($previous) {
-            $oldUrutan = $this->urutan;
-            $this->updateQuietly(['urutan' => $previous->urutan]);
-            $previous->updateQuietly(['urutan' => $oldUrutan]);
-        }
+            if ($previous) {
+                $oldUrutan = $this->urutan;
+                $this->updateQuietly(['urutan' => $previous->urutan]);
+                $previous->updateQuietly(['urutan' => $oldUrutan]);
+            }
+        });
     }
 
     /**
-     * Pindah ke bawah (urutan bertambah)
+     * Pindah ke bawah (urutan bertambah) — menggunakan transaction + lockForUpdate.
      */
     public function moveDown(): void
     {
-        $next = static::where('urutan', '>', $this->urutan)
-            ->orderBy('urutan', 'asc')
-            ->first();
+        DB::transaction(function () {
+            /** @var Project|null $next */
+            $next = static::lockForUpdate()
+                ->where('urutan', '>', $this->urutan)
+                ->orderBy('urutan', 'asc')
+                ->first();
 
-        if ($next) {
-            $oldUrutan = $this->urutan;
-            $this->updateQuietly(['urutan' => $next->urutan]);
-            $next->updateQuietly(['urutan' => $oldUrutan]);
-        }
+            if ($next) {
+                $oldUrutan = $this->urutan;
+                $this->updateQuietly(['urutan' => $next->urutan]);
+                $next->updateQuietly(['urutan' => $oldUrutan]);
+            }
+        });
     }
 
-    private function convertToEmbed($url)
+    /**
+     * Normalisasi URL YouTube ke format embed yang aman.
+     * Hanya menerima HTTPS dari domain YouTube atau Vimeo.
+     * Menolak javascript:, data:, URL relatif, dan domain lain.
+     *
+     * @throws \InvalidArgumentException jika URL tidak valid
+     */
+    private function convertToEmbed($url): string
     {
-        // Cek apakah link YouTube
-        if (strpos($url, 'youtube.com') !== false || strpos($url, 'youtu.be') !== false) {
-
-            // Pattern untuk YouTube Shorts
-            if (strpos($url, '/shorts/') !== false) {
-                preg_match('/shorts\/([^?]+)/', $url, $matches);
-
-                return isset($matches[1]) ? "https://www.youtube.com/embed/{$matches[1]}" : $url;
-            }
-
-            // Pattern untuk YouTube normal
-            preg_match('/(youtu\.be\/|v=|\/embed\/|\/v\/|\/watch\?v=)([^&]+)/', $url, $matches);
-
-            return isset($matches[2]) ? "https://www.youtube.com/embed/{$matches[2]}" : $url;
+        if (empty($url)) {
+            return '';
         }
 
-        return $url;
+        // Hanya terima HTTPS
+        if (! str_starts_with($url, 'https://')) {
+            throw new \InvalidArgumentException(
+                'URL video harus menggunakan HTTPS dan berasal dari YouTube atau Vimeo.'
+            );
+        }
+
+        $parsed = parse_url($url);
+        $host = strtolower($parsed['host'] ?? '');
+
+        $allowedHosts = [
+            'youtube.com',
+            'www.youtube.com',
+            'youtu.be',
+            'player.vimeo.com',
+            'vimeo.com',
+        ];
+
+        if (! in_array($host, $allowedHosts, true)) {
+            throw new \InvalidArgumentException(
+                'URL video harus berasal dari YouTube atau Vimeo.'
+            );
+        }
+
+        // YouTube Shorts
+        if (str_contains($url, '/shorts/')) {
+            preg_match('/shorts\/([a-zA-Z0-9_-]+)/', $url, $matches);
+            if (isset($matches[1])) {
+                return "https://www.youtube.com/embed/{$matches[1]}";
+            }
+        }
+
+        // YouTube normal
+        if (in_array($host, ['youtube.com', 'www.youtube.com', 'youtu.be'], true)) {
+            preg_match('/(youtu\.be\/|v=|\/embed\/|\/v\/|\/watch\?v=)([a-zA-Z0-9_-]+)/', $url, $matches);
+            if (isset($matches[2])) {
+                return "https://www.youtube.com/embed/{$matches[2]}";
+            }
+        }
+
+        // Vimeo — hanya terima format embed
+        if (in_array($host, ['player.vimeo.com', 'vimeo.com'], true)) {
+            preg_match('/(?:vimeo\.com\/|video\/)(\d+)/', $url, $matches);
+            if (isset($matches[1])) {
+                return "https://player.vimeo.com/video/{$matches[1]}";
+            }
+        }
+
+        throw new \InvalidArgumentException(
+            'Format URL video tidak dikenali. Pastikan URL YouTube atau Vimeo valid.'
+        );
     }
 }

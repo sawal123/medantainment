@@ -10,17 +10,20 @@ use Livewire\Component;
 class Gallery extends Component
 {
     public $photoLimit = 6;
+
     public $setting;
+
     public $page;
+
     public $contact;
+
     public function mount()
     {
         error_reporting(0);
         $this->setting = Setting::first();
-        $this->page = "MEDANTAINMENT";
+        $this->page = 'MEDANTAINMENT';
         $this->contact = Alamat::first();
     }
-
 
     public function getPhotosProperty()
     {

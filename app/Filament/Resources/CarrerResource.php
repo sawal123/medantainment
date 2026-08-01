@@ -2,29 +2,47 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Carrer;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\CarrerResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\CarrerResource\RelationManagers;
+use App\Models\Carrer;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class CarrerResource extends Resource
 {
     protected static ?string $model = Carrer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+
     protected static ?string $navigationGroup = 'Carrer';
+
     protected static ?string $navigationLabel = 'Loker';
+
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
 
     public static function form(Form $form): Form
     {
@@ -35,8 +53,6 @@ class CarrerResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-
-
                 Select::make('time')
                     ->label('Jenis Pekerjaan')
                     ->options([
@@ -46,11 +62,11 @@ class CarrerResource extends Resource
                         'Internship' => 'Internship',
                     ])
                     ->required(),
-                    RichEditor::make('description')
+                RichEditor::make('description')
                     ->label('Deskripsi Pekerjaan')
                     ->required(),
                 TextInput::make('salary')
-                ->default('-')
+                    ->default('-')
                     ->label('Salary'),
 
                 Select::make('status')

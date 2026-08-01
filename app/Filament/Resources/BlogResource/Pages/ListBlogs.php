@@ -3,11 +3,10 @@
 namespace App\Filament\Resources\BlogResource\Pages;
 
 use App\Filament\Resources\BlogResource;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
-
 use App\Filament\Resources\BlogResource\Widgets\BlogStatsOverview;
 use App\Filament\Resources\BlogResource\Widgets\BlogViewsChart;
+use Filament\Actions;
+use Filament\Resources\Pages\ListRecords;
 
 class ListBlogs extends ListRecords
 {

@@ -2,35 +2,39 @@
 
 namespace App\Models;
 
+use App\Traits\CleansUpMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class Client extends Model
 {
-    use HasFactory;
+    use CleansUpMedia, HasFactory;
 
-    protected $guarded = [];
-
-    
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'address',
+        'logo',
+        'status',
+        'urutan',
+    ];
 
     protected $casts = [
         'urutan' => 'integer',
     ];
 
+    protected array $mediaFields = ['logo'];
+
     protected static function boot()
     {
         parent::boot();
 
-        static::deleting(function ($project) {
-            if ($project->logo) {
-                Storage::disk('public')->delete($project->logo);
-            }
-        });
+        // [PRIORITAS 11] Cegah race condition penetapan nomor urut baru dengan lockForUpdate
         static::creating(function ($model) {
             if (is_null($model->urutan)) {
-                $maxOrder = self::max('urutan');
+                $maxOrder = self::lockForUpdate()->max('urutan');
                 $model->urutan = $maxOrder ? $maxOrder + 1 : 1;
             }
         });
@@ -45,7 +49,7 @@ class Client extends Model
                 if ($new === null || $original === $new) {
                     // jika urutan null set ke akhir (opsional)
                     if ($new === null) {
-                        $max = (int) DB::table($model->getTable())->max('urutan');
+                        $max = (int) DB::table($model->getTable())->lockForUpdate()->max('urutan');
                         $model->urutan = $max ? $max + 1 : 1;
                     }
 
@@ -59,8 +63,6 @@ class Client extends Model
                         ->where('urutan', '>=', $new)
                         ->where('urutan', '<', $original)
                         ->increment('urutan');
-
-                    // model->urutan akan tersimpan sebagai $new
                 }
                 // CASE B: new > original -> shift range [original+1, new] -1
                 elseif ($new > $original) {

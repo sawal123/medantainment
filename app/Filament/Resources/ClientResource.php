@@ -16,6 +16,8 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ClientResource extends Resource
 {
@@ -27,12 +29,45 @@ class ClientResource extends Resource
 
     protected static ?string $navigationGroup = 'Project';
 
+    // Authorization — Admin Only
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                FileUpload::make('logo')->image()
+                FileUpload::make('logo')
+                    ->image()
+                    ->disk('public')
                     ->directory('client')
+                    ->acceptedFileTypes([
+                        'image/jpeg',
+                        'image/png',
+                        'image/webp',
+                    ])
+                    ->maxSize(2048)
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file): string => (string) Str::uuid().'.'.
+                            strtolower($file->getClientOriginalExtension())
+                    )
                     ->imageEditor(),
 
                 TextInput::make('name')

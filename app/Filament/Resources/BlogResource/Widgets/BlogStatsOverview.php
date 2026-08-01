@@ -24,14 +24,14 @@ class BlogStatsOverview extends BaseWidget
 
         $mostViewedBlog = $mostViewedId ? Blog::find($mostViewedId)?->title : 'Belum ada data';
         if (strlen($mostViewedBlog) > 28) {
-            $mostViewedBlog = substr($mostViewedBlog, 0, 25) . '...';
+            $mostViewedBlog = substr($mostViewedBlog, 0, 25).'...';
         }
 
         // 3. Unique visitors: Jumlah pengunjung unik (berdasarkan IP)
         $uniqueVisitors = Visitor::distinct('ip_address')->count('ip_address');
 
         return [
-            Stat::make('Total Tayangan', number_format($totalViews) . ' Views')
+            Stat::make('Total Tayangan', number_format($totalViews).' Views')
                 ->description('Total tayangan dari semua artikel')
                 ->descriptionIcon('heroicon-m-eye')
                 ->color('success'),
@@ -41,7 +41,7 @@ class BlogStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('primary'),
 
-            Stat::make('Pengunjung Unik', number_format($uniqueVisitors) . ' User')
+            Stat::make('Pengunjung Unik', number_format($uniqueVisitors).' User')
                 ->description('Berdasarkan IP unik')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('warning'),

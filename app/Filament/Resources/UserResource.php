@@ -4,11 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use App\Services\UserAdministrationService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -21,8 +23,71 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Pengguna';
 
+    // ───────────────────────────────────────────────
+    // Filament Resource Authorization — Admin Only
+    // ───────────────────────────────────────────────
+
+    /**
+     * Hanya admin yang boleh mengakses resource ini.
+     * Ini melindungi route index, create, edit, dan semua action.
+     */
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        /** @var User $authUser */
+        $authUser = auth()->user();
+
+        if (! $authUser?->isAdmin()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Cegah penghapusan diri sendiri atau admin terakhir.
+     */
+    public static function canDelete(Model $record): bool
+    {
+        /** @var User $authUser */
+        $authUser = auth()->user();
+        /** @var User $record */
+        if (! $authUser?->isAdmin()) {
+            return false;
+        }
+
+        // Admin tidak boleh menghapus dirinya sendiri jika itu admin terakhir
+        if ($record->isAdmin() && $record->isLastAdmin()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
+    }
+
+    // ───────────────────────────────────────────────
+    // Form
+    // ───────────────────────────────────────────────
+
     public static function form(Form $form): Form
     {
+        /** @var User $authUser */
+        $authUser = auth()->user();
+        $isEditingSelf = $form->getRecord()?->id === $authUser?->id;
+
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
@@ -45,6 +110,7 @@ class UserResource extends Resource
                     ->required(fn (string $context): bool => $context === 'create')
                     ->maxLength(255),
 
+                // Admin tidak boleh mengubah role miliknya sendiri
                 Forms\Components\Select::make('role')
                     ->label('Peran (Role)')
                     ->options([
@@ -52,9 +118,19 @@ class UserResource extends Resource
                         'author' => 'Author',
                     ])
                     ->default('author')
-                    ->required(),
+                    ->required()
+                    ->disabled($isEditingSelf)
+                    ->dehydrated(fn ($state) => ! $isEditingSelf)
+                    ->helperText($isEditingSelf
+                        ? 'Anda tidak dapat mengubah role akun sendiri.'
+                        : null
+                    ),
             ]);
     }
+
+    // ───────────────────────────────────────────────
+    // Table
+    // ───────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {
@@ -90,12 +166,16 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->using(function (User $record) {
+                        /** @var User $actor */
+                        $actor = auth()->user();
+
+                        return app(UserAdministrationService::class)->deleteUser($actor, $record);
+                    }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Bulk deletion dihapus sepenuhnya untuk mencegah penghapusan massal pengguna/admin
             ]);
     }
 

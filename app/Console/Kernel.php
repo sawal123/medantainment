@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\Blog;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -13,7 +14,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->call(function () {
-            \App\Models\Blog::where('status', 'scheduled')
+            Blog::where('status', 'scheduled')
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', now())
                 ->update(['status' => 'published']);

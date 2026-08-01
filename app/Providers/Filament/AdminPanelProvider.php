@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\DashboardOverviewWidget;
+use App\Filament\Widgets\LatestCareersTableWidget;
+use App\Filament\Widgets\VisitorChartWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -9,6 +12,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -16,6 +20,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -39,9 +44,9 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                \App\Filament\Widgets\DashboardOverviewWidget::class,
-                \App\Filament\Widgets\VisitorChartWidget::class,
-                \App\Filament\Widgets\LatestCareersTableWidget::class,
+                DashboardOverviewWidget::class,
+                VisitorChartWidget::class,
+                LatestCareersTableWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -61,9 +66,9 @@ class AdminPanelProvider extends PanelProvider
 
     public function boot(): void
     {
-        \Filament\Support\Facades\FilamentView::registerRenderHook(
+        FilamentView::registerRenderHook(
             'panels::page.start',
-            fn (): string => request()->routeIs('filament.admin.pages.dashboard') ? \Illuminate\Support\Facades\Blade::render('
+            fn (): string => request()->routeIs('filament.admin.pages.dashboard') ? Blade::render('
                 <div class="mt-6 mb-6 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent p-4 shadow-sm backdrop-blur-sm dark:border-amber-500/20 dark:from-amber-500/5 dark:via-orange-500/2">
                     <div class="flex items-center gap-3">
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/20 text-amber-500 dark:bg-amber-500/10">

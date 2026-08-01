@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('seo_keywords')->nullable(); // Kata kunci SEO
             $table->timestamps();
         });
-        
+
     }
 
     /**

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\CleansUpMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AboutUs extends Model
 {
-    use HasFactory;
+    use CleansUpMedia, HasFactory;
+
     protected $fillable = [
         'title',
         'subtitle',
@@ -23,4 +25,6 @@ class AboutUs extends Model
     protected $casts = [
         'highlights' => 'array',
     ];
+
+    protected array $mediaFields = ['image'];
 }

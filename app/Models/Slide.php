@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\CleansUpMedia;
 
 class Slide extends Model
 {
-    use HasFactory;
+    use HasFactory, CleansUpMedia;
+
     protected $fillable = [
         'nama',
         'thumbnail',
@@ -15,4 +17,6 @@ class Slide extends Model
         'link',
         'is_active',
     ];
+
+    protected array $mediaFields = ['thumbnail'];
 }

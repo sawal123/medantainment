@@ -15,7 +15,7 @@ class Blog extends Model
         'published_at', 'seo_title', 'seo_description', 'og_image'
     ];
 
-    // Slug dan SEO otomatis dibuat jika kosong
+    // Slug, sanitasi XSS, dan SEO otomatis diset jika kosong/disimpan
     protected static function boot()
     {
         parent::boot();
@@ -25,6 +25,11 @@ class Blog extends Model
             }
             if (Auth::check() && empty($blog->user_id)) {
                 $blog->user_id = Auth::id();
+            }
+
+            // [PRIORITAS 7] Sanitasi HTML konten dengan profil 'blog'
+            if (!empty($blog->content)) {
+                $blog->content = \Mews\Purifier\Facades\Purifier::clean($blog->content, 'blog');
             }
 
             // Otomasi SEO jika kosong

@@ -4,24 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+use App\Traits\CleansUpMedia;
 
 class Photo extends Model
 {
-    use HasFactory;
+    use HasFactory, CleansUpMedia;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'client_id',
+        'title',
+        'photo',
+        'urutan',
+    ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::deleting(function ($photo) {
-            if ($photo->photo) {
-                Storage::disk('public')->delete($photo->photo);
-            }
-        });
-    }
+    protected array $mediaFields = ['photo'];
 
     public function client()
     {

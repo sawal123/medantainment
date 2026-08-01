@@ -4,10 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\CleansUpMedia;
 
 class PhotoLanding extends Model
 {
-    use HasFactory;
+    use HasFactory, CleansUpMedia;
 
-    protected $guarded =[];
+    protected $fillable = [
+        'key',
+        'value',
+    ];
+
+    protected array $mediaFields = ['value'];
 }

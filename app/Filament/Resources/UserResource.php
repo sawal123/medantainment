@@ -6,9 +6,11 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -21,8 +23,72 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Pengguna';
 
+    // ───────────────────────────────────────────────
+    // Filament Resource Authorization — Admin Only
+    // ───────────────────────────────────────────────
+
+    /**
+     * Hanya admin yang boleh mengakses resource ini.
+     * Ini melindungi route index, create, edit, dan semua action.
+     */
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        /** @var User $authUser */
+        $authUser = auth()->user();
+
+        if (! $authUser?->isAdmin()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Cegah penghapusan diri sendiri atau admin terakhir.
+     */
+    public static function canDelete(Model $record): bool
+    {
+        /** @var User $authUser */
+        $authUser = auth()->user();
+        /** @var User $record */
+
+        if (! $authUser?->isAdmin()) {
+            return false;
+        }
+
+        // Admin tidak boleh menghapus dirinya sendiri jika itu admin terakhir
+        if ($record->isAdmin() && $record->isLastAdmin()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    // ───────────────────────────────────────────────
+    // Form
+    // ───────────────────────────────────────────────
+
     public static function form(Form $form): Form
     {
+        /** @var User $authUser */
+        $authUser = auth()->user();
+        $isEditingSelf = $form->getRecord()?->id === $authUser?->id;
+
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
@@ -45,16 +111,27 @@ class UserResource extends Resource
                     ->required(fn (string $context): bool => $context === 'create')
                     ->maxLength(255),
 
+                // Admin tidak boleh mengubah role miliknya sendiri
                 Forms\Components\Select::make('role')
                     ->label('Peran (Role)')
                     ->options([
-                        'admin' => 'Admin',
+                        'admin'  => 'Admin',
                         'author' => 'Author',
                     ])
                     ->default('author')
-                    ->required(),
+                    ->required()
+                    ->disabled($isEditingSelf)
+                    ->dehydrated(fn ($state) => ! $isEditingSelf)
+                    ->helperText($isEditingSelf
+                        ? 'Anda tidak dapat mengubah role akun sendiri.'
+                        : null
+                    ),
             ]);
     }
+
+    // ───────────────────────────────────────────────
+    // Table
+    // ───────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {
@@ -74,9 +151,9 @@ class UserResource extends Resource
                     ->label('Peran')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'admin' => 'success',
+                        'admin'  => 'success',
                         'author' => 'info',
-                        default => 'gray',
+                        default  => 'gray',
                     })
                     ->sortable(),
 
@@ -90,7 +167,17 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->before(function (User $record) {
+                        // Proteksi server-side: cegah hapus admin terakhir
+                        if ($record->isAdmin() && $record->isLastAdmin()) {
+                            Notification::make()
+                                ->title('Tidak dapat menghapus admin terakhir.')
+                                ->danger()
+                                ->send();
+                            return false;
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -102,9 +189,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
+            'index'  => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'edit'   => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

@@ -9,7 +9,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Carrer extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+    protected $fillable = [
+        'title',
+        'slug',
+        'description',
+        'salary',
+        'status',
+        'time',
+        'apply_link',
+    ];
+
 
     public static function boot()
     {

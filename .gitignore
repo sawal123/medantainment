@@ -1,12 +1,14 @@
-/.phpunit.cache
-# /node_modules
+/node_modules
 /public/hot
 /public/storage
 /storage/*.key
-# /vendor
+/vendor
 .env
 .env.backup
 .env.production
+.env.*
+!/.env.example
+.phpunit.cache
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -16,3 +18,4 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+# public/build TIDAK di-ignore karena production tidak memiliki build step

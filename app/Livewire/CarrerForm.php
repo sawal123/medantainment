@@ -9,11 +9,14 @@ use Livewire\Component;
 use App\Models\Candidate;
 use App\Models\Internship;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
 class CarrerForm extends Component
 {
     use WithFileUploads;
+
     public $setting;
     public $page;
     public $slug;
@@ -21,23 +24,27 @@ class CarrerForm extends Component
     public $title;
     public $contact;
 
-    public $carrer_id, $name, $email, $phone, $resume, $cover_letter;
+    // carrer_id adalah property readonly dari server — tidak boleh diubah dari luar
+    // $carrer_id hanya disimpan untuk keperluan view/render
+    public $carrer_id;
 
-    // ========================
+    // === Form Fields: Lamaran Biasa ===
+    public $name;
+    public $email;
+    public $phone;
+    public $resume;
+    public $cover_letter;
 
+    // === Form Fields: Internship ===
     public $nama;
     public $ttl;
     public $alamat;
-
     public $sekolah_universitas;
     public $jurusan;
     public $periode_magang;
-
     public $keahlian;
-
     public $ketertarikan = []; // checkbox → array
     public $ketertarangan_singkat;
-
     public $surat_izin;
     public $surat_lamaran;
     public $cv_portofolio;
@@ -55,61 +62,50 @@ class CarrerForm extends Component
 
     public $alasan_internship;
 
-    // ========================
-
-    // ✅ [SECURITY FIX #1 & #6] Validasi diperkuat:
-    // - mimetypes: (cek konten file sebenarnya, bukan hanya ekstensi)
-    // - Hanya PDF yang diizinkan untuk resume (hapus doc/docx — rawan macro virus)
-    // - Tambah regex validasi phone agar hanya angka/tanda +
-    // - Batasi max length cover_letter agar tidak bisa diisi payload besar
+    // === Validation Rules: Lamaran Biasa ===
+    // mimetypes: memvalidasi isi file (magic bytes), bukan hanya ekstensi
     protected $rules = [
         'name'         => 'required|string|max:255',
         'email'        => 'required|email|max:255',
         'phone'        => 'required|string|max:15|regex:/^[0-9+\-\s]+$/',
-        'resume'       => 'required|file|mimetypes:application/pdf|max:2048',
+        'resume'       => 'required|file|mimetypes:application/pdf|max:4096',
         'cover_letter' => 'nullable|string|max:5000',
     ];
-    public function mount($slug)
+
+    public function mount($slug): void
     {
         $this->slug    = $slug;
         $this->setting = Setting::first();
-        $this->page    = "MEDANTAINMENT - Carrer";
+        $this->page    = 'MEDANTAINMENT - Carrer';
         $this->contact = Alamat::first();
 
-        // ✅ [SECURITY FIX #5] Null check — cegah Error 500 jika slug tidak ada sama sekali
+        // Null check — cegah Error 500 jika slug tidak ada
         $this->carrer = Carrer::where('slug', $this->slug)->first();
 
-        if (!$this->carrer) {
+        if (! $this->carrer) {
             session()->flash('error', 'Lowongan tidak ditemukan.');
-            return redirect()->route('index'); // ✅ Menggunakan nama route home yang benar ('index')
+            redirect()->route('index');
+            return;
         }
 
         $this->title    = $this->carrer->title;
-        $this->carrer_id = $this->carrer->id;
+        $this->carrer_id = $this->carrer->id; // read-only reference
     }
 
-    // ==========================
-    public function simpan()
+    // ===================================================================
+    // SIMPAN — Form Internship
+    // ===================================================================
+
+    public function simpan(): void
     {
-        // ✅ [SECURITY FIX] Cegah pengiriman jika lowongan sudah ditutup
-        if ($this->carrer->status !== 'open') {
-            $this->addError('rate_limit', 'Pendaftaran untuk lowongan ini sudah ditutup.');
+        // [PRIORITAS 4] carrer selalu dari server — jangan percayai input browser
+        $carrer = $this->getValidCarrer(expectedType: 'Internship');
+        if ($carrer === null) {
             return;
         }
-        // ✅ [SECURITY FIX #3] Rate Limiting — maks 3 submit per IP per 10 menit
-        $key = 'internship-form:' . request()->ip();
-        if (RateLimiter::tooManyAttempts($key, 3)) {
-            $seconds = RateLimiter::availableIn($key);
-            $this->addError('rate_limit', "Terlalu banyak percobaan. Coba lagi dalam {$seconds} detik.");
-            return;
-        }
-        RateLimiter::hit($key, 600); // blokir 600 detik = 10 menit
 
-        // ✅ [SECURITY FIX #1] Validasi file menggunakan mimetypes: (cek konten sesungguhnya)
-        // Hapus doc/docx — format Word dapat mengandung macro virus berbahaya
+        // [PRIORITAS 6] Validasi dulu, rate limit dikurangi hanya jika valid
         $validated = $this->validate([
-            'carrer_id' => 'required|integer|exists:carrers,id',
-
             'nama'    => 'required|string|max:255',
             'ttl'     => 'required|string|max:255',
             'alamat'  => 'required|string|max:1000',
@@ -120,118 +116,274 @@ class CarrerForm extends Component
 
             'keahlian' => 'required|string|max:2000',
 
-            'ketertarikan'         => 'required|array|min:1',
+            'ketertarikan'          => 'required|array|min:1',
             'ketertarangan_singkat' => 'required|string|max:3000',
 
-            // ✅ mimetypes: memvalidasi isi file, bukan hanya ekstensi
-            'surat_izin'    => 'nullable|file|mimetypes:application/pdf,image/jpeg,image/png|max:2048',
-            'surat_lamaran' => 'nullable|file|mimetypes:application/pdf,image/jpeg,image/png|max:2048',
-            'cv_portofolio' => 'nullable|file|mimetypes:application/pdf,image/jpeg,image/png|max:4096',
-            'foto_diri'     => 'nullable|file|mimetypes:image/jpeg,image/png|max:2048',
+            // mimetypes: memvalidasi isi file sebenarnya, bukan hanya ekstensi
+            'surat_izin'    => 'nullable|file|mimetypes:application/pdf|max:2048',
+            'surat_lamaran' => 'nullable|file|mimetypes:application/pdf|max:2048',
+            'cv_portofolio' => 'nullable|file|mimetypes:application/pdf|max:4096',
+            'foto_diri'     => 'nullable|file|mimetypes:image/jpeg,image/png,image/webp|max:2048',
 
-            'rating_kreatifitas'    => 'nullable|integer|min:1|max:5',
-            'rating_analitis'       => 'nullable|integer|min:1|max:5',
-            'rating_komunikasi'     => 'nullable|integer|min:1|max:5',
-            'rating_manajemen_waktu'=> 'nullable|integer|min:1|max:5',
-            'rating_adaptasi'       => 'nullable|integer|min:1|max:5',
-            'rating_teamwork'       => 'nullable|integer|min:1|max:5',
-            'rating_motivasi'       => 'nullable|integer|min:1|max:5',
-            'rating_tekanan'        => 'nullable|integer|min:1|max:5',
+            'rating_kreatifitas'     => 'nullable|integer|min:1|max:5',
+            'rating_analitis'        => 'nullable|integer|min:1|max:5',
+            'rating_komunikasi'      => 'nullable|integer|min:1|max:5',
+            'rating_manajemen_waktu' => 'nullable|integer|min:1|max:5',
+            'rating_adaptasi'        => 'nullable|integer|min:1|max:5',
+            'rating_teamwork'        => 'nullable|integer|min:1|max:5',
+            'rating_motivasi'        => 'nullable|integer|min:1|max:5',
+            'rating_tekanan'         => 'nullable|integer|min:1|max:5',
 
             'alasan_internship' => 'required|string|max:3000',
         ]);
 
-        // ✅ FILE UPLOAD — Livewire store() otomatis menggunakan nama acak (UUID)
-        if ($this->surat_izin) {
-            $validated['surat_izin'] = $this->surat_izin->store('internship/surat_izin', 'public');
+        // [PRIORITAS 5] Rate limit — dikurangi SETELAH validasi berhasil
+        // Key: hash(ip + session + carrer_id) — tidak menggunakan email mentah
+        $rateLimitKey = $this->buildRateLimitKey('internship', $carrer->id);
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            $this->addError(
+                'rate_limit',
+                "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
+            );
+            return;
         }
 
-        if ($this->surat_lamaran) {
-            $validated['surat_lamaran'] = $this->surat_lamaran->store('internship/surat_lamaran', 'public');
-        }
+        RateLimiter::hit($rateLimitKey, 600); // blokir 10 menit
 
-        if ($this->cv_portofolio) {
-            $validated['cv_portofolio'] = $this->cv_portofolio->store('internship/cv_portofolio', 'public');
-        }
+        // [PRIORITAS 2] Upload file ke disk private
+        DB::transaction(function () use ($carrer, &$validated) {
+            if ($this->surat_izin) {
+                $validated['surat_izin'] = $this->surat_izin->store(
+                    'internship/surat_izin',
+                    'private'
+                );
+            }
 
-        if ($this->foto_diri) {
-            $validated['foto_diri'] = $this->foto_diri->store('internship/foto_diri', 'public');
-        }
+            if ($this->surat_lamaran) {
+                $validated['surat_lamaran'] = $this->surat_lamaran->store(
+                    'internship/surat_lamaran',
+                    'private'
+                );
+            }
 
-        $validated['ketertarikan'] = $this->ketertarikan;
+            if ($this->cv_portofolio) {
+                $validated['cv_portofolio'] = $this->cv_portofolio->store(
+                    'internship/cv_portofolio',
+                    'private'
+                );
+            }
 
-        Internship::create($validated);
+            if ($this->foto_diri) {
+                $validated['foto_diri'] = $this->foto_diri->store(
+                    'internship/foto_diri',
+                    'private'
+                );
+            }
 
-        $this->resetExcept(['carrer', 'carrer_id', 'page', 'setting', 'contact']);
+            $validated['ketertarikan'] = $this->ketertarikan;
+
+            // [PRIORITAS 4] carrer_id selalu dari server — bukan dari $validated
+            $validated['carrer_id'] = $carrer->id;
+            unset($validated['ketertarikan']); // cast sudah di model
+
+            Internship::create(array_merge($validated, [
+                'ketertarikan' => $this->ketertarikan,
+                'carrer_id'    => $carrer->id,
+            ]));
+        });
+
+        // [PRIORITAS 6] Reset hanya field form — jangan reset $carrer, $setting, dll
+        $this->resetInternshipFields();
 
         session()->flash('success', 'Form Berhasil Dikirim!');
         $this->dispatch('scroll-to-top');
     }
 
+    // ===================================================================
+    // SAVE — Form Lamaran Biasa
+    // ===================================================================
 
-
-    // ===================
-    // ===================
-
-    public function save()
+    public function save(): void
     {
-        // ✅ [SECURITY FIX] Cegah pengiriman jika lowongan sudah ditutup
-        if ($this->carrer->status !== 'open') {
-            $this->addError('rate_limit', 'Pendaftaran untuk lowongan ini sudah ditutup.');
+        // [PRIORITAS 4] carrer selalu dari server
+        $carrer = $this->getValidCarrer(expectedType: 'regular');
+        if ($carrer === null) {
             return;
         }
-        // ✅ [SECURITY FIX #3] Rate Limiting — maks 3 submit per IP per 10 menit
-        $key = 'career-form:' . request()->ip();
-        if (RateLimiter::tooManyAttempts($key, 3)) {
-            $seconds = RateLimiter::availableIn($key);
-            $this->addError('rate_limit', "Terlalu banyak percobaan. Coba lagi dalam {$seconds} detik.");
-            return;
-        }
-        RateLimiter::hit($key, 600); // blokir 600 detik = 10 menit
 
-        // ✅ [SECURITY FIX #1 & #6] Menggunakan $rules yang sudah diperkuat (mimetypes, regex phone)
+        // [PRIORITAS 6] Validasi dulu
         $this->validate();
 
-        // ✅ Livewire store() menggunakan nama UUID otomatis — aman
-        $resumePath = $this->resume->store('resumes', 'public');
+        // [PRIORITAS 5] Rate limit SETELAH validasi
+        $rateLimitKey = $this->buildRateLimitKey('career', $carrer->id);
 
-        // ✅ [SECURITY FIX #2] Explicit field assignment — tidak ada mass assignment dari input user
-        Candidate::create([
-            'carrer_id'    => $this->carrer->id, // dari server, bukan dari input user
-            'name'         => $this->name,
-            'email'        => $this->email,
-            'phone'        => $this->phone,
-            'resume'       => $resumePath,
-            'cover_letter' => $this->cover_letter,
-        ]);
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            $this->addError(
+                'rate_limit',
+                "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
+            );
+            return;
+        }
+
+        RateLimiter::hit($rateLimitKey, 600);
+
+        // [PRIORITAS 2] Upload resume ke disk private
+        DB::transaction(function () use ($carrer) {
+            $resumePath = $this->resume->store('candidates/resumes', 'private');
+
+            // [PRIORITAS 4] carrer_id dari server, bukan dari input user
+            Candidate::create([
+                'carrer_id'    => $carrer->id,
+                'name'         => $this->name,
+                'email'        => $this->email,
+                'phone'        => $this->phone,
+                'resume'       => $resumePath,
+                'cover_letter' => $this->cover_letter,
+            ]);
+        });
 
         session()->flash('message', 'Lamaran berhasil dikirim!');
-        $this->resetExcept('carrer_id');
+
+        // [PRIORITAS 6] Reset hanya field form, bukan semua state
+        $this->resetCareerFields();
     }
 
     public function render()
     {
-        // ✅ Null safety check jika lowongan ditutup/null
-        if (!$this->carrer) {
+        // Null safety check jika lowongan tidak ada
+        if (! $this->carrer) {
             return view('livewire.carrer-form')->layout('components.layouts.app', [
-                'page' => $this->page,
+                'page'    => $this->page,
                 'setting' => $this->setting,
-                'contact' => $this->contact
+                'contact' => $this->contact,
             ]);
         }
 
-        if ($this->carrer->time == 'Internship') {
+        if ($this->carrer->time === 'Internship') {
             return view('livewire.carrer-form-intern')->layout('components.layouts.app', [
-                'page' => $this->page,
+                'page'    => $this->page,
                 'setting' => $this->setting,
-                'contact' => $this->contact
-            ]);
-        } else {
-            return view('livewire.carrer-form')->layout('components.layouts.app', [
-                'page' => $this->page,
-                'setting' => $this->setting,
-                'contact' => $this->contact
+                'contact' => $this->contact,
             ]);
         }
+
+        return view('livewire.carrer-form')->layout('components.layouts.app', [
+            'page'    => $this->page,
+            'setting' => $this->setting,
+            'contact' => $this->contact,
+        ]);
+    }
+
+    // ===================================================================
+    // Helper Methods
+    // ===================================================================
+
+    /**
+     * Ambil career yang valid dari server berdasarkan slug yang sudah dimount.
+     * Validasi: career harus ada, statusnya open, dan tipenya sesuai.
+     *
+     * @param string $expectedType 'Internship' atau 'regular'
+     */
+    private function getValidCarrer(string $expectedType): ?Carrer
+    {
+        // Selalu re-fetch dari DB untuk memastikan status terkini
+        $carrer = Carrer::where('slug', $this->slug)->first();
+
+        if (! $carrer) {
+            $this->addError('rate_limit', 'Lowongan tidak ditemukan.');
+            return null;
+        }
+
+        if ($carrer->status !== 'open') {
+            $this->addError('rate_limit', 'Pendaftaran untuk lowongan ini sudah ditutup.');
+            return null;
+        }
+
+        // Validasi tipe form sesuai tipe career — mencegah submit internship ke career biasa
+        if ($expectedType === 'Internship' && $carrer->time !== 'Internship') {
+            $this->addError('rate_limit', 'Tipe formulir tidak sesuai dengan jenis lowongan.');
+            Log::warning('CarrerForm: tipe form tidak sesuai', [
+                'slug'          => $this->slug,
+                'expected_type' => $expectedType,
+                'actual_type'   => $carrer->time,
+                'ip'            => request()->ip(),
+            ]);
+            return null;
+        }
+
+        if ($expectedType === 'regular' && $carrer->time === 'Internship') {
+            $this->addError('rate_limit', 'Tipe formulir tidak sesuai dengan jenis lowongan.');
+            return null;
+        }
+
+        return $carrer;
+    }
+
+    /**
+     * Buat rate limit key yang aman.
+     * Menggunakan hash(ip + session_id + carrer_id) agar:
+     * - Tidak menyimpan data sensitif (email) di cache key
+     * - Setiap lowongan memiliki bucket terpisah
+     * - Pengguna dari jaringan yang sama tetap punya bucket berbeda (session)
+     */
+    private function buildRateLimitKey(string $formType, int $carrerId): string
+    {
+        $raw = implode('|', [
+            $formType,
+            $carrerId,
+            request()->ip(),
+            session()->getId(),
+        ]);
+
+        return $formType . '-form:' . hash('sha256', $raw);
+    }
+
+    /**
+     * [PRIORITAS 6] Reset hanya field form internship.
+     * Tidak mereset $carrer, $setting, $page, $contact, $slug, $carrer_id.
+     */
+    private function resetInternshipFields(): void
+    {
+        $this->reset([
+            'nama',
+            'ttl',
+            'alamat',
+            'sekolah_universitas',
+            'jurusan',
+            'periode_magang',
+            'keahlian',
+            'ketertarikan',
+            'ketertarangan_singkat',
+            'surat_izin',
+            'surat_lamaran',
+            'cv_portofolio',
+            'foto_diri',
+            'rating_kreatifitas',
+            'rating_analitis',
+            'rating_komunikasi',
+            'rating_manajemen_waktu',
+            'rating_adaptasi',
+            'rating_teamwork',
+            'rating_motivasi',
+            'rating_tekanan',
+            'alasan_internship',
+        ]);
+    }
+
+    /**
+     * [PRIORITAS 6] Reset hanya field form lamaran biasa.
+     */
+    private function resetCareerFields(): void
+    {
+        $this->reset([
+            'name',
+            'email',
+            'phone',
+            'resume',
+            'cover_letter',
+        ]);
     }
 }

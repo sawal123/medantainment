@@ -15,9 +15,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PhotoLandingResource\Pages;
 use App\Filament\Resources\PhotoLandingResource\RelationManagers;
+use Illuminate\Support\Str;
 
 class PhotoLandingResource extends Resource
 {
@@ -25,11 +27,40 @@ class PhotoLandingResource extends Resource
     {
         return false;
     }
+
     protected static ?string $model = PhotoLanding::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationLabel = 'Image';
     protected static ?string $navigationGroup = 'Landing';
+
+    // ───────────────────────────────────────────────
+    // Authorization — Admin Only
+    // ───────────────────────────────────────────────
+
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    // ───────────────────────────────────────────────
+    // Form
+    // ───────────────────────────────────────────────
 
     public static function form(Form $form): Form
     {
@@ -37,11 +68,31 @@ class PhotoLandingResource extends Resource
             ->schema([
                 TextInput::make('key')
                     ->label('Title')
-                    ->required(),
+                    ->required()
+                    ->maxLength(255),
+
                 FileUpload::make('value')
-                    ->label('Value')
+                    ->label('Gambar')
+                    ->disk('public')
+                    ->directory('photo-landing')
+                    ->image()
+                    ->acceptedFileTypes([
+                        'image/jpeg',
+                        'image/png',
+                        'image/webp',
+                    ])
+                    ->maxSize(2048) // 2 MB
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file): string =>
+                            (string) Str::uuid() . '.' .
+                            strtolower($file->getClientOriginalExtension())
+                    ),
             ]);
     }
+
+    // ───────────────────────────────────────────────
+    // Table
+    // ───────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {
@@ -57,7 +108,7 @@ class PhotoLandingResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\deleteAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -76,9 +127,9 @@ class PhotoLandingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPhotoLandings::route('/'),
+            'index'  => Pages\ListPhotoLandings::route('/'),
             'create' => Pages\CreatePhotoLanding::route('/create'),
-            'edit' => Pages\EditPhotoLanding::route('/{record}/edit'),
+            'edit'   => Pages\EditPhotoLanding::route('/{record}/edit'),
         ];
     }
 }

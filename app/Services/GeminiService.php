@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class GeminiService
@@ -12,7 +13,8 @@ class GeminiService
      */
     public static function generateSeo(string $title, string $content): array
     {
-        $apiKey = env('GEMINI_API_KEY');
+        // [PRIORITAS 12] Gunakan config(), bukan env() langsung
+        $apiKey = config('services.gemini.key');
 
         // Clean content for local fallback and text processing
         $plainContent = strip_tags($content);
@@ -33,11 +35,16 @@ class GeminiService
 
         try {
             $excerpt = Str::limit($plainContent, 1500);
-            
-            // Call official Gemini API
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
+
+            // [PRIORITAS 12] Tambah timeout dan retry (hanya untuk 5xx, bukan 4xx)
+            $response = Http::timeout(15)
+                ->retry(2, 500, fn (\Exception $e, $request) =>
+                    $e instanceof \Illuminate\Http\Client\RequestException &&
+                    $e->response?->serverError()
+                )
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -62,14 +69,20 @@ class GeminiService
 
                 if (isset($result['title']) && isset($result['description'])) {
                     return [
-                        'title' => $result['title'],
-                        'description' => $result['description'],
-                        'is_ai' => true,
+                        // [PRIORITAS 12] Batasi panjang output dari API
+                        'title'       => Str::limit($result['title'], 60, ''),
+                        'description' => Str::limit($result['description'], 160, '...'),
+                        'is_ai'       => true,
                     ];
                 }
             }
         } catch (\Exception $e) {
-            // Silently fail and use fallback
+            // [PRIORITAS 12] Log error yang aman: tanpa API key, tanpa konten artikel penuh
+            Log::warning('GeminiService: SEO generation failed', [
+                'error'      => $e->getMessage(),
+                'title_hash' => hash('sha256', $title), // tidak log judul asli jika sensitif
+            ]);
+            // Fallback ke lokal
         }
 
         // Final fallback

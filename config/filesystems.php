@@ -44,6 +44,15 @@ return [
             'throw' => false,
         ],
 
+        // Disk private untuk dokumen sensitif (CV, surat lamaran, portofolio)
+        // File di sini tidak dapat diakses melalui URL publik.
+        // Gunakan PrivateFileController untuk download terproteksi.
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

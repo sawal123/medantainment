@@ -23,6 +23,26 @@ class AlamatResource extends Resource
     protected static ?string $navigationLabel = 'Alamat Kantor';
     protected static ?string $slug = 'alamat-kantor'; // Mengubah URL menu Filament
 
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -24,6 +24,26 @@ class TestimoniResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -44,8 +64,15 @@ class TestimoniResource extends Resource
 
                 FileUpload::make('photo')
                     ->label('Foto')
-                    ->image()
+                    ->disk('public')
                     ->directory('testimoni-photos')
+                    ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(2048)
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file): string =>
+                            (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                    )
                     ->nullable(),
             ]);
     }

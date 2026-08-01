@@ -1,0 +1,47 @@
+name: Laravel Security & Authorization Tests
+
+on:
+  push:
+    branches:
+      - main
+      - fix/security-hardening
+  pull_request:
+    branches:
+      - main
+      - fix/security-hardening
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Copy Environment Configuration
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --ignore-platform-reqs
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Clear Application Optimization Cache
+        run: php artisan optimize:clear
+
+      - name: Run Test Suite
+        run: php artisan test
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+
+      - name: Run Security Audit
+        run: composer audit

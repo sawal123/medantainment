@@ -20,6 +20,26 @@ class AboutUsResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Landing';
 
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -46,10 +66,17 @@ class AboutUsResource extends Resource
                     ->columnSpanFull(),
 
                 Forms\Components\FileUpload::make('image')
-                    ->label('Banner / Foto Utama')
-                    ->directory('about-us')
-                    ->image()
-                    ->nullable(),
+                                    ->label('Banner / Foto Utama')
+                                    ->disk('public')
+                                    ->directory('about-us')
+                                    ->image()
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->maxSize(2048)
+                                    ->getUploadedFileNameForStorageUsing(
+                                        fn ($file): string =>
+                                            (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                                    )
+                                    ->nullable(),
 
                 Forms\Components\Repeater::make('highlights')
                     ->label('Keunggulan / Poin Penting')

@@ -23,6 +23,26 @@ class SlideResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
     protected static ?string $navigationGroup = 'Landing';
+
+    public static function canAccess(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && auth()->user()->isAdmin();
+    }
     // protected static ?string $navigationLabel = 'Slide';
 
     public static function form(Form $form): Form
@@ -36,8 +56,15 @@ class SlideResource extends Resource
 
                 Forms\Components\FileUpload::make('thumbnail')
                     ->label('Thumbnail')
-                    ->image()
+                    ->disk('public')
                     ->directory('slides/thumbnails')
+                    ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(2048)
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file): string =>
+                            (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                    )
                     ->visibility('public'),
 
                 Forms\Components\TextInput::make('short')

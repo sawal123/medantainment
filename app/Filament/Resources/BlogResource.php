@@ -27,6 +27,26 @@ class BlogResource extends Resource
     protected static ?string $navigationGroup = 'Blog Posts';
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-up';
 
+    public static function canAccess(): bool
+    {
+        return auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isAuthor());
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isAuthor());
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && (auth()->user()->isAdmin() || (auth()->user()->isAuthor() && (int) $record->user_id === (int) auth()->id()));
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->check() && (auth()->user()->isAdmin() || (auth()->user()->isAuthor() && (int) $record->user_id === (int) auth()->id()));
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -130,6 +150,12 @@ class BlogResource extends Resource
                                         ->disk('public')
                                         ->directory('blog-images')
                                         ->image()
+                                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(2048)
+                                        ->getUploadedFileNameForStorageUsing(
+                                            fn ($file): string =>
+                                                (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                                        )
                                         ->imageEditor()
                                         ->imageEditorAspectRatios([
                                             '16:9',

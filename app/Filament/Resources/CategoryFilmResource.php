@@ -101,8 +101,15 @@ class CategoryFilmResource extends Resource
 
                 Forms\Components\FileUpload::make('thumbnail')
                     ->label('Thumbnail')
+                    ->disk('public')
+                    ->directory('category-films')
                     ->image()
-                    ->directory('category-films'),
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(2048)
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file): string =>
+                            (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                    ),
 
                 Forms\Components\TextInput::make('start')
                     ->numeric()

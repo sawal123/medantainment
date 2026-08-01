@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -29,6 +30,60 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // 1. Proteksi Hapus User (Mencegah Hapus Admin Terakhir & Race Condition)
+        static::deleting(function (User $user) {
+            if ($user->isAdmin()) {
+                DB::transaction(function () use ($user) {
+                    // Lock semua baris admin untuk mencegah dua admin saling menghapus secara bersamaan (race condition)
+                    $adminCount = static::where('role', self::ROLE_ADMIN)
+                        ->lockForUpdate()
+                        ->count();
+
+                    if ($adminCount <= 1) {
+                        throw ValidationException::withMessages([
+                            'user' => 'Admin terakhir tidak dapat dihapus.',
+                        ]);
+                    }
+                });
+            }
+        });
+
+        // 2. Proteksi Perubahan Role (Mencegah Penurunan Admin Terakhir & Penurunan Role Diri Sendiri)
+        static::updating(function (User $user) {
+            if ($user->isDirty('role')) {
+                $originalRole = $user->getOriginal('role');
+                $newRole = $user->role;
+
+                // A. Mencegah user/admin menurunkan/mengubah role akun miliknya sendiri
+                if (auth()->check() && (int) auth()->id() === (int) $user->id) {
+                    throw ValidationException::withMessages([
+                        'role' => 'Anda tidak dapat mengubah peran (role) akun Anda sendiri.',
+                    ]);
+                }
+
+                // B. Mencegah penurunan role jika ini adalah admin terakhir
+                if ($originalRole === self::ROLE_ADMIN && $newRole !== self::ROLE_ADMIN) {
+                    DB::transaction(function () use ($user) {
+                        $otherAdminsCount = static::where('role', self::ROLE_ADMIN)
+                            ->where('id', '!=', $user->id)
+                            ->lockForUpdate()
+                            ->count();
+
+                        if ($otherAdminsCount === 0) {
+                            throw ValidationException::withMessages([
+                                'role' => 'Admin terakhir tidak dapat diturunkan perannya.',
+                            ]);
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     /**
      * Hanya admin dan author yang boleh masuk panel Filament.

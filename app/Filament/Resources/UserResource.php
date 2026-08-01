@@ -76,7 +76,7 @@ class UserResource extends Resource
 
     public static function canDeleteAny(): bool
     {
-        return auth()->check() && auth()->user()->isAdmin();
+        return false;
     }
 
     // ───────────────────────────────────────────────
@@ -180,9 +180,7 @@ class UserResource extends Resource
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Bulk deletion dihapus sepenuhnya untuk mencegah penghapusan massal pengguna/admin
             ]);
     }
 

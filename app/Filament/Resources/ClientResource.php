@@ -65,8 +65,7 @@ class ClientResource extends Resource
                     ])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string =>
-                            (string) Str::uuid() . '.' .
+                        fn ($file): string => (string) Str::uuid().'.'.
                             strtolower($file->getClientOriginalExtension())
                     )
                     ->imageEditor(),

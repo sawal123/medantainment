@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', Home::class)->name('index');
 Route::get('/project', Project::class);
-Route::get('/project/{slug}', \App\Livewire\Project::class);
+Route::get('/project/{slug}', Project::class);
 Route::get('/team', Team::class);
 Route::get('/gallery', Gallery::class);
 Route::get('/blog/{search?}', Blog::class);

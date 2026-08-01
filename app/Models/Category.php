@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        'name', 'slug', 'description', 'seo_title', 'seo_description', 'og_image'
+        'name', 'slug', 'description', 'seo_title', 'seo_description', 'og_image',
     ];
 
     // Slug dan SEO otomatis dibuat jika kosong
@@ -22,15 +23,14 @@ class Category extends Model
                 $category->slug = Str::slug($category->name);
             }
             if (empty($category->seo_title)) {
-                $category->seo_title = \Illuminate\Support\Str::limit($category->name, 60, '');
+                $category->seo_title = Str::limit($category->name, 60, '');
             }
             if (empty($category->seo_description)) {
                 $plainDescription = strip_tags($category->description ?? '');
                 $plainDescription = html_entity_decode($plainDescription);
                 $plainDescription = preg_replace('/\s+/', ' ', $plainDescription);
-                $category->seo_description = \Illuminate\Support\Str::limit(trim($plainDescription), 160, '...');
+                $category->seo_description = Str::limit(trim($plainDescription), 160, '...');
             }
         });
     }
-
 }

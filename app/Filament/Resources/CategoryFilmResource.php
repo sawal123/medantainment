@@ -3,14 +3,14 @@
 namespace App\Filament\Resources;
 
 // use Str;
-use Filament\Forms;
-use Filament\Tables;
-use Illuminate\Support\Str;
+use App\Filament\Resources\CategoryFilmResource\Pages;
 use App\Models\CategoryFilm;
+use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
-use App\Filament\Resources\CategoryFilmResource\Pages;
+use Illuminate\Support\Str;
 
 class CategoryFilmResource extends Resource
 {
@@ -18,15 +18,18 @@ class CategoryFilmResource extends Resource
 
     // 🧭 Sidebar settings
     protected static ?string $navigationIcon = 'heroicon-o-cube';
+
     protected static ?string $navigationGroup = 'Project'; // tampil di grup Project
+
     protected static ?string $navigationLabel = 'Category Film';
+
     protected static ?int $navigationSort = 1;
 
     public static function table(Tables\Table $table): Tables\Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('urutan')
+                TextColumn::make('urutan')
                     ->label('#')
                     ->sortable(),
 
@@ -34,14 +37,14 @@ class CategoryFilmResource extends Resource
                     ->label('Thumbnail')
                     ->square(),
 
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Nama')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->label('Slug'),
 
-                Tables\Columns\ToggleColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label('Aktif'),
             ])
             ->defaultSort('urutan', 'asc')
@@ -81,6 +84,7 @@ class CategoryFilmResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ]);
     }
+
     public static function form(Forms\Form $form): Forms\Form
     {
         return $form
@@ -89,7 +93,7 @@ class CategoryFilmResource extends Resource
                     ->label('Nama Kategori')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn($state, $set) => $set('slug', Str::slug($state))),
+                    ->afterStateUpdated(fn ($state, $set) => $set('slug', Str::slug($state))),
 
                 Forms\Components\TextInput::make('slug')
                     ->label('Slug')
@@ -107,8 +111,7 @@ class CategoryFilmResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string =>
-                            (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
                     ),
 
                 Forms\Components\TextInput::make('start')
@@ -117,7 +120,7 @@ class CategoryFilmResource extends Resource
 
                 Forms\Components\TextInput::make('urutan')
                     ->numeric()
-                    ->default(fn() => CategoryFilm::max('urutan') + 1)
+                    ->default(fn () => CategoryFilm::max('urutan') + 1)
                     ->required(),
 
                 Forms\Components\Toggle::make('is_active')
@@ -125,9 +128,6 @@ class CategoryFilmResource extends Resource
             ])
             ->columns(2);
     }
-
-
-
 
     public static function getPages(): array
     {

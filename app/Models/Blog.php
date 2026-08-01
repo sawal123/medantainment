@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Mews\Purifier\Facades\Purifier;
 
 class Blog extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id', 'title', 'slug', 'content', 'image', 'category_id', 'status',
-        'published_at', 'seo_title', 'seo_description', 'og_image'
+        'published_at', 'seo_title', 'seo_description', 'og_image',
     ];
 
     // Slug, sanitasi XSS, dan SEO otomatis diset jika kosong/disimpan
@@ -28,8 +30,8 @@ class Blog extends Model
             }
 
             // [PRIORITAS 7] Sanitasi HTML konten dengan profil 'blog'
-            if (!empty($blog->content)) {
-                $blog->content = \Mews\Purifier\Facades\Purifier::clean($blog->content, 'blog');
+            if (! empty($blog->content)) {
+                $blog->content = Purifier::clean($blog->content, 'blog');
             }
 
             // Otomasi SEO jika kosong
@@ -50,18 +52,22 @@ class Blog extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
     }
+
     public function visitors()
     {
         return $this->hasMany(Visitor::class);
     }
+
     public function comments()
     {
         return $this->hasMany(Comment::class);
@@ -72,11 +78,11 @@ class Blog extends Model
     {
         return $query->where(function ($q) {
             $q->where('status', 'published')
-              ->orWhere(function ($sq) {
-                  $sq->where('status', 'scheduled')
-                    ->whereNotNull('published_at')
-                    ->where('published_at', '<=', now());
-              });
+                ->orWhere(function ($sq) {
+                    $sq->where('status', 'scheduled')
+                        ->whereNotNull('published_at')
+                        ->where('published_at', '<=', now());
+                });
         });
     }
 }

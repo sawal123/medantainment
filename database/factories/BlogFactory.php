@@ -20,15 +20,15 @@ class BlogFactory extends Factory
         $title = fake()->sentence(5);
 
         return [
-            'user_id'      => User::factory(),
-            'category_id'  => Category::factory(),
-            'title'        => $title,
-            'slug'         => Str::slug($title) . '-' . fake()->randomNumber(4),
-            'content'      => '<p>' . fake()->paragraphs(3, true) . '</p>',
-            'image'        => null,
-            'status'       => 'published',
+            'user_id' => User::factory(),
+            'category_id' => Category::factory(),
+            'title' => $title,
+            'slug' => Str::slug($title).'-'.fake()->randomNumber(4),
+            'content' => '<p>'.fake()->paragraphs(3, true).'</p>',
+            'image' => null,
+            'status' => 'published',
             'published_at' => now()->subDay(),
-            'seo_title'    => Str::limit($title, 60),
+            'seo_title' => Str::limit($title, 60),
             'seo_description' => fake()->sentence(20),
         ];
     }

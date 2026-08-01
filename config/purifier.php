@@ -10,16 +10,16 @@
  * @link http://htmlpurifier.org/live/configdoc/plain.html
  */
 return [
-    'encoding'         => 'UTF-8',
-    'finalize'         => true,
+    'encoding' => 'UTF-8',
+    'finalize' => true,
     'ignoreNonStrings' => false,
-    'cachePath'        => storage_path('app/purifier'),
-    'cacheFileMode'    => 0755,
+    'cachePath' => storage_path('app/purifier'),
+    'cacheFileMode' => 0755,
 
     'settings' => [
         // Profil untuk konten blog — allowlist ketat
         'blog' => [
-            'HTML.Doctype'  => 'HTML 4.01 Transitional',
+            'HTML.Doctype' => 'HTML 4.01 Transitional',
 
             // Allowlist: hanya tag yang aman untuk konten artikel
             // Tidak ada <script>, <object>, <embed>, <form>, <iframe> bebas
@@ -43,7 +43,7 @@ return [
 
             // Tolak URL javascript: dan data: secara eksplisit
             'URI.AllowedSchemes' => [
-                'http'  => true,
+                'http' => true,
                 'https' => true,
                 'mailto' => true,
             ],
@@ -60,10 +60,10 @@ return [
 
         // Profil default (fallback)
         'default' => [
-            'HTML.Doctype'             => 'HTML 4.01 Transitional',
-            'HTML.Allowed'             => 'p,br,b,strong,i,em,ul,ol,li,a[href|title],blockquote',
+            'HTML.Doctype' => 'HTML 4.01 Transitional',
+            'HTML.Allowed' => 'p,br,b,strong,i,em,ul,ol,li,a[href|title],blockquote',
             'AutoFormat.AutoParagraph' => false,
-            'AutoFormat.RemoveEmpty'   => true,
+            'AutoFormat.RemoveEmpty' => true,
         ],
     ],
 ];

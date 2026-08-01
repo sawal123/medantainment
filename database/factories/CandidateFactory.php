@@ -16,13 +16,13 @@ class CandidateFactory extends Factory
     public function definition(): array
     {
         return [
-            'carrer_id'    => Carrer::factory(),
-            'name'         => fake()->name(),
-            'email'        => fake()->unique()->safeEmail(),
-            'phone'        => '081' . fake()->numerify('#########'),
-            'resume'       => null,
+            'carrer_id' => Carrer::factory(),
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'phone' => '081'.fake()->numerify('#########'),
+            'resume' => null,
             'cover_letter' => fake()->paragraph(),
-            'status'       => 'pending',
+            'status' => 'pending',
         ];
     }
 }

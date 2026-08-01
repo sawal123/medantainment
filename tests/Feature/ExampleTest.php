@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Alamat;
+use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Setting;
 
 class ExampleTest extends TestCase
 {
@@ -20,10 +21,10 @@ class ExampleTest extends TestCase
             'site_name' => 'Medantainment Test',
         ]);
 
-        \App\Models\Alamat::create([
+        Alamat::create([
             'street' => 'Jl. Medantainment No. 1',
-            'city'   => 'Medan',
-            'phone'  => '628123456789',
+            'city' => 'Medan',
+            'phone' => '628123456789',
         ]);
 
         $response = $this->get('/');
@@ -31,4 +32,3 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 }
-

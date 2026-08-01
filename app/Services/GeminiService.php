@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -38,28 +39,27 @@ class GeminiService
 
             // [PRIORITAS 12] Tambah timeout dan retry (hanya untuk 5xx, bukan 4xx)
             $response = Http::timeout(15)
-                ->retry(2, 500, fn (\Exception $e, $request) =>
-                    $e instanceof \Illuminate\Http\Client\RequestException &&
+                ->retry(2, 500, fn (\Exception $e, $request) => $e instanceof RequestException &&
                     $e->response?->serverError()
                 )
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                 ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
-                'contents' => [
-                    [
-                        'parts' => [
-                            [
-                                'text' => "You are an SEO expert. Generate a JSON response with 'title' (maximum 60 characters, catchy and optimized for SEO) and 'description' (maximum 160 characters, summaries the post, including a call to action if appropriate) for a blog post. Do not include markdown formatting or backticks, just raw JSON.
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => "You are an SEO expert. Generate a JSON response with 'title' (maximum 60 characters, catchy and optimized for SEO) and 'description' (maximum 160 characters, summaries the post, including a call to action if appropriate) for a blog post. Do not include markdown formatting or backticks, just raw JSON.
                                 Title: {$title}
-                                Content: {$excerpt}"
-                            ]
-                        ]
-                    ]
-                ],
-                'generationConfig' => [
-                    'responseMimeType' => 'application/json',
-                ]
-            ]);
+                                Content: {$excerpt}",
+                                ],
+                            ],
+                        ],
+                    ],
+                    'generationConfig' => [
+                        'responseMimeType' => 'application/json',
+                    ],
+                ]);
 
             if ($response->successful()) {
                 $rawText = $response->json('candidates.0.content.parts.0.text');
@@ -70,16 +70,16 @@ class GeminiService
                 if (isset($result['title']) && isset($result['description'])) {
                     return [
                         // [PRIORITAS 12] Batasi panjang output dari API
-                        'title'       => Str::limit($result['title'], 60, ''),
+                        'title' => Str::limit($result['title'], 60, ''),
                         'description' => Str::limit($result['description'], 160, '...'),
-                        'is_ai'       => true,
+                        'is_ai' => true,
                     ];
                 }
             }
         } catch (\Exception $e) {
             // [PRIORITAS 12] Log error yang aman: tanpa API key, tanpa konten artikel penuh
             Log::warning('GeminiService: SEO generation failed', [
-                'error'      => $e->getMessage(),
+                'error' => $e->getMessage(),
                 'title_hash' => hash('sha256', $title), // tidak log judul asli jika sensitif
             ]);
             // Fallback ke lokal

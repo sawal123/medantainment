@@ -2,49 +2,86 @@
 
 namespace App\Traits;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 trait CleansUpMedia
 {
     public static function bootCleansUpMedia(): void
     {
-        // Bersihkan file lama jika field media diganti dengan file baru
+        // Catat dan hapus file usang SETELAH commit transaksi database berhasil
         static::updating(function ($model) {
+            $filesToDelete = [];
             foreach ($model->getMediaFields() as $field) {
-                if ($model->isDirty($field) && ($oldPath = $model->getOriginal($field))) {
-                    if (Storage::disk($model->getMediaDisk())->exists($oldPath)) {
-                        Storage::disk($model->getMediaDisk())->delete($oldPath);
+                if ($model->isDirty($field)) {
+                    $oldPath = $model->getOriginal($field);
+                    $newPath = $model->{$field};
+                    if (! empty($oldPath) && is_string($oldPath) && $oldPath !== $newPath) {
+                        $filesToDelete[] = $oldPath;
                     }
                 }
             }
+
+            if (! empty($filesToDelete)) {
+                $disk = $model->getMediaDisk();
+                DB::afterCommit(function () use ($disk, $filesToDelete) {
+                    foreach ($filesToDelete as $filePath) {
+                        try {
+                            if (Storage::disk($disk)->exists($filePath)) {
+                                Storage::disk($disk)->delete($filePath);
+                            }
+                        } catch (\Throwable $e) {
+                            Log::error("Gagal menghapus media usang [{$filePath}] pada disk [{$disk}]: ".$e->getMessage());
+                        }
+                    }
+                });
+            }
         });
 
-        // Bersihkan file jika record dihapus
+        // Hapus file SETELAH commit transaksi database berhasil saat record dihapus permanen
         static::deleting(function ($model) {
+            if (method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting()) {
+                return;
+            }
+
+            $filesToDelete = [];
             foreach ($model->getMediaFields() as $field) {
-                if (($path = $model->{$field}) && is_string($path)) {
-                    if (Storage::disk($model->getMediaDisk())->exists($path)) {
-                        Storage::disk($model->getMediaDisk())->delete($path);
-                    }
+                $path = $model->{$field};
+                if (! empty($path) && is_string($path)) {
+                    $filesToDelete[] = $path;
                 }
+            }
+
+            if (! empty($filesToDelete)) {
+                $disk = $model->getMediaDisk();
+                DB::afterCommit(function () use ($disk, $filesToDelete) {
+                    foreach ($filesToDelete as $filePath) {
+                        try {
+                            if (Storage::disk($disk)->exists($filePath)) {
+                                Storage::disk($disk)->delete($filePath);
+                            }
+                        } catch (\Throwable $e) {
+                            Log::error("Gagal menghapus media record [{$filePath}] pada disk [{$disk}]: ".$e->getMessage());
+                        }
+                    }
+                });
             }
         });
     }
 
     /**
      * Field yang diperiksa untuk hapus file.
-     * Override parameter $mediaFields pada model jika nama field berbeda.
      */
-    protected function getMediaFields(): array
+    public function getMediaFields(): array
     {
         return property_exists($this, 'mediaFields') ? $this->mediaFields : ['image', 'photo', 'logo', 'gambar', 'thumbnail', 'value'];
     }
 
     /**
      * Disk penyimpanan standar.
-     * Override $mediaDisk pada model jika menggunakan disk berbeda.
      */
-    protected function getMediaDisk(): string
+    public function getMediaDisk(): string
     {
         return property_exists($this, 'mediaDisk') ? $this->mediaDisk : 'public';
     }

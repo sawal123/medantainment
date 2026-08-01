@@ -15,16 +15,16 @@ class CarrerFactory extends Factory
 
     public function definition(): array
     {
-        $title = fake()->jobTitle() . ' ' . fake()->numberBetween(1, 999);
+        $title = fake()->jobTitle().' '.fake()->numberBetween(1, 999);
 
         return [
-            'title'       => $title,
-            'slug'        => Str::slug($title),
+            'title' => $title,
+            'slug' => Str::slug($title),
             'description' => fake()->paragraph(),
-            'salary'      => 'Rp 5.000.000 - Rp 10.000.000',
-            'status'      => 'open',
-            'time'        => fake()->randomElement(['Full Time', 'Part Time', 'Internship']),
-            'apply_link'  => '#',
+            'salary' => 'Rp 5.000.000 - Rp 10.000.000',
+            'status' => 'open',
+            'time' => fake()->randomElement(['Full Time', 'Part Time', 'Internship']),
+            'apply_link' => '#',
         ];
     }
 

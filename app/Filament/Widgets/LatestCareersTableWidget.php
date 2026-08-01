@@ -13,7 +13,7 @@ class LatestCareersTableWidget extends BaseWidget
     protected static ?string $heading = 'Pelamar Terbaru';
 
     // Mengatur agar tabel memanjang penuh (full-width) di bawah widget statistik/grafik
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     // Mengatur urutan tampilan widget paling bawah
     protected static ?int $sort = 3;

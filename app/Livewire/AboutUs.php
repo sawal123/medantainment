@@ -9,16 +9,21 @@ use Livewire\Component;
 class AboutUs extends Component
 {
     public $setting;
+
     public $page;
+
     public $data;
+
     public $contact;
+
     public function mount()
     {
         $this->setting = Setting::first();
-        $this->page = "MEDANTAINMENT-About Us";
+        $this->page = 'MEDANTAINMENT-About Us';
         $this->data = \App\Models\AboutUs::first(); // ambil 1 data
         $this->contact = Alamat::first();
     }
+
     public function render()
     {
 

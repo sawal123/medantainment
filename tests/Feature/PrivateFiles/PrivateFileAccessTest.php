@@ -23,7 +23,9 @@ class PrivateFileAccessTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $author;
+
     private Candidate $candidate;
 
     protected function setUp(): void
@@ -32,12 +34,12 @@ class PrivateFileAccessTest extends TestCase
 
         Storage::fake('private');
 
-        $this->admin  = User::factory()->create(['role' => 'admin']);
+        $this->admin = User::factory()->create(['role' => 'admin']);
         $this->author = User::factory()->create(['role' => 'author']);
 
         $carrer = Carrer::factory()->create([
             'status' => 'open',
-            'time'   => 'Full Time',
+            'time' => 'Full Time',
         ]);
 
         // Buat file palsu di disk private
@@ -45,7 +47,7 @@ class PrivateFileAccessTest extends TestCase
 
         $this->candidate = Candidate::factory()->create([
             'carrer_id' => $carrer->id,
-            'resume'    => 'candidates/resumes/test-cv.pdf',
+            'resume' => 'candidates/resumes/test-cv.pdf',
         ]);
     }
 
@@ -56,7 +58,7 @@ class PrivateFileAccessTest extends TestCase
     {
         $response = $this->get(route('secure.candidate.download', [
             'candidate' => $this->candidate->id,
-            'field'     => 'resume',
+            'field' => 'resume',
         ]));
 
         // Harus redirect ke halaman login (302) — bukan 200
@@ -71,7 +73,7 @@ class PrivateFileAccessTest extends TestCase
         $response = $this->actingAs($this->author)
             ->get(route('secure.candidate.download', [
                 'candidate' => $this->candidate->id,
-                'field'     => 'resume',
+                'field' => 'resume',
             ]));
 
         $response->assertForbidden();
@@ -85,7 +87,7 @@ class PrivateFileAccessTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->get(route('secure.candidate.download', [
                 'candidate' => $this->candidate->id,
-                'field'     => 'resume',
+                'field' => 'resume',
             ]));
 
         // Harus berhasil (200) atau download (200 dengan Content-Disposition)
@@ -100,7 +102,7 @@ class PrivateFileAccessTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->get(route('secure.candidate.download', [
                 'candidate' => $this->candidate->id,
-                'field'     => '../../../etc/passwd',
+                'field' => '../../../etc/passwd',
             ]));
 
         // Harus 404 karena field tidak ada di allowlist
@@ -115,7 +117,7 @@ class PrivateFileAccessTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->get(route('secure.candidate.download', [
                 'candidate' => $this->candidate->id,
-                'field'     => 'email', // email bukan file field
+                'field' => 'email', // email bukan file field
             ]));
 
         $response->assertNotFound();
@@ -132,7 +134,7 @@ class PrivateFileAccessTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->get(route('secure.candidate.download', [
                 'candidate' => $this->candidate->id,
-                'field'     => 'resume',
+                'field' => 'resume',
             ]));
 
         $response->assertNotFound();

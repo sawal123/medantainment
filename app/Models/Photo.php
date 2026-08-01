@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\CleansUpMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\CleansUpMedia;
 
 class Photo extends Model
 {
-    use HasFactory, CleansUpMedia;
+    use CleansUpMedia, HasFactory;
 
     protected $fillable = [
         'client_id',
@@ -21,6 +21,6 @@ class Photo extends Model
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class);
+        return $this->belongsTo(Client::class);
     }
 }

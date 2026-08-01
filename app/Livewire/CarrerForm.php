@@ -3,25 +3,30 @@
 namespace App\Livewire;
 
 use App\Models\Alamat;
-use App\Models\Carrer;
-use App\Models\Setting;
-use Livewire\Component;
 use App\Models\Candidate;
+use App\Models\Carrer;
 use App\Models\Internship;
-use Livewire\WithFileUploads;
+use App\Models\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class CarrerForm extends Component
 {
     use WithFileUploads;
 
     public $setting;
+
     public $page;
+
     public $slug;
+
     public $carrer = null;
+
     public $title;
+
     public $contact;
 
     // carrer_id adalah property readonly dari server — tidak boleh diubah dari luar
@@ -30,34 +35,57 @@ class CarrerForm extends Component
 
     // === Form Fields: Lamaran Biasa ===
     public $name;
+
     public $email;
+
     public $phone;
+
     public $resume;
+
     public $cover_letter;
 
     // === Form Fields: Internship ===
     public $nama;
+
     public $ttl;
+
     public $alamat;
+
     public $sekolah_universitas;
+
     public $jurusan;
+
     public $periode_magang;
+
     public $keahlian;
+
     public $ketertarikan = []; // checkbox → array
+
     public $ketertarangan_singkat;
+
     public $surat_izin;
+
     public $surat_lamaran;
+
     public $cv_portofolio;
+
     public $foto_diri;
 
     // Rating
     public $rating_kreatifitas;
+
     public $rating_analitis;
+
     public $rating_komunikasi;
+
     public $rating_manajemen_waktu;
+
     public $rating_adaptasi;
+
     public $rating_teamwork;
+
     public $rating_motivasi;
+
     public $rating_tekanan;
 
     public $alasan_internship;
@@ -65,18 +93,18 @@ class CarrerForm extends Component
     // === Validation Rules: Lamaran Biasa ===
     // mimetypes: memvalidasi isi file (magic bytes), bukan hanya ekstensi
     protected $rules = [
-        'name'         => 'required|string|max:255',
-        'email'        => 'required|email|max:255',
-        'phone'        => 'required|string|max:15|regex:/^[0-9+\-\s]+$/',
-        'resume'       => 'required|file|mimetypes:application/pdf|max:4096',
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'phone' => 'required|string|max:15|regex:/^[0-9+\-\s]+$/',
+        'resume' => 'required|file|mimetypes:application/pdf|max:4096',
         'cover_letter' => 'nullable|string|max:5000',
     ];
 
     public function mount($slug): void
     {
-        $this->slug    = $slug;
+        $this->slug = $slug;
         $this->setting = Setting::first();
-        $this->page    = 'MEDANTAINMENT - Carrer';
+        $this->page = 'MEDANTAINMENT - Carrer';
         $this->contact = Alamat::first();
 
         // Null check — cegah Error 500 jika slug tidak ada
@@ -85,10 +113,11 @@ class CarrerForm extends Component
         if (! $this->carrer) {
             session()->flash('error', 'Lowongan tidak ditemukan.');
             redirect()->route('index');
+
             return;
         }
 
-        $this->title    = $this->carrer->title;
+        $this->title = $this->carrer->title;
         $this->carrer_id = $this->carrer->id; // read-only reference
     }
 
@@ -106,33 +135,33 @@ class CarrerForm extends Component
 
         // [PRIORITAS 6] Validasi dulu, rate limit dikurangi hanya jika valid
         $validated = $this->validate([
-            'nama'    => 'required|string|max:255',
-            'ttl'     => 'required|string|max:255',
-            'alamat'  => 'required|string|max:1000',
+            'nama' => 'required|string|max:255',
+            'ttl' => 'required|string|max:255',
+            'alamat' => 'required|string|max:1000',
 
             'sekolah_universitas' => 'required|string|max:255',
-            'jurusan'             => 'required|string|max:255',
-            'periode_magang'      => 'required|string|max:255',
+            'jurusan' => 'required|string|max:255',
+            'periode_magang' => 'required|string|max:255',
 
             'keahlian' => 'required|string|max:2000',
 
-            'ketertarikan'          => 'required|array|min:1',
+            'ketertarikan' => 'required|array|min:1',
             'ketertarangan_singkat' => 'required|string|max:3000',
 
             // mimetypes: memvalidasi isi file sebenarnya, bukan hanya ekstensi
-            'surat_izin'    => 'nullable|file|mimetypes:application/pdf|max:2048',
+            'surat_izin' => 'nullable|file|mimetypes:application/pdf|max:2048',
             'surat_lamaran' => 'nullable|file|mimetypes:application/pdf|max:2048',
             'cv_portofolio' => 'nullable|file|mimetypes:application/pdf|max:4096',
-            'foto_diri'     => 'nullable|file|mimetypes:image/jpeg,image/png,image/webp|max:2048',
+            'foto_diri' => 'nullable|file|mimetypes:image/jpeg,image/png,image/webp|max:2048',
 
-            'rating_kreatifitas'     => 'nullable|integer|min:1|max:5',
-            'rating_analitis'        => 'nullable|integer|min:1|max:5',
-            'rating_komunikasi'      => 'nullable|integer|min:1|max:5',
+            'rating_kreatifitas' => 'nullable|integer|min:1|max:5',
+            'rating_analitis' => 'nullable|integer|min:1|max:5',
+            'rating_komunikasi' => 'nullable|integer|min:1|max:5',
             'rating_manajemen_waktu' => 'nullable|integer|min:1|max:5',
-            'rating_adaptasi'        => 'nullable|integer|min:1|max:5',
-            'rating_teamwork'        => 'nullable|integer|min:1|max:5',
-            'rating_motivasi'        => 'nullable|integer|min:1|max:5',
-            'rating_tekanan'         => 'nullable|integer|min:1|max:5',
+            'rating_adaptasi' => 'nullable|integer|min:1|max:5',
+            'rating_teamwork' => 'nullable|integer|min:1|max:5',
+            'rating_motivasi' => 'nullable|integer|min:1|max:5',
+            'rating_tekanan' => 'nullable|integer|min:1|max:5',
 
             'alasan_internship' => 'required|string|max:3000',
         ]);
@@ -147,6 +176,7 @@ class CarrerForm extends Component
                 'rate_limit',
                 "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
             );
+
             return;
         }
 
@@ -190,7 +220,7 @@ class CarrerForm extends Component
 
             Internship::create(array_merge($validated, [
                 'ketertarikan' => $this->ketertarikan,
-                'carrer_id'    => $carrer->id,
+                'carrer_id' => $carrer->id,
             ]));
         });
 
@@ -225,6 +255,7 @@ class CarrerForm extends Component
                 'rate_limit',
                 "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
             );
+
             return;
         }
 
@@ -236,11 +267,11 @@ class CarrerForm extends Component
 
             // [PRIORITAS 4] carrer_id dari server, bukan dari input user
             Candidate::create([
-                'carrer_id'    => $carrer->id,
-                'name'         => $this->name,
-                'email'        => $this->email,
-                'phone'        => $this->phone,
-                'resume'       => $resumePath,
+                'carrer_id' => $carrer->id,
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone' => $this->phone,
+                'resume' => $resumePath,
                 'cover_letter' => $this->cover_letter,
             ]);
         });
@@ -256,7 +287,7 @@ class CarrerForm extends Component
         // Null safety check jika lowongan tidak ada
         if (! $this->carrer) {
             return view('livewire.carrer-form')->layout('components.layouts.app', [
-                'page'    => $this->page,
+                'page' => $this->page,
                 'setting' => $this->setting,
                 'contact' => $this->contact,
             ]);
@@ -264,14 +295,14 @@ class CarrerForm extends Component
 
         if ($this->carrer->time === 'Internship') {
             return view('livewire.carrer-form-intern')->layout('components.layouts.app', [
-                'page'    => $this->page,
+                'page' => $this->page,
                 'setting' => $this->setting,
                 'contact' => $this->contact,
             ]);
         }
 
         return view('livewire.carrer-form')->layout('components.layouts.app', [
-            'page'    => $this->page,
+            'page' => $this->page,
             'setting' => $this->setting,
             'contact' => $this->contact,
         ]);
@@ -285,7 +316,7 @@ class CarrerForm extends Component
      * Ambil career yang valid dari server berdasarkan slug yang sudah dimount.
      * Validasi: career harus ada, statusnya open, dan tipenya sesuai.
      *
-     * @param string $expectedType 'Internship' atau 'regular'
+     * @param  string  $expectedType  'Internship' atau 'regular'
      */
     private function getValidCarrer(string $expectedType): ?Carrer
     {
@@ -294,11 +325,13 @@ class CarrerForm extends Component
 
         if (! $carrer) {
             $this->addError('rate_limit', 'Lowongan tidak ditemukan.');
+
             return null;
         }
 
         if ($carrer->status !== 'open') {
             $this->addError('rate_limit', 'Pendaftaran untuk lowongan ini sudah ditutup.');
+
             return null;
         }
 
@@ -306,16 +339,18 @@ class CarrerForm extends Component
         if ($expectedType === 'Internship' && $carrer->time !== 'Internship') {
             $this->addError('rate_limit', 'Tipe formulir tidak sesuai dengan jenis lowongan.');
             Log::warning('CarrerForm: tipe form tidak sesuai', [
-                'slug'          => $this->slug,
+                'slug' => $this->slug,
                 'expected_type' => $expectedType,
-                'actual_type'   => $carrer->time,
-                'ip'            => request()->ip(),
+                'actual_type' => $carrer->time,
+                'ip' => request()->ip(),
             ]);
+
             return null;
         }
 
         if ($expectedType === 'regular' && $carrer->time === 'Internship') {
             $this->addError('rate_limit', 'Tipe formulir tidak sesuai dengan jenis lowongan.');
+
             return null;
         }
 
@@ -338,7 +373,7 @@ class CarrerForm extends Component
             session()->getId(),
         ]);
 
-        return $formType . '-form:' . hash('sha256', $raw);
+        return $formType.'-form:'.hash('sha256', $raw);
     }
 
     /**

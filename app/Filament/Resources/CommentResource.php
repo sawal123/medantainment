@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class CommentResource extends Resource
 {
@@ -30,12 +31,12 @@ class CommentResource extends Resource
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
@@ -98,7 +99,7 @@ class CommentResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(fn (Comment $record) => $record->update(['is_approved' => true]))
-                    ->visible(fn (Comment $record) => !$record->is_approved),
+                    ->visible(fn (Comment $record) => ! $record->is_approved),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

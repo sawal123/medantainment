@@ -15,7 +15,7 @@ class CategoryFactory extends Factory
 
     public function definition(): array
     {
-        $name = fake()->unique()->word() . ' ' . fake()->randomNumber(3);
+        $name = fake()->unique()->word().' '.fake()->randomNumber(3);
 
         return [
             'name' => $name,

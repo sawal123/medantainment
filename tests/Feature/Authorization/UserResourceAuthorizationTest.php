@@ -29,9 +29,14 @@ use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Blog;
 use App\Models\User;
+use App\Services\UserAdministrationService;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\ViewException;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class UserResourceAuthorizationTest extends TestCase
@@ -39,28 +44,30 @@ class UserResourceAuthorizationTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $author;
+
+    private UserAdministrationService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->service = app(UserAdministrationService::class);
+
         $this->admin = User::factory()->create([
-            'name'  => 'Admin User',
+            'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'role'  => User::ROLE_ADMIN,
+            'role' => User::ROLE_ADMIN,
         ]);
 
         $this->author = User::factory()->create([
-            'name'  => 'Author User',
+            'name' => 'Author User',
             'email' => 'author@example.com',
-            'role'  => User::ROLE_AUTHOR,
+            'role' => User::ROLE_AUTHOR,
         ]);
     }
 
-    /**
-     * Admin membuka ListUsers dan mendapat sukses.
-     */
     public function test_admin_opens_list_users_successfully(): void
     {
         $this->actingAs($this->admin)
@@ -72,9 +79,6 @@ class UserResourceAuthorizationTest extends TestCase
             ->assertSuccessful();
     }
 
-    /**
-     * Author membuka ListUsers dan mendapat forbidden (HTTP 403).
-     */
     public function test_author_opens_list_users_is_forbidden(): void
     {
         $this->actingAs($this->author)
@@ -86,9 +90,6 @@ class UserResourceAuthorizationTest extends TestCase
             ->assertForbidden();
     }
 
-    /**
-     * Author tidak dapat menjalankan EditUser.
-     */
     public function test_author_cannot_execute_edit_user(): void
     {
         $this->actingAs($this->author)
@@ -100,96 +101,62 @@ class UserResourceAuthorizationTest extends TestCase
             ->assertForbidden();
     }
 
-    /**
-     * Payload Livewire / request tidak dapat mengubah author menjadi admin.
-     */
-    public function test_livewire_payload_cannot_change_author_to_admin(): void
+    public function test_admin_cannot_change_own_role_via_service(): void
     {
-        $this->actingAs($this->author);
-
-        try {
-            $this->author->update(['role' => User::ROLE_ADMIN]);
-            $this->fail('Harusnya melempar ValidationException saat pengguna mengubah role sendiri.');
-        } catch (ValidationException $e) {
-            $this->assertArrayHasKey('role', $e->errors());
-        }
-
-        $this->assertEquals(User::ROLE_AUTHOR, $this->author->fresh()->role);
-    }
-
-    /**
-     * Admin tidak dapat mengubah role dirinya sendiri melalui form EditUser atau model update.
-     */
-    public function test_admin_cannot_change_own_role(): void
-    {
-        // 1. Coba melalui form EditUser di Livewire (field role disabled & dehydrated(false))
-        Livewire::actingAs($this->admin)
-            ->test(EditUser::class, ['record' => $this->admin->id])
-            ->fillForm([
-                'role' => User::ROLE_AUTHOR,
-            ])
-            ->call('save');
-
-        $this->assertEquals(User::ROLE_ADMIN, $this->admin->fresh()->role);
-
-        // 2. Coba melalui direct update model saat terautentikasi (server-side boot protection)
-        try {
-            $this->admin->update(['role' => User::ROLE_AUTHOR]);
-            $this->fail('Harusnya melempar ValidationException saat admin mengubah role akun sendiri.');
-        } catch (ValidationException $e) {
-            $this->assertArrayHasKey('role', $e->errors());
-        }
+        $this->expectException(ValidationException::class);
+        $this->service->updateRole($this->admin, $this->admin, User::ROLE_AUTHOR);
 
         $this->assertEquals(User::ROLE_ADMIN, $this->admin->fresh()->role);
     }
 
-    /**
-     * Admin terakhir tidak dapat diturunkan perannya.
-     */
     public function test_last_admin_cannot_be_demoted(): void
     {
-        // Pastikan $this->admin adalah satu-satunya admin
         User::where('role', User::ROLE_ADMIN)
             ->where('id', '!=', $this->admin->id)
             ->delete();
 
-        $anotherUser = User::factory()->create(['role' => User::ROLE_AUTHOR]);
-
-        $this->actingAs($anotherUser);
-
-        try {
-            $this->admin->update(['role' => User::ROLE_AUTHOR]);
-            $this->fail('Harusnya melempar ValidationException saat menurunkan admin terakhir.');
-        } catch (ValidationException $e) {
-            $this->assertArrayHasKey('role', $e->errors());
-        }
-
-        $this->assertEquals(User::ROLE_ADMIN, $this->admin->fresh()->role);
+        $this->expectException(ValidationException::class);
+        $this->service->updateRole($this->admin, $this->admin, User::ROLE_AUTHOR);
     }
 
-    /**
-     * Admin terakhir tidak dapat dihapus.
-     */
     public function test_last_admin_cannot_be_deleted(): void
     {
-        // Pastikan $this->admin adalah satu-satunya admin
         User::where('role', User::ROLE_ADMIN)
             ->where('id', '!=', $this->admin->id)
             ->delete();
 
-        try {
-            $this->admin->delete();
-            $this->fail('Harusnya melempar ValidationException saat menghapus admin terakhir.');
-        } catch (ValidationException $e) {
-            $this->assertArrayHasKey('user', $e->errors());
-        }
-
-        $this->assertDatabaseHas('users', ['id' => $this->admin->id]);
+        $this->expectException(ValidationException::class);
+        $this->service->deleteUser($this->admin, $this->admin);
     }
 
-    /**
-     * UserResource tidak mempunyai bulk delete.
-     */
+    public function test_regular_admin_can_demote_another_admin_if_more_admins_remain(): void
+    {
+        $secondAdmin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $updated = $this->service->updateRole($this->admin, $secondAdmin, User::ROLE_AUTHOR);
+
+        $this->assertEquals(User::ROLE_AUTHOR, $updated->role);
+        $this->assertEquals(User::ROLE_AUTHOR, $secondAdmin->fresh()->role);
+    }
+
+    public function test_regular_admin_can_delete_another_admin_if_more_admins_remain(): void
+    {
+        $secondAdmin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $deleted = $this->service->deleteUser($this->admin, $secondAdmin);
+
+        $this->assertTrue($deleted);
+        $this->assertDatabaseMissing('users', ['id' => $secondAdmin->id]);
+    }
+
+    public function test_author_cannot_invoke_user_administration_service(): void
+    {
+        $target = User::factory()->create(['role' => User::ROLE_AUTHOR]);
+
+        $this->expectException(AuthorizationException::class);
+        $this->service->updateRole($this->author, $target, User::ROLE_ADMIN);
+    }
+
     public function test_user_resource_does_not_have_bulk_delete(): void
     {
         Livewire::actingAs($this->admin)
@@ -197,9 +164,6 @@ class UserResourceAuthorizationTest extends TestCase
             ->assertTableBulkActionDoesNotExist('delete');
     }
 
-    /**
-     * Author hanya dapat mengedit blog miliknya.
-     */
     public function test_author_can_only_edit_own_blog(): void
     {
         $ownBlog = Blog::factory()->create(['user_id' => $this->author->id]);
@@ -213,9 +177,6 @@ class UserResourceAuthorizationTest extends TestCase
             ->assertSuccessful();
     }
 
-    /**
-     * Author tidak dapat mengedit blog milik author lain.
-     */
     public function test_author_cannot_edit_other_author_blog(): void
     {
         $otherAuthor = User::factory()->create(['role' => User::ROLE_AUTHOR]);
@@ -232,17 +193,14 @@ class UserResourceAuthorizationTest extends TestCase
             $this->fail('Harusnya menolak/melempar pengecualian saat author mengakses blog author lain.');
         } catch (\Throwable $e) {
             $this->assertTrue(
-                $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException ||
-                $e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException ||
-                $e instanceof \Illuminate\Auth\Access\AuthorizationException ||
-                $e instanceof \Illuminate\View\ViewException
+                $e instanceof ModelNotFoundException ||
+                $e instanceof NotFoundHttpException ||
+                $e instanceof AuthorizationException ||
+                $e instanceof ViewException
             );
         }
     }
 
-    /**
-     * Author mendapat HTTP 403 untuk SETIAP resource non-blog di Filament.
-     */
     public function test_author_receives_403_for_all_non_blog_resources(): void
     {
         $nonBlogResources = [

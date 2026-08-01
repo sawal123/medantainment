@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Visitor;
 
+use App\Filament\Widgets\DashboardOverviewWidget;
 use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Visitor;
@@ -21,6 +22,7 @@ class VisitorDeduplicationTest extends TestCase
     use RefreshDatabase;
 
     private Category $category;
+
     private Blog $blog;
 
     protected function setUp(): void
@@ -30,9 +32,9 @@ class VisitorDeduplicationTest extends TestCase
         Cache::flush();
 
         $this->category = Category::factory()->create();
-        $this->blog     = Blog::factory()->create([
+        $this->blog = Blog::factory()->create([
             'category_id' => $this->category->id,
-            'status'      => 'published',
+            'status' => 'published',
             'published_at' => now()->subDay(),
         ]);
     }
@@ -47,17 +49,17 @@ class VisitorDeduplicationTest extends TestCase
 
         // Tambah beberapa visitor
         Visitor::create([
-            'ip_hash'    => hash('sha256', '192.168.1.1' . config('app.key')),
+            'ip_hash' => hash('sha256', '192.168.1.1'.config('app.key')),
             'session_id' => 'session_a',
             'user_agent' => 'Mozilla/5.0 Test Browser',
-            'blog_id'    => $this->blog->id,
+            'blog_id' => $this->blog->id,
         ]);
 
         Visitor::create([
-            'ip_hash'    => hash('sha256', '192.168.1.2' . config('app.key')),
+            'ip_hash' => hash('sha256', '192.168.1.2'.config('app.key')),
             'session_id' => 'session_b',
             'user_agent' => 'Mozilla/5.0 Test Browser',
-            'blog_id'    => $this->blog->id,
+            'blog_id' => $this->blog->id,
         ]);
 
         // Harus ada tepat 2 record
@@ -77,10 +79,10 @@ class VisitorDeduplicationTest extends TestCase
 
         // Buat record pertama untuk session ini
         Visitor::create([
-            'ip_hash'    => hash('sha256', '192.168.1.1' . config('app.key')),
+            'ip_hash' => hash('sha256', '192.168.1.1'.config('app.key')),
             'session_id' => $sessionId,
             'user_agent' => 'Mozilla/5.0 Test Browser',
-            'blog_id'    => $this->blog->id,
+            'blog_id' => $this->blog->id,
         ]);
 
         $this->assertEquals(1, Visitor::count());
@@ -96,10 +98,10 @@ class VisitorDeduplicationTest extends TestCase
         // Verifikasi masih 1 record (jika logika dedup dijalankan, tidak buat baru)
         if (! $alreadyRecorded) {
             Visitor::create([
-                'ip_hash'    => hash('sha256', '192.168.1.1' . config('app.key')),
+                'ip_hash' => hash('sha256', '192.168.1.1'.config('app.key')),
                 'session_id' => $sessionId,
                 'user_agent' => 'Mozilla/5.0 Test Browser',
-                'blog_id'    => $this->blog->id,
+                'blog_id' => $this->blog->id,
             ]);
         }
 
@@ -112,17 +114,17 @@ class VisitorDeduplicationTest extends TestCase
     public function test_different_sessions_are_counted_separately(): void
     {
         Visitor::create([
-            'ip_hash'    => hash('sha256', '192.168.1.1' . config('app.key')),
+            'ip_hash' => hash('sha256', '192.168.1.1'.config('app.key')),
             'session_id' => 'session_1',
             'user_agent' => 'Mozilla/5.0',
-            'blog_id'    => $this->blog->id,
+            'blog_id' => $this->blog->id,
         ]);
 
         Visitor::create([
-            'ip_hash'    => hash('sha256', '192.168.1.1' . config('app.key')),
+            'ip_hash' => hash('sha256', '192.168.1.1'.config('app.key')),
             'session_id' => 'session_2',
             'user_agent' => 'Mozilla/5.0',
-            'blog_id'    => $this->blog->id,
+            'blog_id' => $this->blog->id,
         ]);
 
         // Harus ada 2 record (session berbeda)
@@ -134,14 +136,14 @@ class VisitorDeduplicationTest extends TestCase
      */
     public function test_ip_address_is_not_stored_in_plain_text(): void
     {
-        $rawIp   = '123.456.789.0';
-        $ipHash  = hash('sha256', $rawIp . config('app.key'));
+        $rawIp = '123.456.789.0';
+        $ipHash = hash('sha256', $rawIp.config('app.key'));
 
         Visitor::create([
-            'ip_hash'    => $ipHash,
+            'ip_hash' => $ipHash,
             'session_id' => 'session_ip_test',
             'user_agent' => 'Mozilla/5.0',
-            'blog_id'    => $this->blog->id,
+            'blog_id' => $this->blog->id,
         ]);
 
         // Verifikasi IP mentah tidak tersimpan
@@ -159,17 +161,17 @@ class VisitorDeduplicationTest extends TestCase
         // Tambah beberapa visitor bulan ini
         for ($i = 0; $i < 5; $i++) {
             Visitor::create([
-                'ip_hash'    => hash('sha256', "192.168.1.{$i}" . config('app.key')),
+                'ip_hash' => hash('sha256', "192.168.1.{$i}".config('app.key')),
                 'session_id' => "session_{$i}",
                 'user_agent' => 'Mozilla/5.0',
-                'blog_id'    => $this->blog->id,
+                'blog_id' => $this->blog->id,
             ]);
         }
 
-        $widget = new \App\Filament\Widgets\DashboardOverviewWidget();
+        $widget = new DashboardOverviewWidget;
 
         $reflection = new \ReflectionClass($widget);
-        $method     = $reflection->getMethod('getStats');
+        $method = $reflection->getMethod('getStats');
         $method->setAccessible(true);
 
         $stats = $method->invoke($widget);

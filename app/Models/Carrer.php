@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Carrer extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'title',
         'slug',
@@ -18,7 +19,6 @@ class Carrer extends Model
         'time',
         'apply_link',
     ];
-
 
     public static function boot()
     {
@@ -34,12 +34,14 @@ class Carrer extends Model
             $career->apply_link = url("/career/form/{$career->slug}");
         });
     }
+
     public function candidates()
     {
-        return $this->hasMany(\App\Models\Candidate::class);
+        return $this->hasMany(Candidate::class);
     }
+
     public function internship()
     {
-        return $this->hasMany(\App\Models\Internship::class);
+        return $this->hasMany(Internship::class);
     }
 }

@@ -2,29 +2,33 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
+use App\Filament\Resources\BlogResource\Pages;
 use App\Models\Blog;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
+use App\Models\Visitor;
+use App\Services\GeminiService;
+use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\BlogResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\BlogResource\RelationManagers;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class BlogResource extends Resource
 {
     protected static ?string $model = Blog::class;
+
     protected static ?string $navigationGroup = 'Blog Posts';
+
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-up';
 
     public static function canAccess(): bool
@@ -37,12 +41,12 @@ class BlogResource extends Resource
         return auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isAuthor());
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return auth()->check() && (auth()->user()->isAdmin() || (auth()->user()->isAuthor() && (int) $record->user_id === (int) auth()->id()));
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->check() && (auth()->user()->isAdmin() || (auth()->user()->isAuthor() && (int) $record->user_id === (int) auth()->id()));
     }
@@ -117,18 +121,19 @@ class BlogResource extends Resource
                                                     $content = $get('content');
 
                                                     if (empty($title)) {
-                                                        \Filament\Notifications\Notification::make()
+                                                        Notification::make()
                                                             ->title('Silakan isi Judul terlebih dahulu')
                                                             ->warning()
                                                             ->send();
+
                                                         return;
                                                     }
 
-                                                    $seo = \App\Services\GeminiService::generateSeo($title, $content ?? '');
+                                                    $seo = GeminiService::generateSeo($title, $content ?? '');
                                                     $set('seo_title', $seo['title']);
                                                     $set('seo_description', $seo['description']);
 
-                                                    \Filament\Notifications\Notification::make()
+                                                    Notification::make()
                                                         ->title($seo['is_ai'] ? 'SEO berhasil disugestikan via AI!' : 'SEO berhasil disugestikan secara lokal')
                                                         ->success()
                                                         ->send();
@@ -153,8 +158,7 @@ class BlogResource extends Resource
                                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(2048)
                                         ->getUploadedFileNameForStorageUsing(
-                                            fn ($file): string =>
-                                                (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                                            fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
                                         )
                                         ->imageEditor()
                                         ->imageEditorAspectRatios([
@@ -182,7 +186,7 @@ class BlogResource extends Resource
                                         ->relationship('user', 'name')
                                         ->label('Penulis (Author)')
                                         ->default(auth()->id())
-                                        ->disabled(fn () => auth()->check() && !auth()->user()->isAdmin())
+                                        ->disabled(fn () => auth()->check() && ! auth()->user()->isAdmin())
                                         ->required(),
                                 ]),
 
@@ -190,7 +194,7 @@ class BlogResource extends Resource
                                 ->schema([
                                     Forms\Components\Placeholder::make('views_count')
                                         ->label('Total Tayangan')
-                                        ->content(fn ($record) => $record ? \App\Models\Visitor::where('blog_id', $record->id)->count() . ' kali dibaca' : '0'),
+                                        ->content(fn ($record) => $record ? Visitor::where('blog_id', $record->id)->count().' kali dibaca' : '0'),
                                 ])->visible(fn ($record) => $record !== null),
                         ])->columnSpan(1),
                     ]),
@@ -232,8 +236,8 @@ class BlogResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('category_id')
-                ->label('Filter Kategori')
-                ->relationship('category', 'name'),
+                    ->label('Filter Kategori')
+                    ->relationship('category', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -249,9 +253,10 @@ class BlogResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        if (auth()->check() && !auth()->user()->isAdmin()) {
+        if (auth()->check() && ! auth()->user()->isAdmin()) {
             $query->where('user_id', auth()->id());
         }
+
         return $query;
     }
 

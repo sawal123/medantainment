@@ -3,23 +3,22 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\InternshipResource\Pages;
-use App\Filament\Resources\InternshipResource\RelationManagers;
 use App\Models\Internship;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class InternshipResource extends Resource
 {
     protected static ?string $model = Internship::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationGroup = 'Carrer';
+
     protected static ?string $navigationLabel = 'Internship';
 
     // ───────────────────────────────────────────────
@@ -142,7 +141,7 @@ class InternshipResource extends Resource
                         'Accept' => 'success',
                         'Reject' => 'danger',
                         'Viewed' => 'warning',
-                        default  => 'gray',
+                        default => 'gray',
                     }),
             ])
             ->actions([
@@ -153,11 +152,10 @@ class InternshipResource extends Resource
                     ->label('Unduh CV')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('primary')
-                    ->url(fn (Internship $record): string =>
-                        route('secure.internship.download', [
-                            'internship' => $record->id,
-                            'field'      => 'cv_portofolio',
-                        ])
+                    ->url(fn (Internship $record): string => route('secure.internship.download', [
+                        'internship' => $record->id,
+                        'field' => 'cv_portofolio',
+                    ])
                     )
                     ->openUrlInNewTab()
                     ->visible(fn (Internship $record): bool => ! empty($record->cv_portofolio)),
@@ -196,9 +194,9 @@ class InternshipResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListInternships::route('/'),
+            'index' => Pages\ListInternships::route('/'),
             'create' => Pages\CreateInternship::route('/create'),
-            'edit'   => Pages\EditInternship::route('/{record}/edit'),
+            'edit' => Pages\EditInternship::route('/{record}/edit'),
         ];
     }
 }

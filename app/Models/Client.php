@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\CleansUpMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Traits\CleansUpMedia;
 
 class Client extends Model
 {
-    use HasFactory, CleansUpMedia;
+    use CleansUpMedia, HasFactory;
 
     protected $fillable = [
         'name',
@@ -52,6 +52,7 @@ class Client extends Model
                         $max = (int) DB::table($model->getTable())->lockForUpdate()->max('urutan');
                         $model->urutan = $max ? $max + 1 : 1;
                     }
+
                     return;
                 }
 

@@ -2,19 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use App\Models\Team;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\TeamResource\Pages;
-use App\Filament\Resources\TeamResource\RelationManagers;
+use App\Models\Team;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -80,8 +77,7 @@ class TeamResource extends Resource
                     ])
                     ->maxSize(2048) // 2 MB
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string =>
-                            (string) Str::uuid() . '.' .
+                        fn ($file): string => (string) Str::uuid().'.'.
                             strtolower($file->getClientOriginalExtension())
                     )
                     ->required(),
@@ -124,9 +120,9 @@ class TeamResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTeams::route('/'),
+            'index' => Pages\ListTeams::route('/'),
             'create' => Pages\CreateTeam::route('/create'),
-            'edit'   => Pages\EditTeam::route('/{record}/edit'),
+            'edit' => Pages\EditTeam::route('/{record}/edit'),
         ];
     }
 }

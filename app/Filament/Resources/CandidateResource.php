@@ -3,16 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CandidateResource\Pages;
-use App\Filament\Resources\CandidateResource\RelationManagers;
 use App\Models\Candidate;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
 class CandidateResource extends Resource
@@ -20,7 +17,9 @@ class CandidateResource extends Resource
     protected static ?string $model = Candidate::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationGroup = 'Carrer';
+
     protected static ?string $navigationLabel = 'Kandidat';
 
     // ───────────────────────────────────────────────
@@ -92,15 +91,14 @@ class CandidateResource extends Resource
                     ->acceptedFileTypes(['application/pdf'])
                     ->maxSize(4096) // 4 MB
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string =>
-                            (string) Str::uuid() . '.pdf'
+                        fn ($file): string => (string) Str::uuid().'.pdf'
                     )
                     ->helperText('Hanya file PDF. Maksimal 4 MB.'),
 
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([
-                        'pending'  => 'Pending',
+                        'pending' => 'Pending',
                         'reviewed' => 'Reviewed',
                         'accepted' => 'Accepted',
                         'rejected' => 'Rejected',
@@ -148,11 +146,11 @@ class CandidateResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'pending'  => 'gray',
+                        'pending' => 'gray',
                         'reviewed' => 'warning',
                         'accepted' => 'success',
                         'rejected' => 'danger',
-                        default    => 'gray',
+                        default => 'gray',
                     })
                     ->searchable(),
 
@@ -169,11 +167,10 @@ class CandidateResource extends Resource
                     ->label('Unduh CV')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('primary')
-                    ->url(fn (Candidate $record): string =>
-                        route('secure.candidate.download', [
-                            'candidate' => $record->id,
-                            'field'     => 'resume',
-                        ])
+                    ->url(fn (Candidate $record): string => route('secure.candidate.download', [
+                        'candidate' => $record->id,
+                        'field' => 'resume',
+                    ])
                     )
                     ->openUrlInNewTab()
                     ->visible(fn (Candidate $record): bool => ! empty($record->resume)),
@@ -198,9 +195,9 @@ class CandidateResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCandidates::route('/'),
+            'index' => Pages\ListCandidates::route('/'),
             'create' => Pages\CreateCandidate::route('/create'),
-            'edit'   => Pages\EditCandidate::route('/{record}/edit'),
+            'edit' => Pages\EditCandidate::route('/{record}/edit'),
         ];
     }
 }

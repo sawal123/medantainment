@@ -3,8 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Blog;
-use App\Models\Project;
 use App\Models\Candidate;
+use App\Models\Project;
 use App\Models\Visitor;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -20,18 +20,18 @@ class DashboardOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $blogCount     = Blog::count();
+        $blogCount = Blog::count();
         $blogPublished = Blog::where('status', 'published')->count();
-        $blogDraft     = Blog::where('status', 'draft')->count();
+        $blogDraft = Blog::where('status', 'draft')->count();
 
         $projectCount = Project::count();
 
-        $candidateCount   = Candidate::count();
+        $candidateCount = Candidate::count();
         $candidatePending = Candidate::where('status', 'pending')->count();
 
         // ── Data visitor nyata dari tabel visitors ──
-        $now             = Carbon::now();
-        $startOfMonth    = $now->copy()->startOfMonth();
+        $now = Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
 
         // Page Views bulan ini = semua record visitor bulan ini
         $pageViewsThisMonth = Visitor::where('created_at', '>=', $startOfMonth)->count();
@@ -69,7 +69,7 @@ class DashboardOverviewWidget extends BaseWidget
 
             // Label jujur: Page Views (bukan estimasi)
             Stat::make('Page Views (Bulan Ini)', number_format($pageViewsThisMonth))
-                ->description("Session unik: " . number_format($uniqueSessionsThisMonth))
+                ->description('Session unik: '.number_format($uniqueSessionsThisMonth))
                 ->descriptionIcon('heroicon-m-eye')
                 ->chart($chartData)
                 ->color('info'),

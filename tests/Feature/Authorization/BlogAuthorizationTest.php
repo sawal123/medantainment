@@ -20,8 +20,11 @@ class BlogAuthorizationTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $author;
+
     private User $otherAuthor;
+
     private Category $category;
 
     protected function setUp(): void
@@ -41,9 +44,9 @@ class BlogAuthorizationTest extends TestCase
     public function test_author_can_update_own_blog(): void
     {
         $blog = Blog::factory()->create([
-            'user_id'     => $this->author->id,
+            'user_id' => $this->author->id,
             'category_id' => $this->category->id,
-            'status'      => 'draft',
+            'status' => 'draft',
         ]);
 
         // Author bisa update blog miliknya
@@ -58,9 +61,9 @@ class BlogAuthorizationTest extends TestCase
     public function test_author_cannot_update_other_users_blog(): void
     {
         $blog = Blog::factory()->create([
-            'user_id'     => $this->otherAuthor->id,
+            'user_id' => $this->otherAuthor->id,
             'category_id' => $this->category->id,
-            'status'      => 'draft',
+            'status' => 'draft',
         ]);
 
         // Author tidak bisa update blog milik user lain
@@ -75,9 +78,9 @@ class BlogAuthorizationTest extends TestCase
     public function test_admin_can_update_any_blog(): void
     {
         $blog = Blog::factory()->create([
-            'user_id'     => $this->author->id,
+            'user_id' => $this->author->id,
             'category_id' => $this->category->id,
-            'status'      => 'draft',
+            'status' => 'draft',
         ]);
 
         $this->assertTrue(
@@ -91,9 +94,9 @@ class BlogAuthorizationTest extends TestCase
     public function test_author_cannot_delete_other_users_blog(): void
     {
         $blog = Blog::factory()->create([
-            'user_id'     => $this->otherAuthor->id,
+            'user_id' => $this->otherAuthor->id,
             'category_id' => $this->category->id,
-            'status'      => 'draft',
+            'status' => 'draft',
         ]);
 
         $this->assertFalse(
@@ -107,9 +110,9 @@ class BlogAuthorizationTest extends TestCase
     public function test_author_can_delete_own_blog(): void
     {
         $blog = Blog::factory()->create([
-            'user_id'     => $this->author->id,
+            'user_id' => $this->author->id,
             'category_id' => $this->category->id,
-            'status'      => 'draft',
+            'status' => 'draft',
         ]);
 
         $this->assertTrue(
@@ -123,9 +126,9 @@ class BlogAuthorizationTest extends TestCase
     public function test_only_admin_can_force_delete_blog(): void
     {
         $blog = Blog::factory()->create([
-            'user_id'     => $this->author->id,
+            'user_id' => $this->author->id,
             'category_id' => $this->category->id,
-            'status'      => 'draft',
+            'status' => 'draft',
         ]);
 
         $this->assertTrue($this->admin->can('forceDelete', $blog));

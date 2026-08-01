@@ -4,29 +4,34 @@ namespace App\Livewire;
 
 use App\Models\Alamat;
 use App\Models\Setting;
+use App\Models\Sosmed;
 use Livewire\Component;
 
 class Contact extends Component
 {
     public $setting;
+
     public $page;
+
     public $alamat;
+
     public $sosmed;
 
     public function mount()
     {
-         $this->sosmed = \App\Models\Sosmed::all();
+        $this->sosmed = Sosmed::all();
         $this->setting = Setting::first();
-        $this->page = "MEDANTAINMENT - Carrer";
+        $this->page = 'MEDANTAINMENT - Carrer';
 
         $this->alamat = Alamat::first();
     }
+
     public function render()
     {
         return view('livewire.contact')->layout('components.layouts.app', [
             'page' => $this->page,
             'setting' => $this->setting,
-            'contact'=>$this->alamat
+            'contact' => $this->alamat,
         ]);
     }
 }

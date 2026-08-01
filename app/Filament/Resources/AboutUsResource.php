@@ -3,21 +3,21 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AboutUsResource\Pages;
-use App\Filament\Resources\AboutUsResource\RelationManagers;
 use App\Models\AboutUs;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class AboutUsResource extends Resource
 {
     protected static ?string $model = AboutUs::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?string $navigationGroup = 'Landing';
 
     public static function canAccess(): bool
@@ -30,12 +30,12 @@ class AboutUsResource extends Resource
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
@@ -66,17 +66,16 @@ class AboutUsResource extends Resource
                     ->columnSpanFull(),
 
                 Forms\Components\FileUpload::make('image')
-                                    ->label('Banner / Foto Utama')
-                                    ->disk('public')
-                                    ->directory('about-us')
-                                    ->image()
-                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->maxSize(2048)
-                                    ->getUploadedFileNameForStorageUsing(
-                                        fn ($file): string =>
-                                            (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
-                                    )
-                                    ->nullable(),
+                    ->label('Banner / Foto Utama')
+                    ->disk('public')
+                    ->directory('about-us')
+                    ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->maxSize(2048)
+                    ->getUploadedFileNameForStorageUsing(
+                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                    )
+                    ->nullable(),
 
                 Forms\Components\Repeater::make('highlights')
                     ->label('Keunggulan / Poin Penting')

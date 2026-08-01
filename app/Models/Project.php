@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class Project extends Model
 {
@@ -25,12 +24,12 @@ class Project extends Model
 
     public function client()
     {
-        return $this->belongsTo(\App\Models\Client::class);
+        return $this->belongsTo(Client::class);
     }
 
     public function categoryFilm()
     {
-        return $this->belongsTo(\App\Models\CategoryFilm::class);
+        return $this->belongsTo(CategoryFilm::class);
     }
 
     public function setLinkAttribute($value)
@@ -99,7 +98,7 @@ class Project extends Model
         }
 
         $parsed = parse_url($url);
-        $host   = strtolower($parsed['host'] ?? '');
+        $host = strtolower($parsed['host'] ?? '');
 
         $allowedHosts = [
             'youtube.com',

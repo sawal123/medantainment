@@ -2,23 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Landing;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\PhotoLanding;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PhotoLandingResource\Pages;
-use App\Filament\Resources\PhotoLandingResource\RelationManagers;
+use App\Models\PhotoLanding;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class PhotoLandingResource extends Resource
@@ -31,7 +25,9 @@ class PhotoLandingResource extends Resource
     protected static ?string $model = PhotoLanding::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?string $navigationLabel = 'Image';
+
     protected static ?string $navigationGroup = 'Landing';
 
     // ───────────────────────────────────────────────
@@ -83,8 +79,7 @@ class PhotoLandingResource extends Resource
                     ])
                     ->maxSize(2048) // 2 MB
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string =>
-                            (string) Str::uuid() . '.' .
+                        fn ($file): string => (string) Str::uuid().'.'.
                             strtolower($file->getClientOriginalExtension())
                     ),
             ]);
@@ -127,9 +122,9 @@ class PhotoLandingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPhotoLandings::route('/'),
+            'index' => Pages\ListPhotoLandings::route('/'),
             'create' => Pages\CreatePhotoLanding::route('/create'),
-            'edit'   => Pages\EditPhotoLanding::route('/{record}/edit'),
+            'edit' => Pages\EditPhotoLanding::route('/{record}/edit'),
         ];
     }
 }

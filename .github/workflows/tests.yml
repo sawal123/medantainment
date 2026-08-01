@@ -8,7 +8,10 @@ on:
   pull_request:
     branches:
       - main
-      - fix/security-hardening
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   tests:
@@ -22,14 +25,17 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, dom, fileinfo, sqlite, pdo_sqlite
+          extensions: mbstring, dom, fileinfo, sqlite, pdo_sqlite, ctype, curl, iconv, json, openssl, pdo, tokenizer, xml
           coverage: none
 
       - name: Copy Environment Configuration
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
+      - name: Validate Composer Package Configuration
+        run: composer validate --strict
+
       - name: Install Dependencies
-        run: composer install --no-interaction --prefer-dist --ignore-platform-reqs
+        run: composer install --no-interaction --prefer-dist
 
       - name: Generate Application Key
         run: php artisan key:generate
@@ -37,7 +43,7 @@ jobs:
       - name: Clear Application Optimization Cache
         run: php artisan optimize:clear
 
-      - name: Run Test Suite
+      - name: Run Automated Test Suite
         run: php artisan test
         env:
           DB_CONNECTION: sqlite

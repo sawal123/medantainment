@@ -67,7 +67,7 @@ return new class extends Migration
 
     private function indexExists(string $table, string $indexName): bool
     {
-        return collect(\Illuminate\Support\Facades\Schema::getIndexes($table))
+        return collect(Schema::getIndexes($table))
             ->pluck('name')
             ->contains($indexName);
     }

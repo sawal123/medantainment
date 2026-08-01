@@ -2,19 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Sosmed;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\SosmedResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\SosmedResource\RelationManagers;
+use App\Models\Sosmed;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class SosmedResource extends Resource
 {
@@ -32,12 +29,12 @@ class SosmedResource extends Resource
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
@@ -63,7 +60,7 @@ class SosmedResource extends Resource
                     ->label('Title')
                     ->required(),
                 TextInput::make('value')
-                    ->label('Value')
+                    ->label('Value'),
             ]);
     }
 
@@ -72,14 +69,14 @@ class SosmedResource extends Resource
         return $table
 
             ->columns([
-                Tables\Columns\TextColumn::make('icon')
+                TextColumn::make('icon')
                     ->label('Icon')
-                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->formatStateUsing(fn ($state) => ucfirst($state))
                     ->searchable(),
                 TextColumn::make('key')
                     ->label('Title'),
                 TextColumn::make('value')
-                    ->label('Value')
+                    ->label('Value'),
             ])
             ->filters([
                 //

@@ -2,20 +2,22 @@
 
 namespace App\Livewire;
 
-use App\Models\Photo;
 use App\Models\Alamat;
 use App\Models\CategoryFilm;
+use App\Models\Project as ModelsProject;
 use App\Models\Setting;
 use Livewire\Component;
-use App\Models\Project as ModelsProject;
-
 
 class Project extends Component
 {
     public $setting;
+
     public $page;
+
     public $contact;
+
     public $categoryFilm;
+
     public $filmLimit = 8;
     // public $selectedCategory = 0;
 
@@ -27,7 +29,7 @@ class Project extends Component
     {
         $this->selectedCategory = $slug ?? 'all';
         $this->setting = Setting::first();
-        $this->page    = "MEDANTAINMENT - Project";
+        $this->page = 'MEDANTAINMENT - Project';
         $this->contact = Alamat::first();
         $this->firstCategory = CategoryFilm::where('slug', $slug)->first();
     }
@@ -39,7 +41,6 @@ class Project extends Component
         $this->firstCategory = CategoryFilm::where('slug', $slug)->first();
         $this->dispatch('change-url', slug: $slug);
     }
-
 
     public function getFilmsProperty()
     {
@@ -83,7 +84,7 @@ class Project extends Component
             ->layout('components.layouts.app', [
                 'page' => $this->page,
                 'setting' => $this->setting,
-                'contact' => $this->contact
+                'contact' => $this->contact,
             ]);
     }
 }

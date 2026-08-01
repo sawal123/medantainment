@@ -2,26 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Slide;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\ToggleColumn;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\SlideResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\SlideResource\RelationManagers;
+use App\Models\Slide;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class SlideResource extends Resource
 {
     protected static ?string $model = Slide::class;
 
-
     protected static ?string $navigationIcon = 'heroicon-o-photo';
+
     protected static ?string $navigationGroup = 'Landing';
 
     public static function canAccess(): bool
@@ -34,12 +33,12 @@ class SlideResource extends Resource
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
     }
@@ -62,8 +61,7 @@ class SlideResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string =>
-                            (string) \Illuminate\Support\Str::uuid() . '.' . strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
                     )
                     ->visibility('public'),
 
@@ -103,7 +101,7 @@ class SlideResource extends Resource
 
                 TextColumn::make('link')
                     ->label('Link')
-                    ->url(fn($record) => $record->link, true)
+                    ->url(fn ($record) => $record->link, true)
                     ->limit(30),
 
                 ToggleColumn::make('is_active')

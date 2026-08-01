@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Career;
 
+use App\Livewire\CarrerForm;
 use App\Models\Carrer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,17 +29,17 @@ class CareerFormTest extends TestCase
     {
         $carrer = Carrer::factory()->create([
             'status' => 'closed',
-            'time'   => 'Full Time',
-            'slug'   => 'test-career',
+            'time' => 'Full Time',
+            'slug' => 'test-career',
         ]);
 
         // Akses getValidCarrer melalui reflection (private method)
-        $form = new \App\Livewire\CarrerForm();
-        $form->slug   = $carrer->slug;
+        $form = new CarrerForm;
+        $form->slug = $carrer->slug;
         $form->carrer = $carrer;
 
         $reflection = new \ReflectionClass($form);
-        $method     = $reflection->getMethod('getValidCarrer');
+        $method = $reflection->getMethod('getValidCarrer');
         $method->setAccessible(true);
 
         $result = $method->invoke($form, 'regular');
@@ -70,10 +71,10 @@ class CareerFormTest extends TestCase
      */
     public function test_different_careers_have_different_rate_limit_keys(): void
     {
-        $form = new \App\Livewire\CarrerForm();
+        $form = new CarrerForm;
 
         $reflection = new \ReflectionClass($form);
-        $method     = $reflection->getMethod('buildRateLimitKey');
+        $method = $reflection->getMethod('buildRateLimitKey');
         $method->setAccessible(true);
 
         $key1 = $method->invoke($form, 'career', 1);
@@ -95,16 +96,16 @@ class CareerFormTest extends TestCase
     {
         $regularCareer = Carrer::factory()->create([
             'status' => 'open',
-            'time'   => 'Full Time', // bukan Internship
-            'slug'   => 'regular-career',
+            'time' => 'Full Time', // bukan Internship
+            'slug' => 'regular-career',
         ]);
 
-        $form = new \App\Livewire\CarrerForm();
-        $form->slug   = $regularCareer->slug;
+        $form = new CarrerForm;
+        $form->slug = $regularCareer->slug;
         $form->carrer = $regularCareer;
 
         $reflection = new \ReflectionClass($form);
-        $method     = $reflection->getMethod('getValidCarrer');
+        $method = $reflection->getMethod('getValidCarrer');
         $method->setAccessible(true);
 
         // Mencoba submit sebagai internship ke career biasa harus ditolak
@@ -121,12 +122,12 @@ class CareerFormTest extends TestCase
     {
         $carrer = Carrer::factory()->create([
             'status' => 'open',
-            'time'   => 'Full Time',
-            'slug'   => 'test-career',
+            'time' => 'Full Time',
+            'slug' => 'test-career',
         ]);
 
-        $form = new \App\Livewire\CarrerForm();
-        $form->slug   = $carrer->slug;
+        $form = new CarrerForm;
+        $form->slug = $carrer->slug;
         $form->carrer = $carrer;
 
         // Simulasikan manipulasi carrer_id dari luar
@@ -134,7 +135,7 @@ class CareerFormTest extends TestCase
 
         // buildRateLimitKey menggunakan $carrerId dari parameter, bukan dari $this->carrer_id
         $reflection = new \ReflectionClass($form);
-        $method     = $reflection->getMethod('getValidCarrer');
+        $method = $reflection->getMethod('getValidCarrer');
         $method->setAccessible(true);
 
         $result = $method->invoke($form, 'regular');

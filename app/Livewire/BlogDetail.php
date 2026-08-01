@@ -2,24 +2,30 @@
 
 namespace App\Livewire;
 
-use App\Models\Blog;
 use App\Models\Alamat;
+use App\Models\Blog;
+use App\Models\Category;
 use App\Models\Setting;
 use App\Models\Visitor;
-use Livewire\Component;
-use App\Models\Category;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Component;
 
 class BlogDetail extends Component
 {
     public $setting;
+
     public $page;
+
     public $slug;
+
     public $post;
+
     public $category;
 
     public $recent;
+
     public $serupa;
+
     public $contact;
 
     public $query;
@@ -37,23 +43,23 @@ class BlogDetail extends Component
     public function search()
     {
         if (! empty($this->query)) {
-            return redirect()->to('/blog/' . urlencode($this->query));
+            return redirect()->to('/blog/'.urlencode($this->query));
         }
     }
 
     public function mount($slug)
     {
         $this->setting = Setting::first();
-        $this->page    = 'MEDANTAINMENT - Blog';
+        $this->page = 'MEDANTAINMENT - Blog';
         $this->contact = Alamat::first();
-        $this->slug    = $slug;
-        $this->post    = Blog::published()->where('slug', $slug)->firstOrFail();
-        $this->serupa  = Blog::published()
+        $this->slug = $slug;
+        $this->post = Blog::published()->where('slug', $slug)->firstOrFail();
+        $this->serupa = Blog::published()
             ->where('category_id', $this->post->category->id)
             ->where('id', '!=', $this->post->id)
             ->take(2)
             ->get();
-        $this->recent   = Blog::published()->latest()->take(3)->get();
+        $this->recent = Blog::published()->latest()->take(3)->get();
         $this->category = Category::all();
 
         // Rekam statistik kunjungan dengan deduplikasi
@@ -63,12 +69,12 @@ class BlogDetail extends Component
     public function render()
     {
         return view('livewire.blog-detail')->layout('components.layouts.app', [
-            'page'             => $this->page,
-            'setting'          => $this->setting,
-            'contact'          => $this->contact,
-            'meta_title'       => $this->post->seo_title,
+            'page' => $this->page,
+            'setting' => $this->setting,
+            'contact' => $this->contact,
+            'meta_title' => $this->post->seo_title,
             'meta_description' => $this->post->seo_description,
-            'meta_image'       => $this->post->image,
+            'meta_image' => $this->post->image,
         ]);
     }
 
@@ -89,10 +95,10 @@ class BlogDetail extends Component
         $ipAddress = request()->ip() ?? '0.0.0.0';
 
         // Hash IP dengan app key — tidak menyimpan IP mentah
-        $ipHash = hash('sha256', $ipAddress . config('app.key'));
+        $ipHash = hash('sha256', $ipAddress.config('app.key'));
 
         // Dedup cache key: satu pengunjung (session + blog) per window
-        $dedupKey = 'visitor_dedup:' . hash('sha256', $sessionId . $blogId);
+        $dedupKey = 'visitor_dedup:'.hash('sha256', $sessionId.$blogId);
 
         // Jika sudah dihitung dalam window ini, lewati
         if (Cache::has($dedupKey)) {
@@ -108,14 +114,15 @@ class BlogDetail extends Component
         if ($alreadyRecorded) {
             // Set cache agar tidak query DB terus
             Cache::put($dedupKey, true, now()->addMinutes(self::DEDUP_WINDOW_MINUTES));
+
             return;
         }
 
         Visitor::create([
-            'ip_hash'    => $ipHash,
+            'ip_hash' => $ipHash,
             'session_id' => $sessionId,
             'user_agent' => mb_substr($userAgent, 0, 500), // batasi panjang
-            'blog_id'    => $blogId,
+            'blog_id' => $blogId,
         ]);
 
         // Set cache dedup

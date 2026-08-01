@@ -10,49 +10,55 @@ use Illuminate\Validation\ValidationException;
 class UserAdministrationService
 {
     /**
-     * Ubah role target user secara atomik dalam satu DB transaction dengan lockForUpdate.
+     * Pemutakhiran lengkap data user (role, name, email, password, dll) secara atomik dalam 1 DB transaction.
      */
-    public function updateRole(User $actor, User $target, string $newRole): User
+    public function updateUser(User $actor, User $target, array $data): User
     {
         if (! $actor->isAdmin()) {
             throw new AuthorizationException('Hanya admin yang diizinkan mengelola akun pengguna.');
         }
 
-        if ((int) $actor->id === (int) $target->id && $target->role !== $newRole) {
-            throw ValidationException::withMessages([
-                'role' => 'Admin tidak dapat mengubah role dirinya sendiri.',
-            ]);
-        }
-
-        return DB::transaction(function () use ($target, $newRole) {
+        return DB::transaction(function () use ($actor, $target, $data) {
             /** @var User $lockedTarget */
             $lockedTarget = User::where('id', $target->id)->lockForUpdate()->firstOrFail();
 
-            $oldRole = $lockedTarget->role;
+            if (isset($data['role']) && $data['role'] !== $lockedTarget->role) {
+                $newRole = $data['role'];
 
-            if ($oldRole === $newRole) {
-                return $lockedTarget;
-            }
-
-            // Jika menurunkan role admin ke role lain (misal author)
-            if ($oldRole === User::ROLE_ADMIN && $newRole !== User::ROLE_ADMIN) {
-                $remainingAdminsCount = User::where('role', User::ROLE_ADMIN)
-                    ->where('id', '!=', $lockedTarget->id)
-                    ->lockForUpdate()
-                    ->count();
-
-                if ($remainingAdminsCount === 0) {
+                // Self role change check
+                if ((int) $actor->id === (int) $lockedTarget->id) {
                     throw ValidationException::withMessages([
-                        'role' => 'Admin terakhir tidak dapat diturunkan perannya.',
+                        'role' => 'Admin tidak dapat mengubah role dirinya sendiri.',
                     ]);
+                }
+
+                // Last admin check if demoting
+                if ($lockedTarget->role === User::ROLE_ADMIN && $newRole !== User::ROLE_ADMIN) {
+                    $remainingAdminsCount = User::where('role', User::ROLE_ADMIN)
+                        ->where('id', '!=', $lockedTarget->id)
+                        ->lockForUpdate()
+                        ->count();
+
+                    if ($remainingAdminsCount === 0) {
+                        throw ValidationException::withMessages([
+                            'role' => 'Admin terakhir tidak dapat diturunkan perannya.',
+                        ]);
+                    }
                 }
             }
 
-            $lockedTarget->role = $newRole;
-            $lockedTarget->save();
+            $lockedTarget->update($data);
 
             return $lockedTarget;
         });
+    }
+
+    /**
+     * Ubah role target user secara atomik dalam satu DB transaction dengan lockForUpdate.
+     */
+    public function updateRole(User $actor, User $target, string $newRole): User
+    {
+        return $this->updateUser($actor, $target, ['role' => $newRole]);
     }
 
     /**
@@ -64,7 +70,7 @@ class UserAdministrationService
             throw new AuthorizationException('Hanya admin yang diizinkan mengelola akun pengguna.');
         }
 
-        return DB::transaction(function () use ($target) {
+        return DB::transaction(function () use ($actor, $target) {
             /** @var User $lockedTarget */
             $lockedTarget = User::where('id', $target->id)->lockForUpdate()->firstOrFail();
 

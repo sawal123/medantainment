@@ -11,7 +11,7 @@
         "php": "^8.3",
         "filament/filament": "^3.3.53",
         "guzzlehttp/guzzle": "^7.9.2",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.60",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10",
         "livewire/livewire": "^3.6.4",
@@ -22,8 +22,8 @@
         "laravel/pint": "^1.20",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
-        "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^10.5.62",
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^11.5",
         "spatie/laravel-ignition": "^2.4"
     },
     "autoload": {

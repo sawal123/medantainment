@@ -18,19 +18,19 @@
                     @endforeach
                 </div>
 
-                @if (! empty($selectedSeries))
+                @if (!empty($selectedSeries))
                     <div class="mt-2">
                         <h2 class="h4">{{ $selectedSeries->name }}</h2>
                         <p>{{ $selectedSeries->description }}</p>
                     </div>
-                @elseif (! empty($firstCategory))
+                @elseif (!empty($firstCategory))
                     <p class="mt-2">
                         {{ $firstCategory->deskripsi }}
                     </p>
                 @endif
 
                 @if (empty($selectedSeries))
-                    @if (! empty($seriesList) && $seriesList->isNotEmpty())
+                    @if (!empty($seriesList) && $seriesList->isNotEmpty())
                         <div class="mt-4">
                             <h3 class="h5">Series / Playlist</h3>
                         </div>
@@ -88,20 +88,20 @@
                     </button>
                 @endif
 
-            </div>
+        </div>
 
-        </section>
-    </main>
-    <script>
-        window.addEventListener('change-url', event => {
-            const slug = event.detail.slug;
+    </section>
+</main>
+<script>
+    window.addEventListener('change-url', event => {
+        const slug = event.detail.slug;
 
-            if (slug === 'all') {
-                history.pushState({}, '', '/project');
-            } else {
-                history.pushState({}, '', `/project/${slug}`);
-            }
-        });
-    </script>
+        if (slug === 'all') {
+            history.pushState({}, '', '/project');
+        } else {
+            history.pushState({}, '', `/project/${slug}`);
+        }
+    });
+</script>
 
 </div>

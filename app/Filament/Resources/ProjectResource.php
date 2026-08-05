@@ -96,7 +96,7 @@ class ProjectResource extends Resource
                         'standalone' => 'Project Biasa',
                         'episode' => 'Episode Series',
                     ])
-                    ->default(fn (callable $get) => $get('series_id') ? 'episode' : 'standalone')
+                    ->default(fn(callable $get) => $get('series_id') ? 'episode' : 'standalone')
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set) {
                         if ($state === 'standalone') {
@@ -125,7 +125,7 @@ class ProjectResource extends Resource
                             }
                         }
                     })
-                    ->visible(fn (callable $get) => $get('content_kind') === 'episode'),
+                    ->visible(fn(callable $get) => $get('content_kind') === 'episode'),
 
                 Select::make('type')
                     ->label('Type')

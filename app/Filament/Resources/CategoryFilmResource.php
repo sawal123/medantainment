@@ -99,7 +99,7 @@ class CategoryFilmResource extends Resource
                     ->label('Nama Kategori')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, $set) => $set('slug', Str::slug($state))),
+                    ->afterStateUpdated(fn($state, $set) => $set('slug', Str::slug($state))),
 
                 Forms\Components\TextInput::make('slug')
                     ->label('Slug')
@@ -117,7 +117,7 @@ class CategoryFilmResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => SafeUploadFilename::forImage($file)
+                        fn($file): string => SafeUploadFilename::forImage($file)
                     ),
 
                 Forms\Components\TextInput::make('start')
@@ -126,7 +126,7 @@ class CategoryFilmResource extends Resource
 
                 Forms\Components\TextInput::make('urutan')
                     ->numeric()
-                    ->default(fn () => CategoryFilm::max('urutan') + 1)
+                    ->default(fn() => CategoryFilm::max('urutan') + 1)
                     ->required(),
 
                 Forms\Components\Toggle::make('is_active')

@@ -24,6 +24,11 @@ class CategoryFilm extends Model
         return $this->hasMany(Project::class);
     }
 
+    public function series()
+    {
+        return $this->hasMany(ProjectSeries::class);
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {

@@ -27,6 +27,11 @@ class CategoryFilmResource extends Resource
     public static function table(Tables\Table $table): Tables\Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->withCount([
+                'projects as standalone_projects_count' => fn ($query) => $query->whereNull('series_id'),
+                'series as series_count',
+                'projects as episodes_count' => fn ($query) => $query->whereNotNull('series_id'),
+            ]))
             ->columns([
                 TextColumn::make('urutan')
                     ->label('#')
@@ -42,6 +47,18 @@ class CategoryFilmResource extends Resource
 
                 TextColumn::make('slug')
                     ->label('Slug'),
+
+                TextColumn::make('standalone_projects_count')
+                    ->label('Project Biasa')
+                    ->sortable(),
+
+                TextColumn::make('series_count')
+                    ->label('Series')
+                    ->sortable(),
+
+                TextColumn::make('episodes_count')
+                    ->label('Episode')
+                    ->sortable(),
 
                 ToggleColumn::make('is_active')
                     ->label('Aktif'),

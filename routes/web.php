@@ -21,8 +21,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', Home::class)->name('index');
-Route::get('/project', Project::class);
-Route::get('/project/{slug}', Project::class);
+Route::get('/project', Project::class)->name('project.index');
+Route::get('/project/series/{slug}', Project::class)->name('project.series.show');
+Route::get('/project/{slug}', Project::class)->name('project.category.show');
 Route::get('/team', Team::class);
 Route::get('/gallery', Gallery::class);
 Route::get('/blog/{search?}', Blog::class);

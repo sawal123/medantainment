@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Models\CategoryFilm;
 use App\Models\Project;
+use App\Models\ProjectSeries;
 use App\Rules\SafeVideoEmbedUrl;
+use App\Services\ProjectSeriesAssignmentService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -87,7 +89,53 @@ class ProjectResource extends Resource
                     ->relationship('categoryFilm', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->dehydrated(true)
+                    ->disabled(fn (callable $get) => $get('content_kind') === 'episode'),
+
+                Select::make('content_kind')
+                    ->label('Jenis Konten')
+                    ->options([
+                        'standalone' => 'Project Biasa',
+                        'episode' => 'Episode Series',
+                    ])
+                    ->default(fn (callable $get) => $get('series_id') ? 'episode' : 'standalone')
+                    ->reactive()
+                    ->afterStateHydrated(function ($state, $set, $get) {
+                        $set('content_kind', $get('series_id') ? 'episode' : 'standalone');
+                    })
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state === 'standalone') {
+                            $set('series_id', null);
+                        }
+                    })
+                    ->dehydrated(false),
+
+                Select::make('series_id')
+                    ->label('Series / Playlist')
+                    ->relationship('series', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->reactive()
+                    ->required(fn (callable $get) => $get('content_kind') === 'episode')
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                        if ($state) {
+                            $series = ProjectSeries::find($state);
+                            if ($series) {
+                                $set('category_film_id', $series->category_film_id);
+
+                                // Auto-fill episode 'urutan' for new records or when empty.
+                                // Also override prior global default if it was just populated
+                                $current = $get('urutan');
+                                $globalNext = (Project::max('urutan') ?? 0) + 1;
+                                if (empty($current) || $current == $globalNext) {
+                                    $next = (Project::where('series_id', $state)->max('urutan') ?? 0) + 1;
+                                    $set('urutan', $next);
+                                }
+                            }
+                        }
+                    })
+                    ->visible(fn (callable $get) => $get('content_kind') === 'episode'),
 
                 Select::make('type')
                     ->label('Type')
@@ -96,15 +144,34 @@ class ProjectResource extends Resource
                         'movie' => 'Movie',
                         'company' => 'Company',
                     ])
-                    ->default('series')
+                    ->default('movie')
                     ->required(),
 
                 TextInput::make('urutan')
-                    ->label('Urutan')
+                    ->label(fn (callable $get) => $get('content_kind') === 'episode' ? 'Nomor / Urutan Episode' : 'Urutan')
                     ->numeric()
-                    ->default(fn () => (Project::max('urutan') ?? 0) + 1)
-                    ->required(),
+                    ->required()
+                    ->minValue(1)
+                    // Do not override existing urutan on edit. Initialize when empty.
+                    ->afterStateHydrated(function ($state, callable $set, callable $get, $record = null) {
+                        if (empty($state)) {
+                            $seriesId = $get('series_id');
+                            if ($seriesId) {
+                                $next = (Project::where('series_id', $seriesId)->max('urutan') ?? 0) + 1;
+                                $set('urutan', $next);
+
+                                return;
+                            }
+
+                            $set('urutan', (Project::max('urutan') ?? 0) + 1);
+                        }
+                    }),
             ]);
+    }
+
+    public static function prepareSeriesData(array $data): array
+    {
+        return ProjectSeriesAssignmentService::normalize($data);
     }
 
     public static function table(Table $table): Table
@@ -120,6 +187,13 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->limit(20),
+                TextColumn::make('series.name')
+                    ->label('Series')
+                    ->sortable()
+                    ->limit(18),
+                TextColumn::make('type')
+                    ->label('Type')
+                    ->sortable(),
                 ViewColumn::make('link')
                     ->view('filament.tables.columns.video'),
                 TextColumn::make('client.name')

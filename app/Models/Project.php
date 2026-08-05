@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class Project extends Model
         'start_date',
         'end_date',
         'category_film_id',
+        'series_id',
         'type',
         'urutan',
     ];
@@ -32,49 +34,100 @@ class Project extends Model
         return $this->belongsTo(CategoryFilm::class);
     }
 
+    public function series()
+    {
+        return $this->belongsTo(ProjectSeries::class, 'series_id');
+    }
+
+    public function isEpisode(): bool
+    {
+        return $this->series_id !== null;
+    }
+
+    public function isStandalone(): bool
+    {
+        return $this->series_id === null;
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Project $project) {
+            if ($project->series_id === null) {
+                return;
+            }
+
+            $series = ProjectSeries::query()->findOrFail($project->series_id);
+            $project->category_film_id = $series->category_film_id;
+        });
+    }
+
     public function setLinkAttribute($value)
     {
         $this->attributes['link'] = $this->convertToEmbed($value);
     }
 
-    /**
-     * Pindah ke atas (urutan berkurang) — menggunakan transaction + lockForUpdate.
-     */
     public function moveUp(): void
     {
         DB::transaction(function () {
-            /** @var Project|null $previous */
-            $previous = static::lockForUpdate()
+            $current = $this->freshForReorder();
+            $previous = $this->reorderScope()
                 ->where('urutan', '<', $this->urutan)
                 ->orderBy('urutan', 'desc')
                 ->first();
 
             if ($previous) {
-                $oldUrutan = $this->urutan;
-                $this->updateQuietly(['urutan' => $previous->urutan]);
-                $previous->updateQuietly(['urutan' => $oldUrutan]);
+                $this->swapOrderWith($current, $previous);
             }
         });
+
+        $this->refresh();
     }
 
-    /**
-     * Pindah ke bawah (urutan bertambah) — menggunakan transaction + lockForUpdate.
-     */
     public function moveDown(): void
     {
         DB::transaction(function () {
-            /** @var Project|null $next */
-            $next = static::lockForUpdate()
+            $current = $this->freshForReorder();
+            $next = $this->reorderScope()
                 ->where('urutan', '>', $this->urutan)
                 ->orderBy('urutan', 'asc')
                 ->first();
 
             if ($next) {
-                $oldUrutan = $this->urutan;
-                $this->updateQuietly(['urutan' => $next->urutan]);
-                $next->updateQuietly(['urutan' => $oldUrutan]);
+                $this->swapOrderWith($current, $next);
             }
         });
+
+        $this->refresh();
+    }
+
+    private function freshForReorder(): self
+    {
+        $current = static::query()
+            ->lockForUpdate()
+            ->findOrFail($this->getKey());
+
+        $this->series_id = $current->series_id;
+        $this->urutan = $current->urutan;
+
+        return $current;
+    }
+
+    private function reorderScope(): Builder
+    {
+        return static::query()
+            ->lockForUpdate()
+            ->where('series_id', $this->series_id);
+    }
+
+    private function swapOrderWith(Project $current, Project $neighbor): void
+    {
+        $currentOrder = $current->urutan;
+        $neighborOrder = $neighbor->urutan;
+        $temporaryOrder = $this->reorderScope()->max('urutan') + 1;
+
+        $current->updateQuietly(['urutan' => $temporaryOrder]);
+        $neighbor->updateQuietly(['urutan' => $currentOrder]);
+        $current->updateQuietly(['urutan' => $neighborOrder]);
     }
 
     /**
@@ -90,7 +143,6 @@ class Project extends Model
             return '';
         }
 
-        // Hanya terima HTTPS
         if (! str_starts_with($url, 'https://')) {
             throw new \InvalidArgumentException(
                 'URL video harus menggunakan HTTPS dan berasal dari YouTube atau Vimeo.'
@@ -114,7 +166,6 @@ class Project extends Model
             );
         }
 
-        // YouTube Shorts
         if (str_contains($url, '/shorts/')) {
             preg_match('/shorts\/([a-zA-Z0-9_-]+)/', $url, $matches);
             if (isset($matches[1])) {
@@ -122,7 +173,6 @@ class Project extends Model
             }
         }
 
-        // YouTube normal
         if (in_array($host, ['youtube.com', 'www.youtube.com', 'youtu.be'], true)) {
             preg_match('/(youtu\.be\/|v=|\/embed\/|\/v\/|\/watch\?v=)([a-zA-Z0-9_-]+)/', $url, $matches);
             if (isset($matches[2])) {
@@ -130,7 +180,6 @@ class Project extends Model
             }
         }
 
-        // Vimeo — hanya terima format embed
         if (in_array($host, ['player.vimeo.com', 'vimeo.com'], true)) {
             preg_match('/(?:vimeo\.com\/|video\/)(\d+)/', $url, $matches);
             if (isset($matches[1])) {

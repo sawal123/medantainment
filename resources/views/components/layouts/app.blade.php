@@ -10,27 +10,32 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Keywords -->
-    <meta name="keywords" content="{{ $meta_keywords ?? $setting?->seo_keywords ?? '' }}">
+    <meta name="keywords" content="{{ $meta_keywords ?? ($setting?->seo_keywords ?? '') }}">
     <!--  Description -->
-    <meta name="description" content="{{ $meta_description ?? $setting?->seo_description ?? '' }}">
+    <meta name="description" content="{{ $meta_description ?? ($setting?->seo_description ?? '') }}">
     <meta name="author" content="{{ $setting?->seo_title ?? config('app.name') }}">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $meta_title ?? $page }}">
-    <meta property="og:description" content="{{ $meta_description ?? $setting?->seo_description ?? '' }}">
-    <meta property="og:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : ($setting?->logo ? asset('storage/' . $setting->logo) : asset('/logo/favicon.svg')) }}">
+    <meta property="og:description" content="{{ $meta_description ?? ($setting?->seo_description ?? '') }}">
+    <meta property="og:image"
+        content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : ($setting?->logo ? asset('storage/' . $setting->logo) : asset('/logo/favicon.svg')) }}">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="{{ $meta_title ?? $page }}">
-    <meta property="twitter:description" content="{{ $meta_description ?? $setting?->seo_description ?? '' }}">
-    <meta property="twitter:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : ($setting?->logo ? asset('storage/' . $setting->logo) : asset('/logo/favicon.svg')) }}">
+    <meta property="twitter:description" content="{{ $meta_description ?? ($setting?->seo_description ?? '') }}">
+    <meta property="twitter:image"
+        content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : ($setting?->logo ? asset('storage/' . $setting->logo) : asset('/logo/favicon.svg')) }}">
     <!-- == Page title == -->
     <title>{{ $meta_title ?? $page }}</title>
     {{--
     <link rel="shortcut icon" href="{{ asset('storage/' . ($setting?->favicon ?? '')) }}" type="image/x-icon"> --}}
-    <link rel="icon" type="image/png" sizes="48x48" href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="48x48"
+        href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="32x32"
+        href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="16x16"
+        href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('/logo/favicon.ico') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('/logo/favicon.svg') }}">
     <!-- Bootstrap Min 5.2.3 Css-->
@@ -115,7 +120,7 @@
     {{-- @vite(['']) --}}
     <!-- Google Tag Manager -->
     <script>
-        (function (w, d, s, l, i) {
+        (function(w, d, s, l, i) {
             w[l] = w[l] || [];
             w[l].push({
                 'gtm.start': new Date().getTime(),
@@ -168,9 +173,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        (function () {
+        (function() {
             const heroEl = document.getElementById('heroSwiper');
-            const slideCount = heroEl && heroEl.dataset && heroEl.dataset.slideCount ? parseInt(heroEl.dataset.slideCount, 10) : 2;
+            const slideCount = heroEl && heroEl.dataset && heroEl.dataset.slideCount ? parseInt(heroEl.dataset
+                .slideCount, 10) : 2;
             const selector = heroEl ? '#heroSwiper' : '.mySwiper';
 
             const config = {
@@ -189,8 +195,12 @@
                     disableOnInteraction: false,
                 } : false,
                 breakpoints: {
-                    0: { slidesPerView: 1 },
-                    768: { slidesPerView: 1 }
+                    0: {
+                        slidesPerView: 1
+                    },
+                    768: {
+                        slidesPerView: 1
+                    }
                 }
             };
 
@@ -234,14 +244,13 @@
                 targetPane.classList.add('show', 'active');
             }
         }
-
     </script>
     <script data-navigate-once>
-        (function () {
+        (function() {
             if (window.__wireNavigateFallbackInstalled) return;
             window.__wireNavigateFallbackInstalled = true;
 
-            document.addEventListener('click', function (event) {
+            document.addEventListener('click', function(event) {
                 const link = event.target.closest('a[wire\\:navigate]');
 
                 if (!link) return;
@@ -258,17 +267,17 @@
                 let livewireStarted = false;
                 let fallbackDone = false;
 
-                const markStarted = function () {
+                const markStarted = function() {
                     livewireStarted = true;
                 };
 
-                const cleanup = function () {
+                const cleanup = function() {
                     document.removeEventListener('livewire:navigate', markStarted);
                     document.removeEventListener('livewire:navigating', markStarted);
                     document.removeEventListener('livewire:navigated', cleanup);
                 };
 
-                const fallbackToNative = function () {
+                const fallbackToNative = function() {
                     if (fallbackDone || window.location.href !== startUrl) return;
 
                     fallbackDone = true;
@@ -276,18 +285,24 @@
                     window.location.assign(href);
                 };
 
-                document.addEventListener('livewire:navigate', markStarted, { once: true });
-                document.addEventListener('livewire:navigating', markStarted, { once: true });
-                document.addEventListener('livewire:navigated', cleanup, { once: true });
+                document.addEventListener('livewire:navigate', markStarted, {
+                    once: true
+                });
+                document.addEventListener('livewire:navigating', markStarted, {
+                    once: true
+                });
+                document.addEventListener('livewire:navigated', cleanup, {
+                    once: true
+                });
 
-                setTimeout(function () {
+                setTimeout(function() {
                     if (!livewireStarted) fallbackToNative();
                 }, 900);
 
                 setTimeout(fallbackToNative, 4000);
             }, true);
 
-            document.addEventListener('click', function (event) {
+            document.addEventListener('click', function(event) {
                 const button = event.target.closest('[data-native-fallback]');
 
                 if (!button) return;
@@ -296,7 +311,7 @@
                 const fallbackUrl = button.getAttribute('data-native-fallback');
                 if (!fallbackUrl) return;
 
-                setTimeout(function () {
+                setTimeout(function() {
                     if (!document.body.contains(button)) return;
                     if (button.offsetParent === null) return;
 

@@ -90,6 +90,26 @@ class ProjectResource extends Resource
                     ->preload()
                     ->required(),
 
+                Select::make('content_kind')
+                    ->label('Jenis Konten')
+                    ->options([
+                        'standalone' => 'Project Biasa',
+                        'episode' => 'Episode Series',
+                    ])
+                    ->default(fn (callable $get) => $get('series_id') ? 'episode' : 'standalone')
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state === 'standalone') {
+                            $set('series_id', null);
+                            $set('type', 'movie');
+                        }
+
+                        if ($state === 'episode') {
+                            $set('type', 'series');
+                        }
+                    })
+                    ->dehydrated(false),
+
                 Select::make('series_id')
                     ->label('Series / Playlist')
                     ->relationship('series', 'name')
@@ -101,10 +121,11 @@ class ProjectResource extends Resource
                             $series = ProjectSeries::find($state);
                             if ($series) {
                                 $set('category_film_id', $series->category_film_id);
+                                $set('type', 'series');
                             }
                         }
                     })
-                    ->visible(fn(callable $get) => $get('type') === 'series'),
+                    ->visible(fn (callable $get) => $get('content_kind') === 'episode'),
 
                 Select::make('type')
                     ->label('Type')
@@ -113,7 +134,7 @@ class ProjectResource extends Resource
                         'movie' => 'Movie',
                         'company' => 'Company',
                     ])
-                    ->default('series')
+                    ->default('movie')
                     ->required(),
 
                 TextInput::make('urutan')
@@ -136,14 +157,28 @@ class ProjectResource extends Resource
 
     protected static function prepareSeriesData(array $data): array
     {
-        if (($data['type'] ?? null) !== 'series') {
+        if (($data['content_kind'] ?? 'standalone') !== 'episode') {
             $data['series_id'] = null;
+            $data['type'] = 'movie';
+        }
+
+        if (($data['content_kind'] ?? 'standalone') === 'episode' && empty($data['series_id'])) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'series_id' => 'Series harus dipilih ketika jenis konten adalah episode.',
+            ]);
         }
 
         if (! empty($data['series_id'])) {
             $series = ProjectSeries::find($data['series_id']);
             if ($series) {
+                if (($data['category_film_id'] ?? null) !== $series->category_film_id) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'category_film_id' => 'Kategori project harus sama dengan kategori series yang dipilih.',
+                    ]);
+                }
+
                 $data['category_film_id'] = $series->category_film_id;
+                $data['type'] = 'series';
             }
         }
 

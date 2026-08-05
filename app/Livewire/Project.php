@@ -62,21 +62,56 @@ class Project extends Component
         $this->dispatch('change-url', slug: $slug);
     }
 
-    public function getFilmsProperty()
+    public function getSeriesListProperty()
     {
-        if ($this->selectedSeries) {
-            return $this->selectedSeries->episodes()->orderBy('urutan', 'asc')->limit($this->filmLimit)->get();
-        }
-
-        $q = ModelsProject::query();
+        $query = ProjectSeries::query()
+            ->where('is_active', true)
+            ->withCount('episodes')
+            ->orderBy('urutan', 'asc');
 
         if ($this->selectedCategory !== 'all') {
-            $q->whereHas('categoryFilm', function ($query) {
+            $query->whereHas('categoryFilm', function ($query) {
                 $query->where('slug', $this->selectedCategory);
             });
         }
 
-        return $q->orderBy('urutan', 'asc')->limit($this->filmLimit)->get();
+        return $query->get();
+    }
+
+    public function getStandaloneProjectsQuery()
+    {
+        $query = ModelsProject::query()
+            ->with('client')
+            ->whereNull('series_id');
+
+        if ($this->selectedCategory !== 'all') {
+            $query->whereHas('categoryFilm', function ($query) {
+                $query->where('slug', $this->selectedCategory);
+            });
+        }
+
+        return $query;
+    }
+
+    public function getStandaloneProjectsProperty()
+    {
+        return $this->getStandaloneProjectsQuery()
+            ->orderBy('urutan', 'asc')
+            ->limit($this->filmLimit)
+            ->get();
+    }
+
+    public function getFilmsProperty()
+    {
+        if ($this->selectedSeries) {
+            return $this->selectedSeries->episodes()
+                ->with('client')
+                ->orderBy('urutan', 'asc')
+                ->limit($this->filmLimit)
+                ->get();
+        }
+
+        return $this->standaloneProjects;
     }
 
     public function getTotalFilmsProperty()
@@ -85,15 +120,7 @@ class Project extends Component
             return $this->selectedSeries->episodes()->count();
         }
 
-        $q = ModelsProject::query();
-
-        if ($this->selectedCategory !== 'all') {
-            $q->whereHas('categoryFilm', function ($query) {
-                $query->where('slug', $this->selectedCategory);
-            });
-        }
-
-        return $q->count();
+        return $this->getStandaloneProjectsQuery()->count();
     }
 
     public function loadMoreFilm()
@@ -105,10 +132,12 @@ class Project extends Component
     {
         $this->categoryFilm = CategoryFilm::orderBy('urutan', 'asc')->get();
 
+        $seriesList = $this->seriesList;
+        $standaloneFilms = $this->standaloneProjects;
         $films = $this->films;
         $totalFilms = $this->totalFilms;
 
-        return view('livewire.project', compact('films', 'totalFilms'))
+        return view('livewire.project', compact('seriesList', 'standaloneFilms', 'films', 'totalFilms'))
             ->layout('components.layouts.app', [
                 'page' => $this->page,
                 'setting' => $this->setting,

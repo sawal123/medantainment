@@ -50,7 +50,7 @@ class ProjectSeriesResource extends Resource
 
     public static function canDelete(Model $record): bool
     {
-        return auth()->check() && auth()->user()->isAdmin();
+        return auth()->check() && auth()->user()->isAdmin() && ! $record->episodes()->exists();
     }
 
     public static function form(Form $form): Form
@@ -147,7 +147,6 @@ class ProjectSeriesResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                    ->before(fn(ProjectSeries $record) => $record->episodes()->exists())
                     ->requiresConfirmation()
                     ->label('Hapus')
                     ->modalHeading('Hapus Series')
@@ -155,11 +154,7 @@ class ProjectSeriesResource extends Resource
                     ->modalButton('Hapus')
                     ->disabled(fn(ProjectSeries $record) => $record->episodes()->exists()),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array

@@ -43,6 +43,16 @@ class CategoryFilmResource extends Resource
                 TextColumn::make('slug')
                     ->label('Slug'),
 
+                TextColumn::make('projects_count')
+                    ->label('Project')
+                    ->counts('projects')
+                    ->sortable(),
+
+                TextColumn::make('series_count')
+                    ->label('Series')
+                    ->counts('series')
+                    ->sortable(),
+
                 ToggleColumn::make('is_active')
                     ->label('Aktif'),
             ])

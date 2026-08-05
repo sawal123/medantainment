@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # Defense-in-depth: Deny access to any script execution requests targeting /storage/
+    RewriteCond %{REQUEST_URI} ^/storage/.*\.(php[0-9]?|phtml|phar|phps)$ [NC]
+    RewriteRule .* - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

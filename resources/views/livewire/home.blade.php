@@ -145,11 +145,24 @@
 
                             <div class="swiper-wrapper">
                                 @foreach ($slide as $item)
+                                    @php
+                                        $safeLink = $item->safe_link;
+                                        $isExternal = $safeLink && str_starts_with($safeLink, 'https://');
+                                    @endphp
                                     <div class="swiper-slide">
-                                        <a href="{{ $item->link }}">
+                                        @if ($safeLink)
+                                            <a href="{{ $safeLink }}"
+                                                @if ($isExternal)
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                @endif>
+                                                <img src="{{ asset('storage/' . $item->thumbnail) }}" alt="img"
+                                                    class="w-100 rounded swiper-slide-img">
+                                            </a>
+                                        @else
                                             <img src="{{ asset('storage/' . $item->thumbnail) }}" alt="img"
                                                 class="w-100 rounded swiper-slide-img">
-                                        </a>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -165,52 +178,7 @@
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element1">
             <img src="{{ asset('assets/img/banner/soft-star.png') }}" alt="img" class="sfot-element2">
 
-            {{-- Separate YouTube video section (independent from slides) --}}
-            @if (!empty($hero['hero4']))
-                @php
-                    $videoUrl = trim($hero['hero4']);
-                    $embedUrl = '';
-
-                    if (!empty($videoUrl)) {
-                        if (str_contains($videoUrl, 'youtube.com/watch')) {
-                            parse_str(parse_url($videoUrl, PHP_URL_QUERY) ?: '', $qs);
-                            if (!empty($qs['v'])) {
-                                $embedUrl = 'https://www.youtube.com/embed/' . $qs['v'];
-                            }
-                        }
-
-                        if (empty($embedUrl) && str_contains($videoUrl, 'youtu.be')) {
-                            $path = parse_url($videoUrl, PHP_URL_PATH) ?: '';
-                            $id = ltrim($path, '/');
-                            if ($id) {
-                                $embedUrl = 'https://www.youtube.com/embed/' . $id;
-                            }
-                        }
-
-                        if (empty($embedUrl) && str_contains($videoUrl, 'youtube.com/embed')) {
-                            $embedUrl = $videoUrl;
-                        }
-
-                        if (empty($embedUrl) && preg_match('#^https?://#i', $videoUrl)) {
-                            $embedUrl = $videoUrl;
-                        }
-                    }
-                @endphp
-
-                @if (!empty($embedUrl))
-                    <section class="container my-md-5 my-3 mt-5 video-section" data-aos="zoom-in-up"
-                        data-aos-duration="900">
-                        <div class="text-center mb-4 mt-md-5 mt-3">
-                            {{-- <h3 class="text-white">Watch Our Video</h3> --}}
-                        </div>
-                        <div class="ratio ratio-16x9" style="border-radius:10px; overflow:hidden;">
-                            <iframe src="{{ $embedUrl }}" title="hero-video" frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen></iframe>
-                        </div>
-                    </section>
-                @endif
-            @endif
+            @include('livewire.partials.hero-video')
             <style>
                 .partner-card {
                     background: white;

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\HeroResource\Pages;
 use App\Models\Hero;
+use App\Rules\SafeVideoEmbedUrl;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -55,14 +56,17 @@ class HeroResource extends Resource
                         'hero1' => 'Hero 1',
                         'hero2' => 'Hero 2',
                         'hero3' => 'Hero 3',
-                        'hero4' => 'Video Agency',
+                        'hero4' => 'Video Agency (YouTube/Vimeo HTTPS)',
                     ])
+                    ->reactive()
                     ->required(),
 
                 Forms\Components\TextInput::make('title')
-                    ->label('Judul')
+                    ->label(fn (Forms\Get $get) => $get('hero_type') === 'hero4' ? 'URL Video (YouTube / Vimeo)' : 'Judul')
+                    ->helperText(fn (Forms\Get $get) => $get('hero_type') === 'hero4' ? 'Hanya URL HTTPS resmi YouTube (youtube.com, youtu.be) atau Vimeo (vimeo.com)' : null)
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(2048)
+                    ->rules(fn (Forms\Get $get) => $get('hero_type') === 'hero4' ? [new SafeVideoEmbedUrl] : []),
 
             ]);
     }

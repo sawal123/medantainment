@@ -6,6 +6,7 @@ use App\Filament\Resources\BlogResource\Pages;
 use App\Models\Blog;
 use App\Models\Visitor;
 use App\Services\GeminiService;
+use App\Support\SafeUploadFilename;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -158,7 +159,7 @@ class BlogResource extends Resource
                                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(2048)
                                         ->getUploadedFileNameForStorageUsing(
-                                            fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                                            fn ($file): string => SafeUploadFilename::forImage($file)
                                         )
                                         ->imageEditor()
                                         ->imageEditorAspectRatios([

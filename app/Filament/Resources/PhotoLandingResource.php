@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PhotoLandingResource\Pages;
 use App\Models\PhotoLanding;
+use App\Support\SafeUploadFilename;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -13,7 +14,6 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class PhotoLandingResource extends Resource
 {
@@ -29,10 +29,6 @@ class PhotoLandingResource extends Resource
     protected static ?string $navigationLabel = 'Image';
 
     protected static ?string $navigationGroup = 'Landing';
-
-    // ───────────────────────────────────────────────
-    // Authorization — Admin Only
-    // ───────────────────────────────────────────────
 
     public static function canAccess(): bool
     {
@@ -54,10 +50,6 @@ class PhotoLandingResource extends Resource
         return auth()->check() && auth()->user()->isAdmin();
     }
 
-    // ───────────────────────────────────────────────
-    // Form
-    // ───────────────────────────────────────────────
-
     public static function form(Form $form): Form
     {
         return $form
@@ -77,17 +69,12 @@ class PhotoLandingResource extends Resource
                         'image/png',
                         'image/webp',
                     ])
-                    ->maxSize(2048) // 2 MB
+                    ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.
-                            strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     ),
             ]);
     }
-
-    // ───────────────────────────────────────────────
-    // Table
-    // ───────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {

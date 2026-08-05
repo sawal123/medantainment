@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-// use Str;
 use App\Filament\Resources\CategoryFilmResource\Pages;
 use App\Models\CategoryFilm;
+use App\Support\SafeUploadFilename;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -16,10 +16,9 @@ class CategoryFilmResource extends Resource
 {
     protected static ?string $model = CategoryFilm::class;
 
-    // 🧭 Sidebar settings
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
-    protected static ?string $navigationGroup = 'Project'; // tampil di grup Project
+    protected static ?string $navigationGroup = 'Project';
 
     protected static ?string $navigationLabel = 'Category Film';
 
@@ -49,8 +48,6 @@ class CategoryFilmResource extends Resource
             ])
             ->defaultSort('urutan', 'asc')
             ->actions([
-
-                // 🔼 PINDAH KE ATAS
                 Tables\Actions\Action::make('up')
                     ->icon('heroicon-o-arrow-up')
                     ->action(function (CategoryFilm $record) {
@@ -65,7 +62,6 @@ class CategoryFilmResource extends Resource
                         }
                     }),
 
-                // 🔽 PINDAH KE BAWAH
                 Tables\Actions\Action::make('down')
                     ->icon('heroicon-o-arrow-down')
                     ->action(function (CategoryFilm $record) {
@@ -111,7 +107,7 @@ class CategoryFilmResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     ),
 
                 Forms\Components\TextInput::make('start')

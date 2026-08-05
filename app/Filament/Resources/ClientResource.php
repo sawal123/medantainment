@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClientResource\Pages;
 use App\Models\Client;
+use App\Support\SafeUploadFilename;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -17,7 +18,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class ClientResource extends Resource
 {
@@ -29,7 +29,6 @@ class ClientResource extends Resource
 
     protected static ?string $navigationGroup = 'Project';
 
-    // Authorization — Admin Only
     public static function canAccess(): bool
     {
         return auth()->check() && auth()->user()->isAdmin();
@@ -65,8 +64,7 @@ class ClientResource extends Resource
                     ])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn ($file): string => (string) Str::uuid().'.'.
-                            strtolower($file->getClientOriginalExtension())
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     )
                     ->imageEditor(),
 
@@ -104,7 +102,7 @@ class ClientResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('urutan', 'asc')   // ⬅ TAMBAH INI
+            ->defaultSort('urutan', 'asc')
             ->columns([
                 ImageColumn::make('logo')
                     ->disk('public')
@@ -117,13 +115,13 @@ class ClientResource extends Resource
 
                 IconColumn::make('status')
                     ->label('Status')
-                    ->boolean(), // otomatis true/false menjadi ikon
+                    ->boolean(),
 
                 ToggleColumn::make('status')
                     ->label('Status')
                     ->sortable()
-                    ->onColor('success') // opsional agar hijau saat aktif
-                    ->offColor('danger'), // opsional warna merah saat off
+                    ->onColor('success')
+                    ->offColor('danger'),
             ])
             ->filters([
                 //

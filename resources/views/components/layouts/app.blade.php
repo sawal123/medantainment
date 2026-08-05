@@ -10,27 +10,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Keywords -->
-    <meta name="keywords" content="{{ $meta_keywords ?? $setting->seo_keywords }}">
+    <meta name="keywords" content="{{ $meta_keywords ?? $setting?->seo_keywords ?? '' }}">
     <!--  Description -->
-    <meta name="description" content="{{ $meta_description ?? $setting->seo_description }}">
-    <meta name="author" content="{{ $setting->seo_title }}">
+    <meta name="description" content="{{ $meta_description ?? $setting?->seo_description ?? '' }}">
+    <meta name="author" content="{{ $setting?->seo_title ?? config('app.name') }}">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $meta_title ?? $page }}">
-    <meta property="og:description" content="{{ $meta_description ?? $setting->seo_description }}">
-    <meta property="og:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : asset('storage/' . $setting->logo) }}">
+    <meta property="og:description" content="{{ $meta_description ?? $setting?->seo_description ?? '' }}">
+    <meta property="og:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : ($setting?->logo ? asset('storage/' . $setting->logo) : asset('/logo/favicon.svg')) }}">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="{{ $meta_title ?? $page }}">
-    <meta property="twitter:description" content="{{ $meta_description ?? $setting->seo_description }}">
-    <meta property="twitter:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : asset('storage/' . $setting->logo) }}">
+    <meta property="twitter:description" content="{{ $meta_description ?? $setting?->seo_description ?? '' }}">
+    <meta property="twitter:image" content="{{ isset($meta_image) ? asset('storage/' . $meta_image) : ($setting?->logo ? asset('storage/' . $setting->logo) : asset('/logo/favicon.svg')) }}">
     <!-- == Page title == -->
     <title>{{ $meta_title ?? $page }}</title>
     {{--
-    <link rel="shortcut icon" href="{{ asset('storage/' . $setting->favicon) }}" type="image/x-icon"> --}}
-    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('storage/' . $setting->favicon) }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('storage/' . $setting->favicon) }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('storage/' . $setting->favicon) }}">
+    <link rel="shortcut icon" href="{{ asset('storage/' . ($setting?->favicon ?? '')) }}" type="image/x-icon"> --}}
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ $setting?->favicon ? asset('storage/' . $setting->favicon) : asset('/logo/favicon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('/logo/favicon.ico') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('/logo/favicon.svg') }}">
     <!-- Bootstrap Min 5.2.3 Css-->

@@ -118,11 +118,20 @@ class ProjectResource extends Resource
                     ->preload()
                     ->reactive()
                     ->required(fn (callable $get) => $get('content_kind') === 'episode')
-                    ->afterStateUpdated(function ($state, callable $set) {
+                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         if ($state) {
                             $series = ProjectSeries::find($state);
                             if ($series) {
                                 $set('category_film_id', $series->category_film_id);
+
+                                // Auto-fill episode 'urutan' for new records or when empty.
+                                // Also override prior global default if it was just populated
+                                $current = $get('urutan');
+                                $globalNext = (Project::max('urutan') ?? 0) + 1;
+                                if (empty($current) || $current == $globalNext) {
+                                    $next = (Project::where('series_id', $state)->max('urutan') ?? 0) + 1;
+                                    $set('urutan', $next);
+                                }
                             }
                         }
                     })
@@ -143,7 +152,20 @@ class ProjectResource extends Resource
                     ->numeric()
                     ->required()
                     ->minValue(1)
-                    ->default(fn () => (Project::max('urutan') ?? 0) + 1),
+                    // Do not override existing urutan on edit. Initialize when empty.
+                    ->afterStateHydrated(function ($state, callable $set, callable $get, $record = null) {
+                        if (empty($state)) {
+                            $seriesId = $get('series_id');
+                            if ($seriesId) {
+                                $next = (Project::where('series_id', $seriesId)->max('urutan') ?? 0) + 1;
+                                $set('urutan', $next);
+
+                                return;
+                            }
+
+                            $set('urutan', (Project::max('urutan') ?? 0) + 1);
+                        }
+                    }),
             ]);
     }
 

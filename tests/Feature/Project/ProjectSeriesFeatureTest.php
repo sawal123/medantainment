@@ -196,6 +196,8 @@ class ProjectSeriesFeatureTest extends TestCase
 
         $response->assertOk();
         $response->assertSeeInOrder(['Episode One', 'Episode Two']);
+        $response->assertSee('Episode 1');
+        $response->assertSee('Episode 2');
 
         $this->get(route('project.series.show', $inactive->slug))->assertNotFound();
         $this->get('/project/series/unknown-series')->assertNotFound();

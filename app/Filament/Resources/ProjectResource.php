@@ -7,6 +7,7 @@ use App\Models\CategoryFilm;
 use App\Models\Project;
 use App\Models\ProjectSeries;
 use App\Rules\SafeVideoEmbedUrl;
+use App\Services\ProjectSeriesAssignmentService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -88,7 +89,9 @@ class ProjectResource extends Resource
                     ->relationship('categoryFilm', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->dehydrated(true)
+                    ->disabled(fn (callable $get) => $get('content_kind') === 'episode'),
 
                 Select::make('content_kind')
                     ->label('Jenis Konten')
@@ -96,16 +99,14 @@ class ProjectResource extends Resource
                         'standalone' => 'Project Biasa',
                         'episode' => 'Episode Series',
                     ])
-                    ->default(fn(callable $get) => $get('series_id') ? 'episode' : 'standalone')
+                    ->default(fn (callable $get) => $get('series_id') ? 'episode' : 'standalone')
                     ->reactive()
+                    ->afterStateHydrated(function ($state, $set, $get) {
+                        $set('content_kind', $get('series_id') ? 'episode' : 'standalone');
+                    })
                     ->afterStateUpdated(function ($state, callable $set) {
                         if ($state === 'standalone') {
                             $set('series_id', null);
-                            $set('type', 'movie');
-                        }
-
-                        if ($state === 'episode') {
-                            $set('type', 'series');
                         }
                     })
                     ->dehydrated(false),
@@ -116,16 +117,16 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->preload()
                     ->reactive()
+                    ->required(fn (callable $get) => $get('content_kind') === 'episode')
                     ->afterStateUpdated(function ($state, callable $set) {
                         if ($state) {
                             $series = ProjectSeries::find($state);
                             if ($series) {
                                 $set('category_film_id', $series->category_film_id);
-                                $set('type', 'series');
                             }
                         }
                     })
-                    ->visible(fn(callable $get) => $get('content_kind') === 'episode'),
+                    ->visible(fn (callable $get) => $get('content_kind') === 'episode'),
 
                 Select::make('type')
                     ->label('Type')
@@ -138,51 +139,17 @@ class ProjectResource extends Resource
                     ->required(),
 
                 TextInput::make('urutan')
-                    ->label('Urutan')
+                    ->label(fn (callable $get) => $get('content_kind') === 'episode' ? 'Nomor / Urutan Episode' : 'Urutan')
                     ->numeric()
-                    ->default(fn() => (Project::max('urutan') ?? 0) + 1)
-                    ->required(),
+                    ->required()
+                    ->minValue(1)
+                    ->default(fn () => (Project::max('urutan') ?? 0) + 1),
             ]);
     }
 
-    public static function mutateFormDataBeforeCreate(array $data): array
+    public static function prepareSeriesData(array $data): array
     {
-        return static::prepareSeriesData($data);
-    }
-
-    public static function mutateFormDataBeforeSave(array $data): array
-    {
-        return static::prepareSeriesData($data);
-    }
-
-    protected static function prepareSeriesData(array $data): array
-    {
-        if (($data['content_kind'] ?? 'standalone') !== 'episode') {
-            $data['series_id'] = null;
-            $data['type'] = 'movie';
-        }
-
-        if (($data['content_kind'] ?? 'standalone') === 'episode' && empty($data['series_id'])) {
-            throw \Illuminate\Validation\ValidationException::withMessages([
-                'series_id' => 'Series harus dipilih ketika jenis konten adalah episode.',
-            ]);
-        }
-
-        if (! empty($data['series_id'])) {
-            $series = ProjectSeries::find($data['series_id']);
-            if ($series) {
-                if (($data['category_film_id'] ?? null) !== $series->category_film_id) {
-                    throw \Illuminate\Validation\ValidationException::withMessages([
-                        'category_film_id' => 'Kategori project harus sama dengan kategori series yang dipilih.',
-                    ]);
-                }
-
-                $data['category_film_id'] = $series->category_film_id;
-                $data['type'] = 'series';
-            }
-        }
-
-        return $data;
+        return ProjectSeriesAssignmentService::normalize($data);
     }
 
     public static function table(Table $table): Table
@@ -221,19 +188,19 @@ class ProjectResource extends Resource
             ->filters([
                 SelectFilter::make('category_film_id')
                     ->label('Kategori Film')
-                    ->options(fn() => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn () => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
                     ->placeholder('Semua Kategori'),
             ])
             ->actions([
                 Action::make('up')
                     ->label('Up')
                     ->icon('heroicon-o-arrow-up')
-                    ->action(fn(Project $record) => $record->moveUp()),
+                    ->action(fn (Project $record) => $record->moveUp()),
 
                 Action::make('down')
                     ->label('Down')
                     ->icon('heroicon-o-arrow-down')
-                    ->action(fn(Project $record) => $record->moveDown()),
+                    ->action(fn (Project $record) => $record->moveDown()),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

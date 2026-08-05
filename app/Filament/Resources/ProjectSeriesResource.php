@@ -6,13 +6,12 @@ use App\Filament\Resources\ProjectSeriesResource\Pages;
 use App\Models\CategoryFilm;
 use App\Models\ProjectSeries;
 use App\Support\SafeUploadFilename;
-use Illuminate\Support\Str;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -22,6 +21,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ProjectSeriesResource extends Resource
 {
@@ -71,7 +71,7 @@ class ProjectSeriesResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn($state, $set) => $set('slug', Str::slug($state))),
+                            ->afterStateUpdated(fn ($state, $set) => $set('slug', Str::slug($state))),
 
                         TextInput::make('slug')
                             ->label('Slug')
@@ -89,12 +89,12 @@ class ProjectSeriesResource extends Resource
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->maxSize(2048)
-                            ->getUploadedFileNameForStorageUsing(fn($file): string => SafeUploadFilename::forImage($file)),
+                            ->getUploadedFileNameForStorageUsing(fn ($file): string => SafeUploadFilename::forImage($file)),
 
                         TextInput::make('urutan')
                             ->label('Urutan Tampil')
                             ->numeric()
-                            ->default(fn() => ProjectSeries::max('urutan') + 1)
+                            ->default(fn () => ProjectSeries::max('urutan') + 1)
                             ->required(),
 
                         Forms\Components\Toggle::make('is_active')
@@ -138,7 +138,7 @@ class ProjectSeriesResource extends Resource
             ->filters([
                 SelectFilter::make('category_film_id')
                     ->label('Kategori Film')
-                    ->options(fn() => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn () => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
                     ->placeholder('Semua Kategori'),
                 SelectFilter::make('is_active')
                     ->label('Status Aktif')
@@ -152,7 +152,7 @@ class ProjectSeriesResource extends Resource
                     ->modalHeading('Hapus Series')
                     ->modalSubheading('Series dengan episode tidak dapat dihapus.')
                     ->modalButton('Hapus')
-                    ->disabled(fn(ProjectSeries $record) => $record->episodes()->exists()),
+                    ->disabled(fn (ProjectSeries $record) => $record->episodes()->exists()),
             ])
             ->bulkActions([]);
     }

@@ -27,6 +27,11 @@ class CategoryFilmResource extends Resource
     public static function table(Tables\Table $table): Tables\Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->withCount([
+                'projects as standalone_projects_count' => fn ($query) => $query->whereNull('series_id'),
+                'series as series_count',
+                'projects as episodes_count' => fn ($query) => $query->whereNotNull('series_id'),
+            ]))
             ->columns([
                 TextColumn::make('urutan')
                     ->label('#')
@@ -43,14 +48,16 @@ class CategoryFilmResource extends Resource
                 TextColumn::make('slug')
                     ->label('Slug'),
 
-                TextColumn::make('projects_count')
-                    ->label('Project')
-                    ->counts('projects')
+                TextColumn::make('standalone_projects_count')
+                    ->label('Project Biasa')
                     ->sortable(),
 
                 TextColumn::make('series_count')
                     ->label('Series')
-                    ->counts('series')
+                    ->sortable(),
+
+                TextColumn::make('episodes_count')
+                    ->label('Episode')
                     ->sortable(),
 
                 ToggleColumn::make('is_active')
@@ -99,7 +106,7 @@ class CategoryFilmResource extends Resource
                     ->label('Nama Kategori')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn($state, $set) => $set('slug', Str::slug($state))),
+                    ->afterStateUpdated(fn ($state, $set) => $set('slug', Str::slug($state))),
 
                 Forms\Components\TextInput::make('slug')
                     ->label('Slug')
@@ -117,7 +124,7 @@ class CategoryFilmResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->maxSize(2048)
                     ->getUploadedFileNameForStorageUsing(
-                        fn($file): string => SafeUploadFilename::forImage($file)
+                        fn ($file): string => SafeUploadFilename::forImage($file)
                     ),
 
                 Forms\Components\TextInput::make('start')
@@ -126,7 +133,7 @@ class CategoryFilmResource extends Resource
 
                 Forms\Components\TextInput::make('urutan')
                     ->numeric()
-                    ->default(fn() => CategoryFilm::max('urutan') + 1)
+                    ->default(fn () => CategoryFilm::max('urutan') + 1)
                     ->required(),
 
                 Forms\Components\Toggle::make('is_active')

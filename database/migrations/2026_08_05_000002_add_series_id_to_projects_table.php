@@ -12,7 +12,7 @@ return new class extends Migration
             $table->foreignId('series_id')
                 ->nullable()
                 ->constrained('project_series')
-                ->nullOnDelete();
+                ->restrictOnDelete();
             $table->index('series_id');
             $table->unique(['series_id', 'urutan']);
         });

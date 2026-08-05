@@ -27,9 +27,9 @@ class FilamentUploadIntegrationTest extends TestCase
 
         $this->actingAs($author);
 
-        $fakeImage = UploadedFile::fake()->image('payload.png', 100, 100);
+        $fakeImage = $this->createFakeDangerousImage('payload.php');
 
-        Livewire::test(CreateBlog::class)
+        $test = Livewire::test(CreateBlog::class)
             ->fillForm([
                 'title' => 'Blog Security Upload Test',
                 'slug' => 'blog-security-upload-test',
@@ -39,8 +39,9 @@ class FilamentUploadIntegrationTest extends TestCase
                 'user_id' => $author->id,
                 'image' => $fakeImage,
             ])
-            ->call('create')
-            ->assertHasNoFormErrors();
+            ->call('create');
+
+        $test->assertHasNoFormErrors();
 
         $blog = Blog::where('title', 'Blog Security Upload Test')->first();
         $this->assertNotNull($blog);
@@ -50,8 +51,8 @@ class FilamentUploadIntegrationTest extends TestCase
         $this->assertFalse(str_contains(strtolower(basename($blog->image)), 'payload'));
         $this->assertTrue(
             str_ends_with(strtolower($blog->image), '.png') ||
-            str_ends_with(strtolower($blog->image), '.jpg') ||
-            str_ends_with(strtolower($blog->image), '.webp')
+                str_ends_with(strtolower($blog->image), '.jpg') ||
+                str_ends_with(strtolower($blog->image), '.webp')
         );
 
         Storage::disk('public')->assertExists($blog->image);
@@ -64,7 +65,7 @@ class FilamentUploadIntegrationTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
 
-        $fakeLogo = UploadedFile::fake()->image('exploit.png', 100, 100);
+        $fakeLogo = $this->createFakeDangerousImage('shell.phtml');
 
         Livewire::test(CreateClient::class)
             ->fillForm([
@@ -79,7 +80,44 @@ class FilamentUploadIntegrationTest extends TestCase
         $this->assertNotNull($client);
 
         $this->assertFalse(str_ends_with(strtolower($client->logo), '.phtml'));
-        $this->assertFalse(str_contains(strtolower(basename($client->logo)), 'exploit'));
+        $this->assertFalse(str_contains(strtolower(basename($client->logo)), 'shell'));
         Storage::disk('public')->assertExists($client->logo);
+    }
+
+    public function test_admin_upload_double_extension_image_jpg_php(): void
+    {
+        Storage::fake('public');
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+
+        $fakeLogo = $this->createFakeDangerousImage('image.jpg.php');
+
+        Livewire::test(CreateClient::class)
+            ->fillForm([
+                'name' => 'Client Double Ext Test',
+                'logo' => $fakeLogo,
+                'status' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $client = Client::where('name', 'Client Double Ext Test')->first();
+        $this->assertNotNull($client);
+
+        $this->assertFalse(str_ends_with(strtolower($client->logo), '.php'));
+        $this->assertFalse(str_contains(strtolower(basename($client->logo)), 'image.jpg'));
+        Storage::disk('public')->assertExists($client->logo);
+    }
+
+    private function createFakeDangerousImage(string $dangerousFilename): UploadedFile
+    {
+        $file = UploadedFile::fake()
+            ->image('safe.png', 100, 100)
+            ->mimeType('image/png');
+
+        $file->name = $dangerousFilename;
+
+        return $file;
     }
 }

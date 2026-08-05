@@ -154,7 +154,7 @@ class CarrerForm extends Component
             $seconds = $rateLimiter->availableIn('internship', $carrer->id, request()->ip(), session()->getId());
             $this->addError(
                 'rate_limit',
-                "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
+                "Terlalu banyak percobaan pengiriman. Coba lagi sekitar {$seconds} detik."
             );
 
             return;
@@ -169,6 +169,7 @@ class CarrerForm extends Component
 
         try {
             $service->submitInternship($carrer, $validated, $files);
+            $rateLimiter->commit($reservation);
         } catch (\Throwable $e) {
             $rateLimiter->rollback($reservation);
 
@@ -198,7 +199,7 @@ class CarrerForm extends Component
             $seconds = $rateLimiter->availableIn('career', $carrer->id, request()->ip(), session()->getId());
             $this->addError(
                 'rate_limit',
-                "Terlalu banyak percobaan pengiriman. Coba lagi dalam {$seconds} detik."
+                "Terlalu banyak percobaan pengiriman. Coba lagi sekitar {$seconds} detik."
             );
 
             return;
@@ -211,6 +212,7 @@ class CarrerForm extends Component
                 'phone' => $this->phone,
                 'cover_letter' => $this->cover_letter,
             ], $this->resume);
+            $rateLimiter->commit($reservation);
         } catch (\Throwable $e) {
             $rateLimiter->rollback($reservation);
 

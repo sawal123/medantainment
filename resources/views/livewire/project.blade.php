@@ -18,7 +18,12 @@
                     @endforeach
                 </div>
 
-                @if ($firstCategory)
+                @if ($selectedSeries)
+                    <div class="mt-2">
+                        <h2 class="h4">{{ $selectedSeries->name }}</h2>
+                        <p>{{ $selectedSeries->description }}</p>
+                    </div>
+                @elseif ($firstCategory)
                     <p class="mt-2">
                         {{ $firstCategory->deskripsi }}
                     </p>
@@ -29,12 +34,9 @@
                         <div class="col-lg-3 col-md-6 col-sm-6">
                             <div class="blog-widget-item">
                                 <div class="thumb w-100 overflow-hidden rounded-md">
-                                    <iframe src="{{ $item->link }}"
-                                        class="w-100 overflow-hidden"
-                                        height="250"
+                                    <iframe src="{{ $item->link }}" class="w-100 overflow-hidden" height="250"
                                         style="border:1px solid #ccc;border-radius: 10px;"
-                                        title="{{ $item->name ?? 'Video Project' }}"
-                                        loading="lazy"
+                                        title="{{ $item->name ?? 'Video Project' }}" loading="lazy"
                                         referrerpolicy="strict-origin-when-cross-origin"
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                         sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"

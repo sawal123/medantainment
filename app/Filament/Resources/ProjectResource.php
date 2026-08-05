@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Models\CategoryFilm;
 use App\Models\Project;
+use App\Models\ProjectSeries;
 use App\Rules\SafeVideoEmbedUrl;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -89,6 +90,22 @@ class ProjectResource extends Resource
                     ->preload()
                     ->required(),
 
+                Select::make('series_id')
+                    ->label('Series / Playlist')
+                    ->relationship('series', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state) {
+                            $series = ProjectSeries::find($state);
+                            if ($series) {
+                                $set('category_film_id', $series->category_film_id);
+                            }
+                        }
+                    })
+                    ->visible(fn(callable $get) => $get('type') === 'series'),
+
                 Select::make('type')
                     ->label('Type')
                     ->options([
@@ -102,9 +119,35 @@ class ProjectResource extends Resource
                 TextInput::make('urutan')
                     ->label('Urutan')
                     ->numeric()
-                    ->default(fn () => (Project::max('urutan') ?? 0) + 1)
+                    ->default(fn() => (Project::max('urutan') ?? 0) + 1)
                     ->required(),
             ]);
+    }
+
+    public static function mutateFormDataBeforeCreate(array $data): array
+    {
+        return static::prepareSeriesData($data);
+    }
+
+    public static function mutateFormDataBeforeSave(array $data): array
+    {
+        return static::prepareSeriesData($data);
+    }
+
+    protected static function prepareSeriesData(array $data): array
+    {
+        if (($data['type'] ?? null) !== 'series') {
+            $data['series_id'] = null;
+        }
+
+        if (! empty($data['series_id'])) {
+            $series = ProjectSeries::find($data['series_id']);
+            if ($series) {
+                $data['category_film_id'] = $series->category_film_id;
+            }
+        }
+
+        return $data;
     }
 
     public static function table(Table $table): Table
@@ -120,6 +163,13 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->limit(20),
+                TextColumn::make('series.name')
+                    ->label('Series')
+                    ->sortable()
+                    ->limit(18),
+                TextColumn::make('type')
+                    ->label('Type')
+                    ->sortable(),
                 ViewColumn::make('link')
                     ->view('filament.tables.columns.video'),
                 TextColumn::make('client.name')
@@ -136,19 +186,19 @@ class ProjectResource extends Resource
             ->filters([
                 SelectFilter::make('category_film_id')
                     ->label('Kategori Film')
-                    ->options(fn () => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn() => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
                     ->placeholder('Semua Kategori'),
             ])
             ->actions([
                 Action::make('up')
                     ->label('Up')
                     ->icon('heroicon-o-arrow-up')
-                    ->action(fn (Project $record) => $record->moveUp()),
+                    ->action(fn(Project $record) => $record->moveUp()),
 
                 Action::make('down')
                     ->label('Down')
                     ->icon('heroicon-o-arrow-down')
-                    ->action(fn (Project $record) => $record->moveDown()),
+                    ->action(fn(Project $record) => $record->moveDown()),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

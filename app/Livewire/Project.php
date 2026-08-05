@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Alamat;
 use App\Models\CategoryFilm;
 use App\Models\Project as ModelsProject;
+use App\Models\ProjectSeries;
 use App\Models\Setting;
 use Livewire\Component;
 
@@ -18,6 +19,8 @@ class Project extends Component
 
     public $categoryFilm;
 
+    public $selectedSeries;
+
     public $filmLimit = 8;
     // public $selectedCategory = 0;
 
@@ -27,15 +30,32 @@ class Project extends Component
 
     public function mount($slug = null)
     {
-        $this->selectedCategory = $slug ?? 'all';
         $this->setting = Setting::first();
         $this->page = 'MEDANTAINMENT - Project';
         $this->contact = Alamat::first();
-        $this->firstCategory = CategoryFilm::where('slug', $slug)->first();
+
+        if ($slug) {
+            $series = ProjectSeries::where('slug', $slug)->first();
+            if ($series) {
+                $this->selectedSeries = $series;
+                $this->selectedCategory = 'all';
+                $this->firstCategory = $series;
+                return;
+            }
+
+            $category = CategoryFilm::where('slug', $slug)->first();
+            $this->selectedCategory = $category ? $category->slug : 'all';
+            $this->firstCategory = $category;
+            return;
+        }
+
+        $this->selectedCategory = 'all';
+        $this->firstCategory = '';
     }
 
     public function Clickfilm($slug)
     {
+        $this->selectedSeries = null;
         $this->selectedCategory = $slug;
         $this->filmLimit = 8;
         $this->firstCategory = CategoryFilm::where('slug', $slug)->first();
@@ -44,6 +64,10 @@ class Project extends Component
 
     public function getFilmsProperty()
     {
+        if ($this->selectedSeries) {
+            return $this->selectedSeries->episodes()->orderBy('urutan', 'asc')->limit($this->filmLimit)->get();
+        }
+
         $q = ModelsProject::query();
 
         if ($this->selectedCategory !== 'all') {
@@ -57,6 +81,10 @@ class Project extends Component
 
     public function getTotalFilmsProperty()
     {
+        if ($this->selectedSeries) {
+            return $this->selectedSeries->episodes()->count();
+        }
+
         $q = ModelsProject::query();
 
         if ($this->selectedCategory !== 'all') {

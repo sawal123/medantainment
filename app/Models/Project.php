@@ -18,6 +18,7 @@ class Project extends Model
         'start_date',
         'end_date',
         'category_film_id',
+        'series_id',
         'type',
         'urutan',
     ];
@@ -30,6 +31,21 @@ class Project extends Model
     public function categoryFilm()
     {
         return $this->belongsTo(CategoryFilm::class);
+    }
+
+    public function series()
+    {
+        return $this->belongsTo(ProjectSeries::class, 'series_id');
+    }
+
+    public function isEpisode(): bool
+    {
+        return $this->series_id !== null;
+    }
+
+    public function isStandalone(): bool
+    {
+        return $this->series_id === null;
     }
 
     public function setLinkAttribute($value)
@@ -45,6 +61,7 @@ class Project extends Model
         DB::transaction(function () {
             /** @var Project|null $previous */
             $previous = static::lockForUpdate()
+                ->where('series_id', $this->series_id)
                 ->where('urutan', '<', $this->urutan)
                 ->orderBy('urutan', 'desc')
                 ->first();
@@ -65,6 +82,7 @@ class Project extends Model
         DB::transaction(function () {
             /** @var Project|null $next */
             $next = static::lockForUpdate()
+                ->where('series_id', $this->series_id)
                 ->where('urutan', '>', $this->urutan)
                 ->orderBy('urutan', 'asc')
                 ->first();

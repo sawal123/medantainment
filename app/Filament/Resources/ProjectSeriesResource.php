@@ -27,7 +27,7 @@ class ProjectSeriesResource extends Resource
 {
     protected static ?string $model = ProjectSeries::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationLabel = 'Series / Playlist';
 

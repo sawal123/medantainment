@@ -63,8 +63,7 @@
                                         </iframe>
                                     </div>
                                     <div class="px-2">
-                                        <p class="text-sm text-primary mb-1" style="font-size:12px;">Episode
-                                            {{ $item->urutan }}</p>
+                                        <p class="text-sm text-primary mb-1" style="font-size:12px;">Episode {{ $item->urutan }}</p>
                                         <h4 class="h6">{{ $item->name }}</h4>
                                         <p class="text-sm " style="font-size: 12px; border-radius: 1px;">
                                             {{ $item->client->name ?? 'No Client' }}

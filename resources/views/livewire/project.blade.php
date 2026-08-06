@@ -5,14 +5,18 @@
         $categoryFilm = $categoryFilm ?? collect();
         $firstCategory = $firstCategory ?? null;
         $films = $films ?? collect();
-        $mixedItems = $mixedItems ?? collect(
-            $films->map(fn ($film) => [
-                'content_type' => 'standalone_project',
-                'id' => $film->id,
-                'urutan' => $film->urutan,
-                'model' => $film,
-            ]),
-        );
+        $mixedItems =
+            $mixedItems ??
+            collect(
+                $films->map(
+                    fn($film) => [
+                        'content_type' => 'standalone_project',
+                        'id' => $film->id,
+                        'urutan' => $film->urutan,
+                        'model' => $film,
+                    ],
+                ),
+            );
     @endphp
 
     <div class="line-shape cus-z-1 first w-100 h-100 d-flex flex-wrap"></div>
@@ -32,18 +36,18 @@
                     @endforeach
                 </div>
 
-                @if (! empty($selectedSeries))
+                @if (!empty($selectedSeries))
                     <div class="mt-2">
                         <h2 class="h4">{{ $selectedSeries->name }}</h2>
                         <p>{{ $selectedSeries->description }}</p>
                     </div>
-                @elseif (! empty($firstCategory))
+                @elseif (!empty($firstCategory))
                     <p class="mt-2">
                         {{ $firstCategory->deskripsi }}
                     </p>
                 @endif
 
-                @if (! empty($selectedSeries))
+                @if (!empty($selectedSeries))
                     <div class="row g-xxl-7 g-xl-6 g-4 mt-2">
                         @foreach ($films as $item)
                             <div class="col-lg-3 col-md-6 col-sm-6">
@@ -98,8 +102,8 @@
                                         </div>
                                     @else
                                         <div class="thumb w-100 overflow-hidden rounded-md">
-                                            <iframe src="{{ $item->link }}" class="w-100 overflow-hidden" height="250"
-                                                style="border:1px solid #ccc;border-radius: 10px;"
+                                            <iframe src="{{ $item->link }}" class="w-100 overflow-hidden"
+                                                height="250" style="border:1px solid #ccc;border-radius: 10px;"
                                                 title="{{ $item->name ?? 'Video Project' }}" loading="lazy"
                                                 referrerpolicy="strict-origin-when-cross-origin"
                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

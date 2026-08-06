@@ -91,7 +91,7 @@ class ProjectResource extends Resource
                     ->preload()
                     ->required()
                     ->dehydrated(true)
-                    ->disabled(fn (callable $get) => $get('content_kind') === 'episode'),
+                    ->disabled(fn(callable $get) => $get('content_kind') === 'episode'),
 
                 Select::make('content_kind')
                     ->label('Jenis Konten')
@@ -99,7 +99,7 @@ class ProjectResource extends Resource
                         'standalone' => 'Project Biasa',
                         'episode' => 'Episode Series',
                     ])
-                    ->default(fn (callable $get) => $get('series_id') ? 'episode' : 'standalone')
+                    ->default(fn(callable $get) => $get('series_id') ? 'episode' : 'standalone')
                     ->reactive()
                     ->afterStateHydrated(function ($state, $set, $get) {
                         $set('content_kind', $get('series_id') ? 'episode' : 'standalone');
@@ -117,7 +117,7 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->preload()
                     ->reactive()
-                    ->required(fn (callable $get) => $get('content_kind') === 'episode')
+                    ->required(fn(callable $get) => $get('content_kind') === 'episode')
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         if ($state) {
                             $series = ProjectSeries::find($state);
@@ -135,7 +135,7 @@ class ProjectResource extends Resource
                             }
                         }
                     })
-                    ->visible(fn (callable $get) => $get('content_kind') === 'episode'),
+                    ->visible(fn(callable $get) => $get('content_kind') === 'episode'),
 
                 Select::make('type')
                     ->label('Type')
@@ -148,7 +148,7 @@ class ProjectResource extends Resource
                     ->required(),
 
                 TextInput::make('urutan')
-                    ->label(fn (callable $get) => $get('content_kind') === 'episode' ? 'Nomor / Urutan Episode' : 'Urutan')
+                    ->label(fn(callable $get) => $get('content_kind') === 'episode' ? 'Nomor / Urutan Episode' : 'Urutan')
                     ->numeric()
                     ->required()
                     ->minValue(1)
@@ -210,19 +210,19 @@ class ProjectResource extends Resource
             ->filters([
                 SelectFilter::make('category_film_id')
                     ->label('Kategori Film')
-                    ->options(fn () => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
+                    ->options(fn() => CategoryFilm::orderBy('name')->pluck('name', 'id')->toArray())
                     ->placeholder('Semua Kategori'),
             ])
             ->actions([
                 Action::make('up')
                     ->label('Up')
                     ->icon('heroicon-o-arrow-up')
-                    ->action(fn (Project $record) => $record->moveUp()),
+                    ->action(fn(Project $record) => $record->moveUp()),
 
                 Action::make('down')
                     ->label('Down')
                     ->icon('heroicon-o-arrow-down')
-                    ->action(fn (Project $record) => $record->moveDown()),
+                    ->action(fn(Project $record) => $record->moveDown()),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

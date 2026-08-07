@@ -293,7 +293,7 @@ class ProjectSeriesFilamentTest extends TestCase
         ]);
     }
 
-    public function test_editing_series_with_episodes_cannot_change_category_and_surfaces_form_error(): void
+    public function test_editing_series_category_cascades_to_episodes(): void
     {
         $categoryB = CategoryFilm::create([
             'name' => 'Category B',
@@ -303,13 +303,13 @@ class ProjectSeriesFilamentTest extends TestCase
 
         $series = ProjectSeries::create([
             'category_film_id' => $this->category->id,
-            'name' => 'Locked Series',
-            'slug' => 'locked-series',
+            'name' => 'Editable Series',
+            'slug' => 'editable-series',
             'urutan' => 1,
             'is_active' => true,
         ]);
 
-        Project::create([
+        $episode = Project::create([
             'client_id' => $this->client->id,
             'category_film_id' => $this->category->id,
             'series_id' => $series->id,
@@ -330,11 +330,15 @@ class ProjectSeriesFilamentTest extends TestCase
                 'is_active' => true,
             ])
             ->call('save')
-            ->assertHasFormErrors(['category_film_id']);
+            ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('project_series', [
             'id' => $series->id,
-            'category_film_id' => $this->category->id,
+            'category_film_id' => $categoryB->id,
+        ]);
+        $this->assertDatabaseHas('projects', [
+            'id' => $episode->id,
+            'category_film_id' => $categoryB->id,
         ]);
     }
 }

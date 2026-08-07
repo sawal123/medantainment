@@ -203,23 +203,36 @@ class ProjectSeriesFeatureTest extends TestCase
         $this->get('/project/series/unknown-series')->assertNotFound();
     }
 
-    public function test_series_category_cannot_change_while_it_has_episodes(): void
+    public function test_series_category_change_cascades_to_all_episodes(): void
     {
-        $series = $this->createSeries('Locked Series', $this->categoryA, 1);
-        $this->createProject(['name' => 'Episode One', 'series_id' => $series->id, 'urutan' => 1]);
+        $series = $this->createSeries('Series A', $this->categoryA, 1);
+        $episodeOne = $this->createProject(['name' => 'Episode One', 'series_id' => $series->id, 'urutan' => 1]);
+        $episodeTwo = $this->createProject(['name' => 'Episode Two', 'series_id' => $series->id, 'urutan' => 2]);
 
-        try {
-            $series->update(['category_film_id' => $this->categoryB->id]);
-        } catch (ValidationException $exception) {
-            $this->assertStringContainsString(
-                'Kategori series tidak dapat diubah karena masih memiliki episode.',
-                $exception->getMessage()
-            );
-        }
+        $series->update(['category_film_id' => $this->categoryB->id]);
 
-        $this->assertSame($this->categoryA->id, $series->fresh()->category_film_id);
+        $this->assertSame($this->categoryB->id, $series->fresh()->category_film_id);
+        $this->assertSame($this->categoryB->id, $episodeOne->fresh()->category_film_id);
+        $this->assertSame($this->categoryB->id, $episodeTwo->fresh()->category_film_id);
+    }
 
-        $emptySeries = $this->createSeries('Editable Series', $this->categoryA, 2);
+    public function test_series_category_change_does_not_touch_other_series_episodes(): void
+    {
+        $seriesA = $this->createSeries('Series A', $this->categoryA, 1);
+        $seriesB = $this->createSeries('Series B', $this->categoryA, 2);
+        $episodeInA = $this->createProject(['name' => 'Episode In A', 'series_id' => $seriesA->id, 'urutan' => 1]);
+        $episodeInB = $this->createProject(['name' => 'Episode In B', 'series_id' => $seriesB->id, 'urutan' => 1]);
+
+        $seriesA->update(['category_film_id' => $this->categoryB->id]);
+
+        $this->assertSame($this->categoryB->id, $seriesA->fresh()->category_film_id);
+        $this->assertSame($this->categoryB->id, $episodeInA->fresh()->category_film_id);
+        $this->assertSame($this->categoryA->id, $episodeInB->fresh()->category_film_id);
+    }
+
+    public function test_series_category_change_without_episodes_still_updates_series(): void
+    {
+        $emptySeries = $this->createSeries('Editable Series', $this->categoryA, 1);
         $emptySeries->update(['category_film_id' => $this->categoryB->id]);
 
         $this->assertSame($this->categoryB->id, $emptySeries->fresh()->category_film_id);

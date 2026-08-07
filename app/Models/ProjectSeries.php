@@ -44,10 +44,13 @@ class ProjectSeries extends Model
     protected static function booted(): void
     {
         static::updating(function (ProjectSeries $series) {
-            if ($series->isDirty('category_film_id') && $series->episodes()->exists()) {
-                throw ValidationException::withMessages([
-                    'category_film_id' => 'Kategori series tidak dapat diubah karena masih memiliki episode.',
-                ]);
+            // Saat kategori playlist/series diubah, semua episode (Film) di dalamnya
+            // ikut menyesuaikan kategori agar tetap konsisten dengan series-nya.
+            // update() pada query builder langsung menulis DB tanpa memicu event model.
+            if ($series->isDirty('category_film_id')) {
+                Project::query()
+                    ->where('series_id', $series->getKey())
+                    ->update(['category_film_id' => $series->category_film_id]);
             }
         });
 

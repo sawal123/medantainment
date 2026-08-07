@@ -6,6 +6,7 @@ use App\Filament\Resources\ProjectResource\Pages\CreateProject;
 use App\Filament\Resources\ProjectResource\Pages\EditProject;
 use App\Filament\Resources\ProjectSeriesResource;
 use App\Filament\Resources\ProjectSeriesResource\Pages\CreateProjectSeries;
+use App\Filament\Resources\ProjectSeriesResource\Pages\EditProjectSeries;
 use App\Models\CategoryFilm;
 use App\Models\Client;
 use App\Models\Project;
@@ -289,6 +290,51 @@ class ProjectSeriesFilamentTest extends TestCase
         $this->assertDatabaseHas('projects', [
             'id' => $ep2->id,
             'urutan' => 2,
+        ]);
+    }
+
+    public function test_editing_series_with_episodes_cannot_change_category_and_surfaces_form_error(): void
+    {
+        $categoryB = CategoryFilm::create([
+            'name' => 'Category B',
+            'slug' => 'category-b',
+            'urutan' => 2,
+        ]);
+
+        $series = ProjectSeries::create([
+            'category_film_id' => $this->category->id,
+            'name' => 'Locked Series',
+            'slug' => 'locked-series',
+            'urutan' => 1,
+            'is_active' => true,
+        ]);
+
+        Project::create([
+            'client_id' => $this->client->id,
+            'category_film_id' => $this->category->id,
+            'series_id' => $series->id,
+            'name' => 'Episode One',
+            'link' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'type' => 'movie',
+            'urutan' => 1,
+        ]);
+
+        Livewire::actingAs($this->admin)
+            ->test(EditProjectSeries::class, ['record' => $series->id])
+            ->fillForm([
+                'category_film_id' => $categoryB->id,
+                'name' => $series->name,
+                'slug' => $series->slug,
+                'description' => $series->description,
+                'urutan' => $series->urutan,
+                'is_active' => true,
+            ])
+            ->call('save')
+            ->assertHasFormErrors(['category_film_id']);
+
+        $this->assertDatabaseHas('project_series', [
+            'id' => $series->id,
+            'category_film_id' => $this->category->id,
         ]);
     }
 }

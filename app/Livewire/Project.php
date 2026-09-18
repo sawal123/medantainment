@@ -111,6 +111,8 @@ class Project extends Component
             ->map(fn (ModelsProject $project) => [
                 'content_type' => 'standalone_project',
                 'id' => $project->id,
+                'category_urutan' => $project->categoryFilm?->urutan ?? PHP_INT_MAX,
+                'category_id' => $project->category_film_id ?? PHP_INT_MAX,
                 'urutan' => $project->urutan,
                 'model' => $project,
             ]);
@@ -120,18 +122,40 @@ class Project extends Component
             ->map(fn (ProjectSeries $series) => [
                 'content_type' => 'project_series',
                 'id' => $series->id,
+                'category_urutan' => $series->categoryFilm?->urutan ?? PHP_INT_MAX,
+                'category_id' => $series->category_film_id ?? PHP_INT_MAX,
                 'urutan' => $series->urutan,
                 'model' => $series,
             ]);
 
         return $projects
             ->concat($series)
-            ->sortBy(fn (array $item) => sprintf(
-                '%010d-%s-%010d',
-                $item['urutan'] ?? 0,
-                $item['content_type'],
-                $item['id']
-            ))
+            ->sort(function (array $a, array $b) {
+                $catUrutanA = $a['category_urutan'] ?? PHP_INT_MAX;
+                $catUrutanB = $b['category_urutan'] ?? PHP_INT_MAX;
+                if ($catUrutanA !== $catUrutanB) {
+                    return $catUrutanA <=> $catUrutanB;
+                }
+
+                $catIdA = $a['category_id'] ?? PHP_INT_MAX;
+                $catIdB = $b['category_id'] ?? PHP_INT_MAX;
+                if ($catIdA !== $catIdB) {
+                    return $catIdA <=> $catIdB;
+                }
+
+                $itemUrutanA = $a['urutan'] ?? 0;
+                $itemUrutanB = $b['urutan'] ?? 0;
+                if ($itemUrutanA !== $itemUrutanB) {
+                    return $itemUrutanA <=> $itemUrutanB;
+                }
+
+                $typeCmp = strcmp($a['content_type'], $b['content_type']);
+                if ($typeCmp !== 0) {
+                    return $typeCmp;
+                }
+
+                return ($a['id'] ?? 0) <=> ($b['id'] ?? 0);
+            })
             ->take($this->filmLimit)
             ->values();
     }

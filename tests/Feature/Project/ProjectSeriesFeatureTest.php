@@ -160,6 +160,32 @@ class ProjectSeriesFeatureTest extends TestCase
         $response->assertDontSee($inactiveSeries->name);
     }
 
+    public function test_public_project_page_all_filter_orders_items_by_category_order_first(): void
+    {
+        // Category A urutan = 1, Category B urutan = 2
+        // Item in Category B has urutan = 1
+        $itemInCategoryB = $this->createProject([
+            'name' => 'Cat B Item With Low Urutan',
+            'category_film_id' => $this->categoryB->id,
+            'urutan' => 1,
+        ]);
+
+        // Item in Category A has urutan = 2
+        $itemInCategoryA = $this->createProject([
+            'name' => 'Cat A Item With Higher Urutan',
+            'category_film_id' => $this->categoryA->id,
+            'urutan' => 2,
+        ]);
+
+        $response = $this->get(route('project.index'));
+
+        $response->assertOk();
+        $response->assertSeeInOrder([
+            $itemInCategoryA->name,
+            $itemInCategoryB->name,
+        ]);
+    }
+
     public function test_public_category_filter_applies_to_projects_and_series_and_unknown_category_404s(): void
     {
         $this->createProject(['name' => 'Category A Project', 'category_film_id' => $this->categoryA->id, 'urutan' => 1]);

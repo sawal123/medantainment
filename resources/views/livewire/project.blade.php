@@ -24,13 +24,15 @@
         <section class="hero-section-version1 bnbg position-relative">
             <div class="container">
                 <div class="my-2">
-                    <button type="button" wire:click="Clickfilm('all')"
+                    <button type="button" wire:click="Clickfilm('all')" wire:loading.attr="disabled"
                         class="btn border {{ $selectedCategory == 'all' ? 'btn-primary' : 'btn-dark' }}">
+                        <span wire:loading wire:target="Clickfilm('all')" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                         All
                     </button>
                     @foreach ($categoryFilm as $item)
-                        <button type="button" wire:click="Clickfilm('{{ $item->slug }}')"
+                        <button type="button" wire:click="Clickfilm('{{ $item->slug }}')" wire:loading.attr="disabled"
                             class="btn border {{ $selectedCategory == $item->slug ? 'btn-primary' : 'btn-dark' }} my-1">
+                            <span wire:loading wire:target="Clickfilm('{{ $item->slug }}')" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                             {{ $item->name }}
                         </button>
                     @endforeach
@@ -125,9 +127,13 @@
                 @endif
 
                 @if ($filmLimit < $totalFilms)
-                    <button class="btn btn-warning mt-3" wire:click="loadMoreFilm">
-                        Load More
-                    </button>
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-warning px-4 py-2" wire:click="loadMoreFilm" wire:loading.attr="disabled">
+                            <span wire:loading wire:target="loadMoreFilm" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span wire:loading.remove wire:target="loadMoreFilm">Load More</span>
+                            <span wire:loading wire:target="loadMoreFilm">Loading...</span>
+                        </button>
+                    </div>
                 @endif
             </div>
         </section>
